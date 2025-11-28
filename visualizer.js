@@ -1098,14 +1098,23 @@ class LanguageArena {
                     // Auto-select best format and update dropdown
                     const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
                     const bestFormat = getBestTimeFormat(time);
-                    if (formatSelect && formatSelect.value === 'ms') {
-                        formatSelect.value = bestFormat;
+                    // Always auto-select best format for large values
+                    if (formatSelect) {
+                        if (time >= 60000 && formatSelect.value === 'ms') {
+                            formatSelect.value = bestFormat;
+                        }
+                        const format = formatSelect.value;
+                        const displayTime = formatTimeValue(time, format);
+                        
+                        const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
+                        if (timeValueEl) timeValueEl.textContent = displayTime;
+                    } else {
+                        // Fallback if dropdown doesn't exist
+                        const displayTime = formatTimeValue(time, bestFormat);
+                        const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
+                        if (timeValueEl) timeValueEl.textContent = displayTime;
                     }
-                    const format = formatSelect ? formatSelect.value : bestFormat;
-                    const displayTime = formatTimeValue(time, format);
                     
-                    const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
-                    if (timeValueEl) timeValueEl.textContent = displayTime;
                     
                     this.results.push({ lang, time, displayTime });
                     if (typeof audioEngine !== 'undefined') audioEngine.playSuccess();
