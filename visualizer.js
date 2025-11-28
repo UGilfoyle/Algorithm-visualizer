@@ -2439,6 +2439,10 @@ class DPVisualizer {
         this.isRunning = false;
         this.shouldStop = false;
         this.speed = 50;
+        this.currentStep = 0;
+        this.dpArray = [];
+        this.maxN = 0;
+        this.stepMode = false;
         this.init();
     }
 
@@ -2461,9 +2465,11 @@ class DPVisualizer {
 
     bindEvents() {
         const startBtn = document.getElementById('startDP');
+        const stepBtn = document.getElementById('stepDP');
         const speedSlider = document.getElementById('dpSpeed');
         
         if (startBtn) startBtn.addEventListener('click', () => this.start());
+        if (stepBtn) stepBtn.addEventListener('click', () => this.step());
         if (speedSlider) {
             speedSlider.addEventListener('input', (e) => {
                 this.speed = parseInt(e.target.value);
@@ -2471,10 +2477,84 @@ class DPVisualizer {
         }
     }
 
+    step() {
+        // Step through DP solution one step at a time
+        if (this.stepMode && this.currentStep <= this.maxN) {
+            this.executeStep();
+        } else {
+            // Initialize step mode
+            const inputEl = document.getElementById('dpInput');
+            if (!inputEl) return;
+            const value = inputEl.value;
+            const n = parseInt(value.split(':')[1]) || 10;
+            this.initializeStepMode(n);
+            this.executeStep();
+        }
+    }
+
+    initializeStepMode(n) {
+        this.maxN = n;
+        this.currentStep = 0;
+        this.stepMode = true;
+        this.dpArray = [0, 1];
+        
+        if (!this.container) return;
+        this.container.innerHTML = '';
+        
+        for (let i = 0; i <= n; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'dp-cell';
+            cell.textContent = '-';
+            cell.id = `dp-${i}`;
+            this.container.appendChild(cell);
+        }
+    }
+
+    executeStep() {
+        if (this.currentStep > this.maxN) {
+            this.stepMode = false;
+            return;
+        }
+
+        const i = this.currentStep;
+        const cell = document.getElementById(`dp-${i}`);
+        
+        if (cell) {
+            if (i <= 1) {
+                this.dpArray[i] = i;
+            } else {
+                this.dpArray[i] = this.dpArray[i - 1] + this.dpArray[i - 2];
+            }
+            
+            cell.textContent = this.dpArray[i];
+            cell.classList.add('active');
+            
+            if (typeof audioEngine !== 'undefined') audioEngine.playTone(i * 10);
+            
+            // Update stats
+            const subEl = document.getElementById('dpSubproblems');
+            const resEl = document.getElementById('dpResult');
+            if (subEl) subEl.textContent = i + 1;
+            if (resEl && i === this.maxN) {
+                resEl.textContent = this.dpArray[i];
+                if (typeof audioEngine !== 'undefined') audioEngine.playComplete();
+            }
+            
+            // Remove active class after a moment
+            setTimeout(() => {
+                cell.classList.remove('active');
+                cell.classList.add('computed');
+            }, 300);
+        }
+        
+        this.currentStep++;
+    }
+
     async start() {
         if (this.isRunning) return;
         this.isRunning = true;
         this.shouldStop = false;
+        this.stepMode = false; // Disable step mode when running automatically
 
         const startTime = performance.now();
 
