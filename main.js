@@ -295,12 +295,15 @@ function initTheme() {
         });
     }
     
-    function updateThemeUI(theme) {
+    function updateThemeUI(currentTheme) {
         if (themeIcon && themeLabel) {
-            if (theme === 'light') {
+            // Show what theme you'll switch TO, not the current theme
+            if (currentTheme === 'light') {
+                // Currently light, so button shows "Dark" (what you'll switch to)
                 themeIcon.textContent = '🌙';
                 themeLabel.textContent = 'Dark';
             } else {
+                // Currently dark, so button shows "Light" (what you'll switch to)
                 themeIcon.textContent = '☀️';
                 themeLabel.textContent = 'Light';
             }
