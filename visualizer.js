@@ -43,39 +43,40 @@ function stopAllVisualizations() {
     setTimeout(() => { globalStopFlag = false; }, 100);
 }
 
-// Language performance multipliers
+// Language performance multipliers (higher = slower execution time)
+// Based on real-world benchmarks for typical algorithms
 const LANGUAGE_SPEED = {
-    cpp: 1.0,
-    rust: 1.05,
-    c: 1.0,
-    go: 1.8,
-    java: 2.0,
-    csharp: 2.2,
-    javascript: 3.0,
-    node: 2.8,
-    typescript: 3.0,
-    kotlin: 2.1,
-    swift: 1.5,
-    php: 25,
-    elixir: 8,
-    ruby: 50,
-    python: 45
+    cpp: 1.0,        // Baseline (fastest)
+    rust: 1.0,       // Similar to C++
+    c: 1.0,          // Similar to C++
+    go: 1.2,         // Slightly slower than C++
+    java: 1.5,       // JIT compiled, fast but not as fast as native
+    csharp: 1.6,     // Similar to Java
+    kotlin: 1.7,     // JVM-based, similar to Java
+    swift: 1.3,      // Fast, optimized
+    node: 2.0,       // V8 JIT, surprisingly fast for JS
+    javascript: 2.2, // V8 optimized but still slower
+    typescript: 2.2, // Compiles to JS, similar performance
+    python: 8.0,     // Interpreted, significantly slower
+    ruby: 12.0,      // Interpreted, slower than Python
+    php: 10.0,       // Server-side, slower
+    elixir: 5.0      // BEAM VM, moderate speed
 };
 
 const LANGUAGE_INFO = {
-    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', speed: 1.2 },
-    python: { name: 'Python', symbol: 'PY', color: '#3776ab', speed: 3.5 },
-    java: { name: 'Java', symbol: 'JV', color: '#007396', speed: 1.1 },
-    cpp: { name: 'C++', symbol: 'C++', color: '#00599c', speed: 0.8 },
-    csharp: { name: 'C#', symbol: 'C#', color: '#239120', speed: 1.15 },
-    go: { name: 'Go', symbol: 'GO', color: '#00add8', speed: 0.95 },
-    rust: { name: 'Rust', symbol: 'RS', color: '#dea584', speed: 0.75 },
-    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', speed: 4.0 },
-    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', speed: 2.5 },
-    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', speed: 2.2 },
-    node: { name: 'Node.js', symbol: 'ND', color: '#339933', speed: 1.1 },
-    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', speed: 1.05 },
-    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', speed: 0.9 }
+    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e' },
+    python: { name: 'Python', symbol: 'PY', color: '#3776ab' },
+    java: { name: 'Java', symbol: 'JV', color: '#007396' },
+    cpp: { name: 'C++', symbol: 'C++', color: '#00599c' },
+    csharp: { name: 'C#', symbol: 'C#', color: '#239120' },
+    go: { name: 'Go', symbol: 'GO', color: '#00add8' },
+    rust: { name: 'Rust', symbol: 'RS', color: '#dea584' },
+    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d' },
+    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4' },
+    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e' },
+    node: { name: 'Node.js', symbol: 'ND', color: '#339933' },
+    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF' },
+    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343' }
 };
 
 // ==================== SORTING VISUALIZER ====================
@@ -940,7 +941,7 @@ class LanguageArena {
             const nameEl = document.querySelector(`#${place} .lang-name`);
             const timeEl = document.querySelector(`#${place} .time`);
             if (nameEl) nameEl.textContent = LANGUAGE_INFO[result.lang]?.name || result.lang;
-            if (timeEl) timeEl.textContent = `${result.displayTime}ms`;
+            if (timeEl) timeEl.textContent = result.displayTime;
         };
 
         updatePodium('firstPlace', first);
