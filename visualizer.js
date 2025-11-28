@@ -24,7 +24,12 @@ function formatTimeValue(ms, format = 'ms') {
 // Store raw time values for format switching
 let rawTimeValues = {
     sortTime: 0,
-    pathTime: 0
+    pathTime: 0,
+    searchTime: 0,
+    graphTime: 0,
+    dpTime: 0,
+    stringTime: 0,
+    mathTime: 0
 };
 
 // Function to stop all visualizations
@@ -1073,8 +1078,11 @@ class SearchingVisualizer {
         if (!this.shouldStop) {
             const endTime = performance.now();
             const elapsed = endTime - startTime;
+            rawTimeValues.searchTime = elapsed;
+            const formatSelect = document.getElementById('searchTimeFormat');
+            const format = formatSelect ? formatSelect.value : 'ms';
             const timeEl = document.getElementById('searchTime');
-            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+            if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
         }
 
         this.isRunning = false;
@@ -1585,8 +1593,11 @@ class DPVisualizer {
         if (!this.shouldStop) {
             const endTime = performance.now();
             const elapsed = endTime - startTime;
+            rawTimeValues.dpTime = elapsed;
+            const formatSelect = document.getElementById('dpTimeFormat');
+            const format = formatSelect ? formatSelect.value : 'ms';
             const timeEl = document.getElementById('dpTime');
-            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+            if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
         }
 
         this.isRunning = false;
@@ -1726,8 +1737,11 @@ class StringVisualizer {
         if (!this.shouldStop) {
             const endTime = performance.now();
             const elapsed = endTime - startTime;
+            rawTimeValues.stringTime = elapsed;
+            const formatSelect = document.getElementById('stringTimeFormat');
+            const format = formatSelect ? formatSelect.value : 'ms';
             const timeEl = document.getElementById('stringTime');
-            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+            if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
         }
 
         this.isRunning = false;
@@ -1782,8 +1796,11 @@ class MathVisualizer {
         if (!this.shouldStop) {
             const endTime = performance.now();
             const elapsed = endTime - startTime;
+            rawTimeValues.mathTime = elapsed;
+            const formatSelect = document.getElementById('mathTimeFormat');
+            const format = formatSelect ? formatSelect.value : 'ms';
             const timeEl = document.getElementById('mathTime');
-            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+            if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
         }
 
         this.isRunning = false;
@@ -1846,26 +1863,27 @@ document.addEventListener('DOMContentLoaded', () => {
     mathVisualizer = new MathVisualizer();
 
     // Time format change listeners
-    const sortTimeFormat = document.getElementById('sortTimeFormat');
-    const pathTimeFormat = document.getElementById('pathTimeFormat');
+    const timeFormatSelectors = [
+        { id: 'sortTimeFormat', timeId: 'sortTime', valueKey: 'sortTime' },
+        { id: 'pathTimeFormat', timeId: 'pathTime', valueKey: 'pathTime' },
+        { id: 'searchTimeFormat', timeId: 'searchTime', valueKey: 'searchTime' },
+        { id: 'graphTimeFormat', timeId: 'graphTime', valueKey: 'graphTime' },
+        { id: 'dpTimeFormat', timeId: 'dpTime', valueKey: 'dpTime' },
+        { id: 'stringTimeFormat', timeId: 'stringTime', valueKey: 'stringTime' },
+        { id: 'mathTimeFormat', timeId: 'mathTime', valueKey: 'mathTime' }
+    ];
 
-    if (sortTimeFormat) {
-        sortTimeFormat.addEventListener('change', (e) => {
-            const timeEl = document.getElementById('sortTime');
-            if (timeEl && rawTimeValues.sortTime > 0) {
-                timeEl.textContent = formatTimeValue(rawTimeValues.sortTime, e.target.value);
-            }
-        });
-    }
-
-    if (pathTimeFormat) {
-        pathTimeFormat.addEventListener('change', (e) => {
-            const timeEl = document.getElementById('pathTime');
-            if (timeEl && rawTimeValues.pathTime > 0) {
-                timeEl.textContent = formatTimeValue(rawTimeValues.pathTime, e.target.value);
-            }
-        });
-    }
+    timeFormatSelectors.forEach(({ id, timeId, valueKey }) => {
+        const formatSelect = document.getElementById(id);
+        if (formatSelect) {
+            formatSelect.addEventListener('change', (e) => {
+                const timeEl = document.getElementById(timeId);
+                if (timeEl && rawTimeValues[valueKey] > 0) {
+                    timeEl.textContent = formatTimeValue(rawTimeValues[valueKey], e.target.value);
+                }
+            });
+        }
+    });
 });
 
 // Export stop function for navigation
