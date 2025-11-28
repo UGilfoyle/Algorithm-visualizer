@@ -82,7 +82,7 @@ self.addEventListener('fetch', (event) => {
 
     // Cache static assets
     const assetPath = url.pathname.replace(BASE_PATH, '');
-    if (STATIC_ASSETS.some(asset => assetPath.includes(asset.replace(BASE_PATH, ''))) || 
+    if (STATIC_ASSETS.some(asset => assetPath.includes(asset.replace(BASE_PATH, ''))) ||
         assetPath === '/' || assetPath === '/index.html' ||
         assetPath.endsWith('.css') || assetPath.endsWith('.js')) {
         event.respondWith(

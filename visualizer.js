@@ -1049,8 +1049,18 @@ class LanguageArena {
         const times = {};
 
         this.selectedLanguages.forEach(lang => {
-            const variance = 0.9 + Math.random() * 0.2;
-            times[lang] = baseTime * (LANGUAGE_SPEED[lang] || 10) * variance;
+            // Add realistic variance (5-10% random variation)
+            const variance = 0.95 + Math.random() * 0.1;
+            const speedMultiplier = LANGUAGE_SPEED[lang] || 10;
+            
+            // Calculate time: base time * language speed multiplier * variance
+            // Lower speed multiplier = faster = lower time
+            times[lang] = baseTime * speedMultiplier * variance;
+            
+            // Ensure minimum time for very fast operations
+            if (times[lang] < 0.1) {
+                times[lang] = 0.1 + Math.random() * 0.5;
+            }
         });
 
         const minTime = Math.min(...Object.values(times));
@@ -1088,15 +1098,78 @@ class LanguageArena {
     }
 
     getBaseTime() {
+        // Base time calculations based on algorithm complexity
+        // Times are in milliseconds, scaled by iterations
+        const iter = this.iterations;
+        
         switch (this.algorithm) {
-            case 'fibonacci': return this.iterations * 0.001;
-            case 'primes': return this.iterations * 0.01;
-            case 'sorting': return this.iterations * Math.log2(this.iterations) * 0.0001;
-            case 'factorial': return this.iterations * 0.0001;
-            case 'matrix': return this.iterations * 0.05;
-            case 'loop': return this.iterations * 0.00001;
-            case 'nestedLoop': return this.iterations * this.iterations * 0.000001;
-            default: return this.iterations * 0.001;
+            // O(n) - Linear
+            case 'fibonacci':
+                return iter * 0.0008; // Iterative Fibonacci
+            case 'factorial':
+                return iter * 0.0001; // Simple multiplication
+            case 'loop':
+                return iter * 0.000008; // Simple loop
+            case 'arraySum':
+                return iter * 0.00001; // Array sum operation
+            case 'stringConcat':
+                return iter * 0.00005; // String concatenation
+            
+            // O(n log n) - Linearithmic
+            case 'sorting':
+                return iter * Math.log2(iter || 1) * 0.00008; // Quick Sort
+            case 'mergeSort':
+                return iter * Math.log2(iter || 1) * 0.0001; // Merge Sort
+            case 'heapSort':
+                return iter * Math.log2(iter || 1) * 0.00012; // Heap Sort
+            
+            // O(n²) - Quadratic
+            case 'nestedLoop':
+                return iter * iter * 0.0000008; // Nested loops
+            case 'bubbleSort':
+                return iter * iter * 0.00001; // Bubble Sort
+            case 'matrix':
+                const size = Math.sqrt(iter);
+                return size * size * size * 0.0003; // O(n³) for matrix multiplication
+            case 'selectionSort':
+                return iter * iter * 0.000012; // Selection Sort
+            
+            // O(n log log n) - Near-linear
+            case 'primes':
+                return iter * Math.log2(Math.log2(iter || 1) || 1) * 0.01; // Sieve of Eratosthenes
+            
+            // O(log n) - Logarithmic
+            case 'binarySearch':
+                return Math.log2(iter || 1) * 0.1; // Binary search
+            
+            // O(2^n) - Exponential
+            case 'recursiveFibonacci':
+                return Math.pow(2, Math.min(iter / 100, 20)) * 0.5; // Recursive Fibonacci
+            
+            // O(n!) - Factorial
+            case 'permutations':
+                // Limit to prevent overflow
+                const n = Math.min(iter / 1000, 10);
+                let fact = 1;
+                for (let i = 2; i <= n; i++) fact *= i;
+                return fact * 0.1;
+            
+            // Graph algorithms
+            case 'graphBFS':
+                return iter * 0.0002; // BFS traversal
+            case 'graphDFS':
+                return iter * 0.00015; // DFS traversal
+            case 'dijkstra':
+                return iter * iter * 0.00002; // Dijkstra's algorithm
+            
+            // String algorithms
+            case 'stringSearch':
+                return iter * 0.00003; // String pattern matching
+            case 'stringHash':
+                return iter * 0.00002; // String hashing
+            
+            default:
+                return iter * 0.001;
         }
     }
 
