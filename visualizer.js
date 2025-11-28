@@ -1155,6 +1155,7 @@ class TreeVisualizer {
         this.root = null;
         this.isRunning = false;
         this.shouldStop = false;
+        this.speed = 50;
         this.svg = document.getElementById('treeSvg');
         this.init();
     }
@@ -1171,6 +1172,13 @@ class TreeVisualizer {
 
     bindEvents() {
         const insertBtn = document.getElementById('insertNode');
+        const speedSlider = document.getElementById('treeSpeed');
+        
+        if (speedSlider) {
+            speedSlider.addEventListener('input', (e) => {
+                this.speed = parseInt(e.target.value);
+            });
+        }
         const clearBtn = document.getElementById('clearTree');
         const traverseBtn = document.getElementById('traverseTree');
 
@@ -1248,8 +1256,13 @@ class TreeVisualizer {
         if (this.shouldStop) return;
         result.push(node.value);
         if (typeof audioEngine !== 'undefined') audioEngine.playTone(node.value);
-        await new Promise(r => setTimeout(r, 300));
+        const delay = Math.max(50, 350 - (this.speed * 3));
+        await new Promise(r => setTimeout(r, delay));
         await this.inorder(node.right, result);
+    }
+    
+    getDelay() {
+        return Math.max(50, 350 - (this.speed * 3));
     }
 
     render() {

@@ -1813,6 +1813,282 @@ def level_order(root):
         return root
     return left or right`
             }
+        },
+        postorderTraversal: {
+            name: "Postorder Traversal",
+            category: "trees",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(h)" },
+            description: "Visits left subtree, right subtree, then root.",
+            code: {
+                javascript: `function postorder(root) {
+    const result = [];
+    function traverse(node) {
+        if (!node) return;
+        traverse(node.left);
+        traverse(node.right);
+        result.push(node.val);
+    }
+    traverse(root);
+    return result;
+}`,
+                python: `def postorder(root):
+    result = []
+    def traverse(node):
+        if not node:
+            return
+        traverse(node.left)
+        traverse(node.right)
+        result.append(node.val)
+    traverse(root)
+    return result`
+            }
+        },
+        bstSearch: {
+            name: "BST Search",
+            category: "trees",
+            complexity: { best: "O(log n)", avg: "O(log n)", worst: "O(n)", space: "O(h)" },
+            description: "Searches for a value in a Binary Search Tree.",
+            code: {
+                javascript: `function searchBST(root, val) {
+    if (!root || root.val === val) return root;
+    if (val < root.val) return searchBST(root.left, val);
+    return searchBST(root.right, val);
+}`,
+                python: `def search_bst(root, val):
+    if not root or root.val == val:
+        return root
+    if val < root.val:
+        return search_bst(root.left, val)
+    return search_bst(root.right, val)`
+            }
+        },
+        bstDelete: {
+            name: "BST Delete",
+            category: "trees",
+            complexity: { best: "O(log n)", avg: "O(log n)", worst: "O(n)", space: "O(h)" },
+            description: "Deletes a value from a Binary Search Tree.",
+            code: {
+                javascript: `function deleteBST(root, val) {
+    if (!root) return null;
+    if (val < root.val) root.left = deleteBST(root.left, val);
+    else if (val > root.val) root.right = deleteBST(root.right, val);
+    else {
+        if (!root.left) return root.right;
+        if (!root.right) return root.left;
+        const min = findMin(root.right);
+        root.val = min.val;
+        root.right = deleteBST(root.right, min.val);
+    }
+    return root;
+}`,
+                python: `def delete_bst(root, val):
+    if not root:
+        return None
+    if val < root.val:
+        root.left = delete_bst(root.left, val)
+    elif val > root.val:
+        root.right = delete_bst(root.right, val)
+    else:
+        if not root.left:
+            return root.right
+        if not root.right:
+            return root.left
+        min_node = find_min(root.right)
+        root.val = min_node.val
+        root.right = delete_bst(root.right, min_node.val)
+    return root`
+            }
+        },
+        treeHeight: {
+            name: "Tree Height",
+            category: "trees",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(h)" },
+            description: "Calculates the height of a binary tree.",
+            code: {
+                javascript: `function treeHeight(root) {
+    if (!root) return -1;
+    return 1 + Math.max(treeHeight(root.left), treeHeight(root.right));
+}`,
+                python: `def tree_height(root):
+    if not root:
+        return -1
+    return 1 + max(tree_height(root.left), tree_height(root.right))`
+            }
+        },
+        treeDiameter: {
+            name: "Tree Diameter",
+            category: "trees",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(h)" },
+            description: "Finds the diameter (longest path) of a binary tree.",
+            code: {
+                javascript: `function diameterOfBinaryTree(root) {
+    let max = 0;
+    function dfs(node) {
+        if (!node) return 0;
+        const left = dfs(node.left);
+        const right = dfs(node.right);
+        max = Math.max(max, left + right);
+        return 1 + Math.max(left, right);
+    }
+    dfs(root);
+    return max;
+}`,
+                python: `def diameter_of_binary_tree(root):
+    max_diameter = 0
+    def dfs(node):
+        nonlocal max_diameter
+        if not node:
+            return 0
+        left = dfs(node.left)
+        right = dfs(node.right)
+        max_diameter = max(max_diameter, left + right)
+        return 1 + max(left, right)
+    dfs(root)
+    return max_diameter`
+            }
+        },
+        isBalanced: {
+            name: "Check Balanced Tree",
+            category: "trees",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(h)" },
+            description: "Checks if a binary tree is height-balanced.",
+            code: {
+                javascript: `function isBalanced(root) {
+    function check(node) {
+        if (!node) return [true, 0];
+        const [leftBal, leftH] = check(node.left);
+        const [rightBal, rightH] = check(node.right);
+        const balanced = leftBal && rightBal && Math.abs(leftH - rightH) <= 1;
+        return [balanced, 1 + Math.max(leftH, rightH)];
+    }
+    return check(root)[0];
+}`,
+                python: `def is_balanced(root):
+    def check(node):
+        if not node:
+            return True, 0
+        left_bal, left_h = check(node.left)
+        right_bal, right_h = check(node.right)
+        balanced = left_bal and right_bal and abs(left_h - right_h) <= 1
+        return balanced, 1 + max(left_h, right_h)
+    return check(root)[0]`
+            }
+        },
+        maxPathSum: {
+            name: "Maximum Path Sum",
+            category: "trees",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(h)" },
+            description: "Finds the maximum path sum in a binary tree.",
+            code: {
+                javascript: `function maxPathSum(root) {
+    let max = -Infinity;
+    function dfs(node) {
+        if (!node) return 0;
+        const left = Math.max(0, dfs(node.left));
+        const right = Math.max(0, dfs(node.right));
+        max = Math.max(max, node.val + left + right);
+        return node.val + Math.max(left, right);
+    }
+    dfs(root);
+    return max;
+}`,
+                python: `def max_path_sum(root):
+    max_sum = float('-inf')
+    def dfs(node):
+        nonlocal max_sum
+        if not node:
+            return 0
+        left = max(0, dfs(node.left))
+        right = max(0, dfs(node.right))
+        max_sum = max(max_sum, node.val + left + right)
+        return node.val + max(left, right)
+    dfs(root)
+    return max_sum`
+            }
+        },
+        serializeTree: {
+            name: "Serialize/Deserialize",
+            category: "trees",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(n)" },
+            description: "Serializes and deserializes a binary tree.",
+            code: {
+                javascript: `function serialize(root) {
+    const result = [];
+    function dfs(node) {
+        if (!node) {
+            result.push('null');
+            return;
+        }
+        result.push(node.val.toString());
+        dfs(node.left);
+        dfs(node.right);
+    }
+    dfs(root);
+    return result.join(',');
+}`,
+                python: `def serialize(root):
+    result = []
+    def dfs(node):
+        if not node:
+            result.append('None')
+            return
+        result.append(str(node.val))
+        dfs(node.left)
+        dfs(node.right)
+    dfs(root)
+    return ','.join(result)`
+            }
+        },
+        zigzagTraversal: {
+            name: "Zigzag Level Order",
+            category: "trees",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(n)" },
+            description: "Traverses tree in zigzag pattern (left-right, right-left).",
+            code: {
+                javascript: `function zigzagLevelOrder(root) {
+    if (!root) return [];
+    const result = [];
+    const queue = [root];
+    let leftToRight = true;
+    while (queue.length) {
+        const level = [];
+        const size = queue.length;
+        for (let i = 0; i < size; i++) {
+            const node = queue.shift();
+            if (leftToRight) level.push(node.val);
+            else level.unshift(node.val);
+            if (node.left) queue.push(node.left);
+            if (node.right) queue.push(node.right);
+        }
+        result.push(level);
+        leftToRight = !leftToRight;
+    }
+    return result;
+}`,
+                python: `from collections import deque
+
+def zigzag_level_order(root):
+    if not root:
+        return []
+    result = []
+    queue = deque([root])
+    left_to_right = True
+    while queue:
+        level = []
+        for _ in range(len(queue)):
+            node = queue.popleft()
+            if left_to_right:
+                level.append(node.val)
+            else:
+                level.insert(0, node.val)
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+        result.append(level)
+        left_to_right = not left_to_right
+    return result`
+            }
         }
     }
 };

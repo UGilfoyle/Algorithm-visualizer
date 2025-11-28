@@ -233,11 +233,11 @@ class App {
             math: 'mathLanguageTabs'
         };
 
-        const codeEl = document.getElementById(codeDisplayIds[section]);
+            const codeEl = document.getElementById(codeDisplayIds[section]);
         if (codeEl && algo.code) {
             // Get the active language from the tabs
             const tabContainer = document.getElementById(tabContainerIds[section]);
-            let activeLang = 'javascript';
+            let activeLang = 'node';
             if (tabContainer) {
                 const activeTab = tabContainer.querySelector('.lang-tab.active');
                 if (activeTab) {
@@ -245,7 +245,9 @@ class App {
                     this.currentLanguage = activeLang;
                 }
             }
-            const code = algo.code[activeLang] || algo.code.java || algo.code.cpp || algo.code.javascript || 'No implementation available';
+            // Node.js uses JavaScript code
+            const langCode = activeLang === 'node' ? 'javascript' : activeLang;
+            const code = algo.code[langCode] || algo.code.javascript || algo.code.java || algo.code.cpp || 'No implementation available';
             codeEl.textContent = code;
         }
 
