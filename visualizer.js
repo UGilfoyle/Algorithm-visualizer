@@ -897,19 +897,22 @@ class LanguageArena {
                 const elapsed = performance.now() - startTime;
                 const progress = Math.min(elapsed / racerDuration, 1);
 
-                // Calculate position: move back and forth based on progress
-                // Use sine wave to create back-and-forth motion
-                const oscillation = Math.sin(progress * Math.PI * 4); // 4 complete cycles
-                const normalizedProgress = (oscillation + 1) / 2; // Normalize to 0-1
+                // Calculate position: move back and forth across the track
+                // Create smooth back-and-forth motion with forward progress
+                // Use sine wave for oscillation, but ensure forward movement
+                const cycles = 3; // Number of back-and-forth cycles
+                const oscillation = Math.sin(progress * Math.PI * cycles * 2);
+                const normalizedOscillation = (oscillation + 1) / 2; // 0 to 1
                 
-                // Combine oscillation with forward progress
+                // Combine: 70% forward progress, 30% oscillation
                 const forwardProgress = progress;
-                const backAndForth = normalizedProgress * 0.3; // 30% oscillation
-                const finalProgress = forwardProgress * 0.7 + backAndForth * 0.3;
+                const oscillatingProgress = normalizedOscillation;
+                const finalProgress = forwardProgress * 0.7 + oscillatingProgress * 0.3;
                 
                 // Calculate actual position
                 const position = finalProgress * maxPosition;
                 runnerEl.style.left = `${position}px`;
+                runnerEl.style.transform = `translateX(0)`;
 
                 // Play tick sound periodically
                 if (elapsed - lastTickTime > 200 && typeof audioEngine !== 'undefined') {
