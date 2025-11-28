@@ -645,6 +645,579 @@ def counting_sort_by_digit(arr, exp):
                 python: `# Python's built-in sort uses Tim Sort
 arr.sort()  # or sorted(arr)`
             }
+        },
+        bucketSort: {
+            name: "Bucket Sort",
+            category: "sorting",
+            complexity: { best: "O(n+k)", avg: "O(n+k)", worst: "O(n²)", space: "O(n+k)" },
+            description: "Distributes elements into buckets, sorts each bucket, then concatenates.",
+            code: {
+                node: `function bucketSort(arr) {
+    const n = arr.length;
+    if (n <= 0) return arr;
+    const max = Math.max(...arr);
+    const min = Math.min(...arr);
+    const bucketCount = n;
+    const buckets = Array(bucketCount).fill(null).map(() => []);
+    const bucketSize = (max - min) / bucketCount;
+    
+    for (let num of arr) {
+        const bucketIndex = Math.floor((num - min) / bucketSize);
+        const idx = bucketIndex === bucketCount ? bucketCount - 1 : bucketIndex;
+        buckets[idx].push(num);
+    }
+    
+    for (let bucket of buckets) {
+        bucket.sort((a, b) => a - b);
+    }
+    
+    return buckets.flat();
+}`,
+                python: `def bucket_sort(arr):
+    n = len(arr)
+    if n <= 0:
+        return arr
+    max_val, min_val = max(arr), min(arr)
+    bucket_count = n
+    buckets = [[] for _ in range(bucket_count)]
+    bucket_size = (max_val - min_val) / bucket_count
+    
+    for num in arr:
+        idx = int((num - min_val) / bucket_size)
+        idx = min(idx, bucket_count - 1)
+        buckets[idx].append(num)
+    
+    for bucket in buckets:
+        bucket.sort()
+    
+    return [num for bucket in buckets for num in bucket]`,
+                java: `public static void bucketSort(double[] arr) {
+    int n = arr.length;
+    if (n <= 0) return;
+    double max = Arrays.stream(arr).max().getAsDouble();
+    double min = Arrays.stream(arr).min().getAsDouble();
+    int bucketCount = n;
+    List<List<Double>> buckets = new ArrayList<>();
+    for (int i = 0; i < bucketCount; i++) {
+        buckets.add(new ArrayList<>());
+    }
+    double bucketSize = (max - min) / bucketCount;
+    
+    for (double num : arr) {
+        int idx = (int) ((num - min) / bucketSize);
+        idx = Math.min(idx, bucketCount - 1);
+        buckets.get(idx).add(num);
+    }
+    
+    for (List<Double> bucket : buckets) {
+        Collections.sort(bucket);
+    }
+    
+    int index = 0;
+    for (List<Double> bucket : buckets) {
+        for (double num : bucket) {
+            arr[index++] = num;
+        }
+    }
+}`,
+                cpp: `void bucketSort(vector<double>& arr) {
+    int n = arr.size();
+    if (n <= 0) return;
+    double maxVal = *max_element(arr.begin(), arr.end());
+    double minVal = *min_element(arr.begin(), arr.end());
+    int bucketCount = n;
+    vector<vector<double>> buckets(bucketCount);
+    double bucketSize = (maxVal - minVal) / bucketCount;
+    
+    for (double num : arr) {
+        int idx = (int)((num - minVal) / bucketSize);
+        idx = min(idx, bucketCount - 1);
+        buckets[idx].push_back(num);
+    }
+    
+    for (auto& bucket : buckets) {
+        sort(bucket.begin(), bucket.end());
+    }
+    
+    int index = 0;
+    for (auto& bucket : buckets) {
+        for (double num : bucket) {
+            arr[index++] = num;
+        }
+    }
+}`,
+                csharp: `public static void BucketSort(double[] arr) {
+    int n = arr.Length;
+    if (n <= 0) return;
+    double max = arr.Max();
+    double min = arr.Min();
+    int bucketCount = n;
+    List<List<double>> buckets = new List<List<double>>();
+    for (int i = 0; i < bucketCount; i++) {
+        buckets.Add(new List<double>());
+    }
+    double bucketSize = (max - min) / bucketCount;
+    
+    foreach (double num in arr) {
+        int idx = (int)((num - min) / bucketSize);
+        idx = Math.Min(idx, bucketCount - 1);
+        buckets[idx].Add(num);
+    }
+    
+    foreach (var bucket in buckets) {
+        bucket.Sort();
+    }
+    
+    int index = 0;
+    foreach (var bucket in buckets) {
+        foreach (double num in bucket) {
+            arr[index++] = num;
+        }
+    }
+}`
+            }
+        },
+        cocktailSort: {
+            name: "Cocktail Sort",
+            category: "sorting",
+            complexity: { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(1)" },
+            description: "Bidirectional bubble sort that sorts in both directions.",
+            code: {
+                node: `function cocktailSort(arr) {
+    let swapped = true;
+    let start = 0;
+    let end = arr.length - 1;
+    
+    while (swapped) {
+        swapped = false;
+        for (let i = start; i < end; i++) {
+            if (arr[i] > arr[i + 1]) {
+                [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+        swapped = false;
+        end--;
+        for (let i = end - 1; i >= start; i--) {
+            if (arr[i] > arr[i + 1]) {
+                [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+                swapped = true;
+            }
+        }
+        start++;
+    }
+    return arr;
+}`,
+                python: `def cocktail_sort(arr):
+    swapped = True
+    start = 0
+    end = len(arr) - 1
+    
+    while swapped:
+        swapped = False
+        for i in range(start, end):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+        if not swapped:
+            break
+        swapped = False
+        end -= 1
+        for i in range(end - 1, start - 1, -1):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+        start += 1
+    return arr`,
+                java: `public static void cocktailSort(int[] arr) {
+    boolean swapped = true;
+    int start = 0;
+    int end = arr.length - 1;
+    
+    while (swapped) {
+        swapped = false;
+        for (int i = start; i < end; i++) {
+            if (arr[i] > arr[i + 1]) {
+                int temp = arr[i];
+                arr[i] = arr[i + 1];
+                arr[i + 1] = temp;
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+        swapped = false;
+        end--;
+        for (int i = end - 1; i >= start; i--) {
+            if (arr[i] > arr[i + 1]) {
+                int temp = arr[i];
+                arr[i] = arr[i + 1];
+                arr[i + 1] = temp;
+                swapped = true;
+            }
+        }
+        start++;
+    }
+}`,
+                cpp: `void cocktailSort(vector<int>& arr) {
+    bool swapped = true;
+    int start = 0;
+    int end = arr.size() - 1;
+    
+    while (swapped) {
+        swapped = false;
+        for (int i = start; i < end; i++) {
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+        swapped = false;
+        end--;
+        for (int i = end - 1; i >= start; i--) {
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                swapped = true;
+            }
+        }
+        start++;
+    }
+}`
+            }
+        },
+        combSort: {
+            name: "Comb Sort",
+            category: "sorting",
+            complexity: { best: "O(n log n)", avg: "O(n²/2^p)", worst: "O(n²)", space: "O(1)" },
+            description: "Improvement over bubble sort using gap sequence.",
+            code: {
+                node: `function combSort(arr) {
+    const shrink = 1.3;
+    let gap = arr.length;
+    let sorted = false;
+    
+    while (!sorted) {
+        gap = Math.floor(gap / shrink);
+        if (gap <= 1) {
+            gap = 1;
+            sorted = true;
+        }
+        for (let i = 0; i + gap < arr.length; i++) {
+            if (arr[i] > arr[i + gap]) {
+                [arr[i], arr[i + gap]] = [arr[i + gap], arr[i]];
+                sorted = false;
+            }
+        }
+    }
+    return arr;
+}`,
+                python: `def comb_sort(arr):
+    shrink = 1.3
+    gap = len(arr)
+    sorted_flag = False
+    
+    while not sorted_flag:
+        gap = int(gap / shrink)
+        if gap <= 1:
+            gap = 1
+            sorted_flag = True
+        for i in range(len(arr) - gap):
+            if arr[i] > arr[i + gap]:
+                arr[i], arr[i + gap] = arr[i + gap], arr[i]
+                sorted_flag = False
+    return arr`,
+                java: `public static void combSort(int[] arr) {
+    double shrink = 1.3;
+    int gap = arr.length;
+    boolean sorted = false;
+    
+    while (!sorted) {
+        gap = (int)(gap / shrink);
+        if (gap <= 1) {
+            gap = 1;
+            sorted = true;
+        }
+        for (int i = 0; i + gap < arr.length; i++) {
+            if (arr[i] > arr[i + gap]) {
+                int temp = arr[i];
+                arr[i] = arr[i + gap];
+                arr[i + gap] = temp;
+                sorted = false;
+            }
+        }
+    }
+}`,
+                cpp: `void combSort(vector<int>& arr) {
+    double shrink = 1.3;
+    int gap = arr.size();
+    bool sorted = false;
+    
+    while (!sorted) {
+        gap = (int)(gap / shrink);
+        if (gap <= 1) {
+            gap = 1;
+            sorted = true;
+        }
+        for (int i = 0; i + gap < arr.size(); i++) {
+            if (arr[i] > arr[i + gap]) {
+                swap(arr[i], arr[i + gap]);
+                sorted = false;
+            }
+        }
+    }
+}`
+            }
+        },
+        cycleSort: {
+            name: "Cycle Sort",
+            category: "sorting",
+            complexity: { best: "O(n²)", avg: "O(n²)", worst: "O(n²)", space: "O(1)" },
+            description: "In-place unstable sorting algorithm with minimal writes.",
+            code: {
+                node: `function cycleSort(arr) {
+    let writes = 0;
+    for (let cycleStart = 0; cycleStart < arr.length - 1; cycleStart++) {
+        let item = arr[cycleStart];
+        let pos = cycleStart;
+        for (let i = cycleStart + 1; i < arr.length; i++) {
+            if (arr[i] < item) pos++;
+        }
+        if (pos === cycleStart) continue;
+        while (item === arr[pos]) pos++;
+        [arr[pos], item] = [item, arr[pos]];
+        writes++;
+        while (pos !== cycleStart) {
+            pos = cycleStart;
+            for (let i = cycleStart + 1; i < arr.length; i++) {
+                if (arr[i] < item) pos++;
+            }
+            while (item === arr[pos]) pos++;
+            [arr[pos], item] = [item, arr[pos]];
+            writes++;
+        }
+    }
+    return arr;
+}`,
+                python: `def cycle_sort(arr):
+    writes = 0
+    for cycle_start in range(len(arr) - 1):
+        item = arr[cycle_start]
+        pos = cycle_start
+        for i in range(cycle_start + 1, len(arr)):
+            if arr[i] < item:
+                pos += 1
+        if pos == cycle_start:
+            continue
+        while item == arr[pos]:
+            pos += 1
+        arr[pos], item = item, arr[pos]
+        writes += 1
+        while pos != cycle_start:
+            pos = cycle_start
+            for i in range(cycle_start + 1, len(arr)):
+                if arr[i] < item:
+                    pos += 1
+            while item == arr[pos]:
+                pos += 1
+            arr[pos], item = item, arr[pos]
+            writes += 1
+    return arr`,
+                java: `public static void cycleSort(int[] arr) {
+    int writes = 0;
+    for (int cycleStart = 0; cycleStart < arr.length - 1; cycleStart++) {
+        int item = arr[cycleStart];
+        int pos = cycleStart;
+        for (int i = cycleStart + 1; i < arr.length; i++) {
+            if (arr[i] < item) pos++;
+        }
+        if (pos == cycleStart) continue;
+        while (item == arr[pos]) pos++;
+        int temp = arr[pos];
+        arr[pos] = item;
+        item = temp;
+        writes++;
+        while (pos != cycleStart) {
+            pos = cycleStart;
+            for (int i = cycleStart + 1; i < arr.length; i++) {
+                if (arr[i] < item) pos++;
+            }
+            while (item == arr[pos]) pos++;
+            temp = arr[pos];
+            arr[pos] = item;
+            item = temp;
+            writes++;
+        }
+    }
+}`,
+                cpp: `void cycleSort(vector<int>& arr) {
+    int writes = 0;
+    for (int cycleStart = 0; cycleStart < arr.size() - 1; cycleStart++) {
+        int item = arr[cycleStart];
+        int pos = cycleStart;
+        for (int i = cycleStart + 1; i < arr.size(); i++) {
+            if (arr[i] < item) pos++;
+        }
+        if (pos == cycleStart) continue;
+        while (item == arr[pos]) pos++;
+        swap(arr[pos], item);
+        writes++;
+        while (pos != cycleStart) {
+            pos = cycleStart;
+            for (int i = cycleStart + 1; i < arr.size(); i++) {
+                if (arr[i] < item) pos++;
+            }
+            while (item == arr[pos]) pos++;
+            swap(arr[pos], item);
+            writes++;
+        }
+    }
+}`
+            }
+        },
+        gnomeSort: {
+            name: "Gnome Sort",
+            category: "sorting",
+            complexity: { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(1)" },
+            description: "Simple sorting algorithm similar to insertion sort.",
+            code: {
+                node: `function gnomeSort(arr) {
+    let index = 0;
+    while (index < arr.length) {
+        if (index === 0 || arr[index] >= arr[index - 1]) {
+            index++;
+        } else {
+            [arr[index], arr[index - 1]] = [arr[index - 1], arr[index]];
+            index--;
+        }
+    }
+    return arr;
+}`,
+                python: `def gnome_sort(arr):
+    index = 0
+    while index < len(arr):
+        if index == 0 or arr[index] >= arr[index - 1]:
+            index += 1
+        else:
+            arr[index], arr[index - 1] = arr[index - 1], arr[index]
+            index -= 1
+    return arr`,
+                java: `public static void gnomeSort(int[] arr) {
+    int index = 0;
+    while (index < arr.length) {
+        if (index == 0 || arr[index] >= arr[index - 1]) {
+            index++;
+        } else {
+            int temp = arr[index];
+            arr[index] = arr[index - 1];
+            arr[index - 1] = temp;
+            index--;
+        }
+    }
+}`,
+                cpp: `void gnomeSort(vector<int>& arr) {
+    int index = 0;
+    while (index < arr.size()) {
+        if (index == 0 || arr[index] >= arr[index - 1]) {
+            index++;
+        } else {
+            swap(arr[index], arr[index - 1]);
+            index--;
+        }
+    }
+}`
+            }
+        },
+        pancakeSort: {
+            name: "Pancake Sort",
+            category: "sorting",
+            complexity: { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(1)" },
+            description: "Sorts array by flipping prefixes, like flipping pancakes.",
+            code: {
+                node: `function pancakeSort(arr) {
+    for (let currSize = arr.length; currSize > 1; currSize--) {
+        let maxIdx = 0;
+        for (let i = 0; i < currSize; i++) {
+            if (arr[i] > arr[maxIdx]) maxIdx = i;
+        }
+        if (maxIdx !== currSize - 1) {
+            flip(arr, maxIdx);
+            flip(arr, currSize - 1);
+        }
+    }
+    return arr;
+}
+
+function flip(arr, k) {
+    let start = 0;
+    while (start < k) {
+        [arr[start], arr[k]] = [arr[k], arr[start]];
+        start++;
+        k--;
+    }
+}`,
+                python: `def pancake_sort(arr):
+    def flip(arr, k):
+        start = 0
+        while start < k:
+            arr[start], arr[k] = arr[k], arr[start]
+            start += 1
+            k -= 1
+    
+    for curr_size in range(len(arr), 1, -1):
+        max_idx = 0
+        for i in range(curr_size):
+            if arr[i] > arr[max_idx]:
+                max_idx = i
+        if max_idx != curr_size - 1:
+            flip(arr, max_idx)
+            flip(arr, curr_size - 1)
+    return arr`,
+                java: `public static void pancakeSort(int[] arr) {
+    for (int currSize = arr.length; currSize > 1; currSize--) {
+        int maxIdx = 0;
+        for (int i = 0; i < currSize; i++) {
+            if (arr[i] > arr[maxIdx]) maxIdx = i;
+        }
+        if (maxIdx != currSize - 1) {
+            flip(arr, maxIdx);
+            flip(arr, currSize - 1);
+        }
+    }
+}
+
+static void flip(int[] arr, int k) {
+    int start = 0;
+    while (start < k) {
+        int temp = arr[start];
+        arr[start] = arr[k];
+        arr[k] = temp;
+        start++;
+        k--;
+    }
+}`,
+                cpp: `void pancakeSort(vector<int>& arr) {
+    for (int currSize = arr.size(); currSize > 1; currSize--) {
+        int maxIdx = 0;
+        for (int i = 0; i < currSize; i++) {
+            if (arr[i] > arr[maxIdx]) maxIdx = i;
+        }
+        if (maxIdx != currSize - 1) {
+            flip(arr, maxIdx);
+            flip(arr, currSize - 1);
+        }
+    }
+}
+
+void flip(vector<int>& arr, int k) {
+    int start = 0;
+    while (start < k) {
+        swap(arr[start], arr[k]);
+        start++;
+        k--;
+    }
+}`
+            }
         }
     },
 
@@ -1662,6 +2235,509 @@ def compute_lps(pattern):
         n //= 2
         x = (x * x) % m
     return result`
+            }
+        },
+        lcm: {
+            name: "LCM (Least Common Multiple)",
+            category: "math",
+            complexity: { best: "O(1)", avg: "O(log min(a,b))", worst: "O(log min(a,b))", space: "O(1)" },
+            description: "Finds least common multiple of two numbers using GCD.",
+            code: {
+                node: `function lcm(a, b) {
+    return Math.abs(a * b) / gcd(a, b);
+}
+
+function gcd(a, b) {
+    while (b !== 0) {
+        [a, b] = [b, a % b];
+    }
+    return a;
+}`,
+                python: `def lcm(a, b):
+    return abs(a * b) // gcd(a, b)
+
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a`,
+                java: `public static int lcm(int a, int b) {
+    return Math.abs(a * b) / gcd(a, b);
+}
+
+public static int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}`,
+                cpp: `int lcm(int a, int b) {
+    return abs(a * b) / gcd(a, b);
+}
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}`,
+                csharp: `public static int Lcm(int a, int b) {
+    return Math.Abs(a * b) / Gcd(a, b);
+}
+
+public static int Gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}`
+            }
+        },
+        factorial: {
+            name: "Factorial",
+            category: "math",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(1)" },
+            description: "Computes factorial of n (n!).",
+            code: {
+                node: `function factorial(n) {
+    if (n <= 1) return 1;
+    let result = 1;
+    for (let i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}`,
+                python: `def factorial(n):
+    if n <= 1:
+        return 1
+    result = 1
+    for i in range(2, n + 1):
+        result *= i
+    return result`,
+                java: `public static long factorial(int n) {
+    if (n <= 1) return 1;
+    long result = 1;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}`,
+                cpp: `long long factorial(int n) {
+    if (n <= 1) return 1;
+    long long result = 1;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}`,
+                csharp: `public static long Factorial(int n) {
+    if (n <= 1) return 1;
+    long result = 1;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}`
+            }
+        },
+        primeCheck: {
+            name: "Prime Number Check",
+            category: "math",
+            complexity: { best: "O(1)", avg: "O(√n)", worst: "O(√n)", space: "O(1)" },
+            description: "Checks if a number is prime using trial division.",
+            code: {
+                node: `function isPrime(n) {
+    if (n < 2) return false;
+    if (n === 2) return true;
+    if (n % 2 === 0) return false;
+    for (let i = 3; i * i <= n; i += 2) {
+        if (n % i === 0) return false;
+    }
+    return true;
+}`,
+                python: `def is_prime(n):
+    if n < 2:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+    for i in range(3, int(n**0.5) + 1, 2):
+        if n % i == 0:
+            return False
+    return True`,
+                java: `public static boolean isPrime(int n) {
+    if (n < 2) return false;
+    if (n == 2) return true;
+    if (n % 2 == 0) return false;
+    for (int i = 3; i * i <= n; i += 2) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}`,
+                cpp: `bool isPrime(int n) {
+    if (n < 2) return false;
+    if (n == 2) return true;
+    if (n % 2 == 0) return false;
+    for (int i = 3; i * i <= n; i += 2) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}`,
+                csharp: `public static bool IsPrime(int n) {
+    if (n < 2) return false;
+    if (n == 2) return true;
+    if (n % 2 == 0) return false;
+    for (int i = 3; i * i <= n; i += 2) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}`
+            }
+        },
+        fibonacciIterative: {
+            name: "Fibonacci (Iterative)",
+            category: "math",
+            complexity: { best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(1)" },
+            description: "Computes nth Fibonacci number iteratively.",
+            code: {
+                node: `function fibonacci(n) {
+    if (n <= 1) return n;
+    let a = 0, b = 1;
+    for (let i = 2; i <= n; i++) {
+        [a, b] = [b, a + b];
+    }
+    return b;
+}`,
+                python: `def fibonacci(n):
+    if n <= 1:
+        return n
+    a, b = 0, 1
+    for i in range(2, n + 1):
+        a, b = b, a + b
+    return b`,
+                java: `public static long fibonacci(int n) {
+    if (n <= 1) return n;
+    long a = 0, b = 1;
+    for (int i = 2; i <= n; i++) {
+        long temp = a + b;
+        a = b;
+        b = temp;
+    }
+    return b;
+}`,
+                cpp: `long long fibonacci(int n) {
+    if (n <= 1) return n;
+    long long a = 0, b = 1;
+    for (int i = 2; i <= n; i++) {
+        long long temp = a + b;
+        a = b;
+        b = temp;
+    }
+    return b;
+}`,
+                csharp: `public static long Fibonacci(int n) {
+    if (n <= 1) return n;
+    long a = 0, b = 1;
+    for (int i = 2; i <= n; i++) {
+        long temp = a + b;
+        a = b;
+        b = temp;
+    }
+    return b;
+}`
+            }
+        },
+        matrixMultiplication: {
+            name: "Matrix Multiplication",
+            category: "math",
+            complexity: { best: "O(n³)", avg: "O(n³)", worst: "O(n³)", space: "O(n²)" },
+            description: "Multiplies two matrices of compatible dimensions.",
+            code: {
+                node: `function matrixMultiply(A, B) {
+    const rowsA = A.length;
+    const colsA = A[0].length;
+    const colsB = B[0].length;
+    const result = Array(rowsA).fill(0).map(() => Array(colsB).fill(0));
+    
+    for (let i = 0; i < rowsA; i++) {
+        for (let j = 0; j < colsB; j++) {
+            for (let k = 0; k < colsA; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return result;
+}`,
+                python: `def matrix_multiply(A, B):
+    rowsA, colsA = len(A), len(A[0])
+    colsB = len(B[0])
+    result = [[0] * colsB for _ in range(rowsA)]
+    
+    for i in range(rowsA):
+        for j in range(colsB):
+            for k in range(colsA):
+                result[i][j] += A[i][k] * B[k][j]
+    return result`,
+                java: `public static int[][] matrixMultiply(int[][] A, int[][] B) {
+    int rowsA = A.length;
+    int colsA = A[0].length;
+    int colsB = B[0].length;
+    int[][] result = new int[rowsA][colsB];
+    
+    for (int i = 0; i < rowsA; i++) {
+        for (int j = 0; j < colsB; j++) {
+            for (int k = 0; k < colsA; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return result;
+}`,
+                cpp: `vector<vector<int>> matrixMultiply(vector<vector<int>>& A, vector<vector<int>>& B) {
+    int rowsA = A.size();
+    int colsA = A[0].size();
+    int colsB = B[0].size();
+    vector<vector<int>> result(rowsA, vector<int>(colsB, 0));
+    
+    for (int i = 0; i < rowsA; i++) {
+        for (int j = 0; j < colsB; j++) {
+            for (int k = 0; k < colsA; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return result;
+}`,
+                csharp: `public static int[,] MatrixMultiply(int[,] A, int[,] B) {
+    int rowsA = A.GetLength(0);
+    int colsA = A.GetLength(1);
+    int colsB = B.GetLength(1);
+    int[,] result = new int[rowsA, colsB];
+    
+    for (int i = 0; i < rowsA; i++) {
+        for (int j = 0; j < colsB; j++) {
+            for (int k = 0; k < colsA; k++) {
+                result[i, j] += A[i, k] * B[k, j];
+            }
+        }
+    }
+    return result;
+}`
+            }
+        },
+        matrixDeterminant: {
+            name: "Matrix Determinant",
+            category: "math",
+            complexity: { best: "O(n³)", avg: "O(n³)", worst: "O(n³)", space: "O(n²)" },
+            description: "Computes determinant of a square matrix using cofactor expansion.",
+            code: {
+                node: `function determinant(matrix) {
+    const n = matrix.length;
+    if (n === 1) return matrix[0][0];
+    if (n === 2) {
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+    let det = 0;
+    for (let col = 0; col < n; col++) {
+        const minor = matrix.slice(1).map(row => row.filter((_, i) => i !== col));
+        det += matrix[0][col] * Math.pow(-1, col) * determinant(minor);
+    }
+    return det;
+}`,
+                python: `def determinant(matrix):
+    n = len(matrix)
+    if n == 1:
+        return matrix[0][0]
+    if n == 2:
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+    det = 0
+    for col in range(n):
+        minor = [row[:col] + row[col+1:] for row in matrix[1:]]
+        det += matrix[0][col] * ((-1) ** col) * determinant(minor)
+    return det`,
+                java: `public static int determinant(int[][] matrix) {
+    int n = matrix.length;
+    if (n == 1) return matrix[0][0];
+    if (n == 2) {
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+    int det = 0;
+    for (int col = 0; col < n; col++) {
+        int[][] minor = getMinor(matrix, 0, col);
+        det += matrix[0][col] * Math.pow(-1, col) * determinant(minor);
+    }
+    return det;
+}
+
+static int[][] getMinor(int[][] matrix, int row, int col) {
+    int n = matrix.length;
+    int[][] minor = new int[n-1][n-1];
+    int r = 0;
+    for (int i = 0; i < n; i++) {
+        if (i == row) continue;
+        int c = 0;
+        for (int j = 0; j < n; j++) {
+            if (j == col) continue;
+            minor[r][c++] = matrix[i][j];
+        }
+        r++;
+    }
+    return minor;
+}`,
+                cpp: `int determinant(vector<vector<int>>& matrix) {
+    int n = matrix.size();
+    if (n == 1) return matrix[0][0];
+    if (n == 2) {
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+    int det = 0;
+    for (int col = 0; col < n; col++) {
+        vector<vector<int>> minor = getMinor(matrix, 0, col);
+        det += matrix[0][col] * pow(-1, col) * determinant(minor);
+    }
+    return det;
+}
+
+vector<vector<int>> getMinor(vector<vector<int>>& matrix, int row, int col) {
+    int n = matrix.size();
+    vector<vector<int>> minor(n-1, vector<int>(n-1));
+    int r = 0;
+    for (int i = 0; i < n; i++) {
+        if (i == row) continue;
+        int c = 0;
+        for (int j = 0; j < n; j++) {
+            if (j == col) continue;
+            minor[r][c++] = matrix[i][j];
+        }
+        r++;
+    }
+    return minor;
+}`
+            }
+        },
+        eulerTotient: {
+            name: "Euler Totient Function",
+            category: "math",
+            complexity: { best: "O(√n)", avg: "O(√n)", worst: "O(√n)", space: "O(1)" },
+            description: "Counts numbers up to n that are coprime with n.",
+            code: {
+                node: `function eulerTotient(n) {
+    let result = n;
+    for (let p = 2; p * p <= n; p++) {
+        if (n % p === 0) {
+            while (n % p === 0) n /= p;
+            result -= result / p;
+        }
+    }
+    if (n > 1) result -= result / n;
+    return result;
+}`,
+                python: `def euler_totient(n):
+    result = n
+    p = 2
+    while p * p <= n:
+        if n % p == 0:
+            while n % p == 0:
+                n //= p
+            result -= result // p
+        p += 1
+    if n > 1:
+        result -= result // n
+    return result`,
+                java: `public static int eulerTotient(int n) {
+    int result = n;
+    for (int p = 2; p * p <= n; p++) {
+        if (n % p == 0) {
+            while (n % p == 0) n /= p;
+            result -= result / p;
+        }
+    }
+    if (n > 1) result -= result / n;
+    return result;
+}`,
+                cpp: `int eulerTotient(int n) {
+    int result = n;
+    for (int p = 2; p * p <= n; p++) {
+        if (n % p == 0) {
+            while (n % p == 0) n /= p;
+            result -= result / p;
+        }
+    }
+    if (n > 1) result -= result / n;
+    return result;
+}`,
+                csharp: `public static int EulerTotient(int n) {
+    int result = n;
+    for (int p = 2; p * p <= n; p++) {
+        if (n % p == 0) {
+            while (n % p == 0) n /= p;
+            result -= result / p;
+        }
+    }
+    if (n > 1) result -= result / n;
+    return result;
+}`
+            }
+        },
+        extendedEuclidean: {
+            name: "Extended Euclidean Algorithm",
+            category: "math",
+            complexity: { best: "O(1)", avg: "O(log min(a,b))", worst: "O(log min(a,b))", space: "O(1)" },
+            description: "Finds GCD and coefficients x, y such that ax + by = gcd(a,b).",
+            code: {
+                node: `function extendedGCD(a, b) {
+    if (a === 0) return { gcd: b, x: 0, y: 1 };
+    const result = extendedGCD(b % a, a);
+    return {
+        gcd: result.gcd,
+        x: result.y - Math.floor(b / a) * result.x,
+        y: result.x
+    };
+}`,
+                python: `def extended_gcd(a, b):
+    if a == 0:
+        return b, 0, 1
+    gcd, x1, y1 = extended_gcd(b % a, a)
+    x = y1 - (b // a) * x1
+    y = x1
+    return gcd, x, y`,
+                java: `public static int[] extendedGCD(int a, int b) {
+    if (a == 0) {
+        return new int[]{b, 0, 1};
+    }
+    int[] result = extendedGCD(b % a, a);
+    int gcd = result[0];
+    int x = result[2] - (b / a) * result[1];
+    int y = result[1];
+    return new int[]{gcd, x, y};
+}`,
+                cpp: `int extendedGCD(int a, int b, int& x, int& y) {
+    if (a == 0) {
+        x = 0;
+        y = 1;
+        return b;
+    }
+    int x1, y1;
+    int gcd = extendedGCD(b % a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    return gcd;
+}`,
+                csharp: `public static (int gcd, int x, int y) ExtendedGCD(int a, int b) {
+    if (a == 0) {
+        return (b, 0, 1);
+    }
+    var (gcd, x1, y1) = ExtendedGCD(b % a, a);
+    int x = y1 - (b / a) * x1;
+    int y = x1;
+    return (gcd, x, y);
+}`
             }
         }
     },

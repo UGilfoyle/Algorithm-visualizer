@@ -315,6 +315,16 @@ class SortingVisualizer {
             case 'insertionSort': await this.insertionSort(); break;
             case 'selectionSort': await this.selectionSort(); break;
             case 'heapSort': await this.heapSort(); break;
+            case 'countingSort': await this.countingSort(); break;
+            case 'radixSort': await this.radixSort(); break;
+            case 'shellSort': await this.shellSort(); break;
+            case 'timSort': await this.timSort(); break;
+            case 'bucketSort': await this.bucketSort(); break;
+            case 'cocktailSort': await this.cocktailSort(); break;
+            case 'combSort': await this.combSort(); break;
+            case 'cycleSort': await this.cycleSort(); break;
+            case 'gnomeSort': await this.gnomeSort(); break;
+            case 'pancakeSort': await this.pancakeSort(); break;
             default: await this.bubbleSort();
         }
 
@@ -532,6 +542,185 @@ class SortingVisualizer {
             if (typeof audioEngine !== 'undefined') audioEngine.playHeapify();
             await this.delay();
             await this.heapify(n, largest);
+        }
+    }
+
+    async bucketSort() {
+        const n = this.array.length;
+        if (n <= 0) return;
+        const max = Math.max(...this.array);
+        const min = Math.min(...this.array);
+        const bucketCount = n;
+        const buckets = Array(bucketCount).fill(null).map(() => []);
+        const bucketSize = (max - min) / bucketCount;
+        
+        for (let num of this.array) {
+            const bucketIndex = Math.floor((num - min) / bucketSize);
+            const idx = bucketIndex === bucketCount ? bucketCount - 1 : bucketIndex;
+            buckets[idx].push(num);
+        }
+        
+        let index = 0;
+        for (let i = 0; i < buckets.length && !this.shouldStop; i++) {
+            buckets[i].sort((a, b) => a - b);
+            for (let j = 0; j < buckets[i].length && !this.shouldStop; j++) {
+                this.array[index++] = buckets[i][j];
+                this.comparisons++;
+                this.updateStat('comparisons', this.comparisons);
+                this.render([index - 1], []);
+                if (typeof audioEngine !== 'undefined') audioEngine.playCompare();
+                await this.delay();
+            }
+        }
+    }
+
+    async cocktailSort() {
+        let swapped = true;
+        let start = 0;
+        let end = this.array.length - 1;
+        
+        while (swapped && !this.shouldStop) {
+            swapped = false;
+            for (let i = start; i < end && !this.shouldStop; i++) {
+                this.comparisons++;
+                this.updateStat('comparisons', this.comparisons);
+                if (this.array[i] > this.array[i + 1]) {
+                    [this.array[i], this.array[i + 1]] = [this.array[i + 1], this.array[i]];
+                    this.swaps++;
+                    this.updateStat('swaps', this.swaps);
+                    this.render([i, i + 1], []);
+                    if (typeof audioEngine !== 'undefined') audioEngine.playSwap();
+                    await this.delay();
+                    swapped = true;
+                }
+            }
+            if (!swapped) break;
+            swapped = false;
+            end--;
+            for (let i = end - 1; i >= start && !this.shouldStop; i--) {
+                this.comparisons++;
+                this.updateStat('comparisons', this.comparisons);
+                if (this.array[i] > this.array[i + 1]) {
+                    [this.array[i], this.array[i + 1]] = [this.array[i + 1], this.array[i]];
+                    this.swaps++;
+                    this.updateStat('swaps', this.swaps);
+                    this.render([i, i + 1], []);
+                    if (typeof audioEngine !== 'undefined') audioEngine.playSwap();
+                    await this.delay();
+                    swapped = true;
+                }
+            }
+            start++;
+        }
+    }
+
+    async combSort() {
+        const shrink = 1.3;
+        let gap = this.array.length;
+        let sorted = false;
+        
+        while (!sorted && !this.shouldStop) {
+            gap = Math.floor(gap / shrink);
+            if (gap <= 1) {
+                gap = 1;
+                sorted = true;
+            }
+            for (let i = 0; i + gap < this.array.length && !this.shouldStop; i++) {
+                this.comparisons++;
+                this.updateStat('comparisons', this.comparisons);
+                if (this.array[i] > this.array[i + gap]) {
+                    [this.array[i], this.array[i + gap]] = [this.array[i + gap], this.array[i]];
+                    this.swaps++;
+                    this.updateStat('swaps', this.swaps);
+                    this.render([i, i + gap], []);
+                    if (typeof audioEngine !== 'undefined') audioEngine.playSwap();
+                    await this.delay();
+                    sorted = false;
+                }
+            }
+        }
+    }
+
+    async cycleSort() {
+        for (let cycleStart = 0; cycleStart < this.array.length - 1 && !this.shouldStop; cycleStart++) {
+            let item = this.array[cycleStart];
+            let pos = cycleStart;
+            for (let i = cycleStart + 1; i < this.array.length && !this.shouldStop; i++) {
+                this.comparisons++;
+                this.updateStat('comparisons', this.comparisons);
+                if (this.array[i] < item) pos++;
+            }
+            if (pos === cycleStart) continue;
+            while (item === this.array[pos] && !this.shouldStop) pos++;
+            [this.array[pos], item] = [item, this.array[pos]];
+            this.swaps++;
+            this.updateStat('swaps', this.swaps);
+            this.render([pos], []);
+            if (typeof audioEngine !== 'undefined') audioEngine.playSwap();
+            await this.delay();
+            while (pos !== cycleStart && !this.shouldStop) {
+                pos = cycleStart;
+                for (let i = cycleStart + 1; i < this.array.length && !this.shouldStop; i++) {
+                    this.comparisons++;
+                    this.updateStat('comparisons', this.comparisons);
+                    if (this.array[i] < item) pos++;
+                }
+                while (item === this.array[pos] && !this.shouldStop) pos++;
+                [this.array[pos], item] = [item, this.array[pos]];
+                this.swaps++;
+                this.updateStat('swaps', this.swaps);
+                this.render([pos], []);
+                if (typeof audioEngine !== 'undefined') audioEngine.playSwap();
+                await this.delay();
+            }
+        }
+    }
+
+    async gnomeSort() {
+        let index = 0;
+        while (index < this.array.length && !this.shouldStop) {
+            if (index === 0 || this.array[index] >= this.array[index - 1]) {
+                index++;
+            } else {
+                this.comparisons++;
+                this.updateStat('comparisons', this.comparisons);
+                [this.array[index], this.array[index - 1]] = [this.array[index - 1], this.array[index]];
+                this.swaps++;
+                this.updateStat('swaps', this.swaps);
+                this.render([index, index - 1], []);
+                if (typeof audioEngine !== 'undefined') audioEngine.playSwap();
+                await this.delay();
+                index--;
+            }
+        }
+    }
+
+    async pancakeSort() {
+        for (let currSize = this.array.length; currSize > 1 && !this.shouldStop; currSize--) {
+            let maxIdx = 0;
+            for (let i = 0; i < currSize && !this.shouldStop; i++) {
+                this.comparisons++;
+                this.updateStat('comparisons', this.comparisons);
+                if (this.array[i] > this.array[maxIdx]) maxIdx = i;
+            }
+            if (maxIdx !== currSize - 1) {
+                await this.flip(maxIdx);
+                await this.flip(currSize - 1);
+            }
+        }
+    }
+
+    async flip(k) {
+        let start = 0;
+        while (start < k && !this.shouldStop) {
+            [this.array[start], this.array[k]] = [this.array[k], this.array[start]];
+            this.swaps++;
+            this.updateStat('swaps', this.swaps);
+            this.render([start, k], []);
+            if (typeof audioEngine !== 'undefined') audioEngine.playSwap();
+            await this.delay();
+            start++;
+            k--;
         }
     }
 
