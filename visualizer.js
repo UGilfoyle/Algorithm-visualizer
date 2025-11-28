@@ -6,24 +6,27 @@ function getBestTimeFormat(ms) {
         return 'h';
     } else if (ms >= 60000) {
         return 'm';
-    } else if (ms >= 1000) {
+    } else if (ms >= 2000) {
         return 's';
     }
     return 'ms';
 }
 
 function formatTimeValue(ms, format = 'ms') {
-    // Always auto-format large values for readability
-    if (format === 'auto' || ((!format || format === 'ms') && ms >= 60000)) {
-        format = getBestTimeFormat(ms);
+    if (format === 'auto' || (!format || format === 'ms')) {
+        if (ms >= 2000) {
+            format = getBestTimeFormat(ms);
+        }
     }
-    // Force days for very large values even if user selected hours
+    
     if (ms >= 86400000 && format !== 'd') {
         format = 'd';
-    }
-    // Force hours for large values even if user selected minutes
-    if (ms >= 3600000 && ms < 86400000 && format !== 'd' && format !== 'h') {
+    } else if (ms >= 3600000 && ms < 86400000 && format !== 'd' && format !== 'h') {
         format = 'h';
+    } else if (ms >= 60000 && ms < 3600000 && format !== 'd' && format !== 'h' && format !== 'm') {
+        format = 'm';
+    } else if (ms >= 2000 && ms < 60000 && format !== 'd' && format !== 'h' && format !== 'm' && format !== 's') {
+        format = 's';
     }
     
     switch (format) {
@@ -430,7 +433,12 @@ class SortingVisualizer {
             const elapsed = endTime - this.startTime + this.pausedTime;
             rawTimeValues.sortTime = elapsed;
             const formatSelect = document.getElementById('sortTimeFormat');
-            const format = formatSelect ? formatSelect.value : 'ms';
+            let format = formatSelect ? formatSelect.value : 'ms';
+            if (elapsed >= 2000) {
+                const bestFormat = getBestTimeFormat(elapsed);
+                format = bestFormat;
+                if (formatSelect) formatSelect.value = bestFormat;
+            }
             this.updateStat('sortTime', formatTimeValue(elapsed, format));
             this.render([], [], Array.from({ length: this.array.length }, (_, i) => i));
             if (typeof audioEngine !== 'undefined') audioEngine.playComplete();
@@ -1061,7 +1069,12 @@ class PathfindingVisualizer {
             const elapsed = endTime - startTime;
             rawTimeValues.pathTime = elapsed;
             const formatSelect = document.getElementById('pathTimeFormat');
-            const format = formatSelect ? formatSelect.value : 'ms';
+            let format = formatSelect ? formatSelect.value : 'ms';
+            if (elapsed >= 2000) {
+                const bestFormat = getBestTimeFormat(elapsed);
+                format = bestFormat;
+                if (formatSelect) formatSelect.value = bestFormat;
+            }
             this.updateStat('pathTime', formatTimeValue(elapsed, format));
 
             if (path && path.length > 0) {
@@ -2056,7 +2069,12 @@ class SearchingVisualizer {
             const elapsed = endTime - startTime;
             rawTimeValues.searchTime = elapsed;
             const formatSelect = document.getElementById('searchTimeFormat');
-            const format = formatSelect ? formatSelect.value : 'ms';
+            let format = formatSelect ? formatSelect.value : 'ms';
+            if (elapsed >= 2000) {
+                const bestFormat = getBestTimeFormat(elapsed);
+                format = bestFormat;
+                if (formatSelect) formatSelect.value = bestFormat;
+            }
             const timeEl = document.getElementById('searchTime');
             if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
         }
@@ -2454,7 +2472,12 @@ class GraphVisualizer {
 
             rawTimeValues.graphTime = elapsed;
             const formatSelect = document.getElementById('graphTimeFormat');
-            const format = formatSelect ? formatSelect.value : 'ms';
+            let format = formatSelect ? formatSelect.value : 'ms';
+            if (elapsed >= 2000) {
+                const bestFormat = getBestTimeFormat(elapsed);
+                format = bestFormat;
+                if (formatSelect) formatSelect.value = bestFormat;
+            }
             
             const resultEl = document.getElementById('graphResult');
             const timeEl = document.getElementById('graphTime');
@@ -2692,7 +2715,12 @@ class DPVisualizer {
             const elapsed = endTime - startTime;
             rawTimeValues.dpTime = elapsed;
             const formatSelect = document.getElementById('dpTimeFormat');
-            const format = formatSelect ? formatSelect.value : 'ms';
+            let format = formatSelect ? formatSelect.value : 'ms';
+            if (elapsed >= 2000) {
+                const bestFormat = getBestTimeFormat(elapsed);
+                format = bestFormat;
+                if (formatSelect) formatSelect.value = bestFormat;
+            }
             const timeEl = document.getElementById('dpTime');
             if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
             
@@ -2843,7 +2871,12 @@ class StringVisualizer {
             const elapsed = endTime - startTime;
             rawTimeValues.stringTime = elapsed;
             const formatSelect = document.getElementById('stringTimeFormat');
-            const format = formatSelect ? formatSelect.value : 'ms';
+            let format = formatSelect ? formatSelect.value : 'ms';
+            if (elapsed >= 2000) {
+                const bestFormat = getBestTimeFormat(elapsed);
+                format = bestFormat;
+                if (formatSelect) formatSelect.value = bestFormat;
+            }
             const timeEl = document.getElementById('stringTime');
             if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
         }
@@ -2906,7 +2939,12 @@ class MathVisualizer {
             const elapsed = endTime - startTime;
             rawTimeValues.mathTime = elapsed;
             const formatSelect = document.getElementById('mathTimeFormat');
-            const format = formatSelect ? formatSelect.value : 'ms';
+            let format = formatSelect ? formatSelect.value : 'ms';
+            if (elapsed >= 2000) {
+                const bestFormat = getBestTimeFormat(elapsed);
+                format = bestFormat;
+                if (formatSelect) formatSelect.value = bestFormat;
+            }
             const timeEl = document.getElementById('mathTime');
             if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
         }
