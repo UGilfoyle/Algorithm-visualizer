@@ -88,6 +88,10 @@ module.exports = async function handler(req, res) {
                 return res.status(400).json({ error: 'visitorId is required' });
             }
 
+            if (typeof visitorId !== 'string' || visitorId.length > 255) {
+                return res.status(400).json({ error: 'Invalid visitorId' });
+            }
+
             const existingVisitor = await pool.query(
                 'SELECT * FROM visitors WHERE visitor_id = $1',
                 [visitorId]
@@ -110,15 +114,15 @@ module.exports = async function handler(req, res) {
                          location_method = COALESCE($9, location_method)
                      WHERE visitor_id = $10`,
                     [
-                        device?.type || null,
-                        device?.os || null,
-                        device?.browser || null,
-                        device?.screen || null,
-                        location?.country || null,
-                        location?.city || null,
-                        location?.lat || null,
-                        location?.lon || null,
-                        location?.method || null,
+                        (device?.type && typeof device.type === 'string' && device.type.length <= 50) ? device.type : null,
+                        (device?.os && typeof device.os === 'string' && device.os.length <= 100) ? device.os : null,
+                        (device?.browser && typeof device.browser === 'string' && device.browser.length <= 100) ? device.browser : null,
+                        (device?.screen && typeof device.screen === 'string' && device.screen.length <= 50) ? device.screen : null,
+                        (location?.country && typeof location.country === 'string' && location.country.length <= 100) ? location.country : null,
+                        (location?.city && typeof location.city === 'string' && location.city.length <= 100) ? location.city : null,
+                        (location?.lat && typeof location.lat === 'number' && location.lat >= -90 && location.lat <= 90) ? location.lat : null,
+                        (location?.lon && typeof location.lon === 'number' && location.lon >= -180 && location.lon <= 180) ? location.lon : null,
+                        (location?.method && typeof location.method === 'string' && location.method.length <= 20) ? location.method : null,
                         visitorId
                     ]
                 );
@@ -130,15 +134,15 @@ module.exports = async function handler(req, res) {
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1)`,
                     [
                         visitorId,
-                        device?.type || null,
-                        device?.os || null,
-                        device?.browser || null,
-                        device?.screen || null,
-                        location?.country || null,
-                        location?.city || null,
-                        location?.lat || null,
-                        location?.lon || null,
-                        location?.method || null
+                        (device?.type && typeof device.type === 'string' && device.type.length <= 50) ? device.type : null,
+                        (device?.os && typeof device.os === 'string' && device.os.length <= 100) ? device.os : null,
+                        (device?.browser && typeof device.browser === 'string' && device.browser.length <= 100) ? device.browser : null,
+                        (device?.screen && typeof device.screen === 'string' && device.screen.length <= 50) ? device.screen : null,
+                        (location?.country && typeof location.country === 'string' && location.country.length <= 100) ? location.country : null,
+                        (location?.city && typeof location.city === 'string' && location.city.length <= 100) ? location.city : null,
+                        (location?.lat && typeof location.lat === 'number' && location.lat >= -90 && location.lat <= 90) ? location.lat : null,
+                        (location?.lon && typeof location.lon === 'number' && location.lon >= -180 && location.lon <= 180) ? location.lon : null,
+                        (location?.method && typeof location.method === 'string' && location.method.length <= 20) ? location.method : null
                     ]
                 );
             }
@@ -149,11 +153,11 @@ module.exports = async function handler(req, res) {
                  VALUES ($1, $2, $3, $4, $5, $6)`,
                 [
                     visitorId,
-                    device?.type || null,
-                    device?.os || null,
-                    device?.browser || null,
-                    location?.country || null,
-                    location?.city || null
+                    (device?.type && typeof device.type === 'string' && device.type.length <= 50) ? device.type : null,
+                    (device?.os && typeof device.os === 'string' && device.os.length <= 100) ? device.os : null,
+                    (device?.browser && typeof device.browser === 'string' && device.browser.length <= 100) ? device.browser : null,
+                    (location?.country && typeof location.country === 'string' && location.country.length <= 100) ? location.country : null,
+                    (location?.city && typeof location.city === 'string' && location.city.length <= 100) ? location.city : null
                 ]
             );
 
