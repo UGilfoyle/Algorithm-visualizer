@@ -1062,10 +1062,10 @@ class LanguageArena {
                             e.target.value = format;
                         }
                         // Always use best format for very large values regardless of selection
-                        if (this.rawTimes[lang] >= 86400000) { // >= 1 day
+                        if (this.rawTimes[lang] >= 86400000) {
                             format = 'd';
                             e.target.value = format;
-                        } else if (this.rawTimes[lang] >= 3600000) { // >= 1 hour
+                        } else if (this.rawTimes[lang] >= 3600000) {
                             format = 'h';
                             e.target.value = format;
                         }
