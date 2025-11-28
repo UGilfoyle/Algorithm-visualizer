@@ -14,17 +14,17 @@
     function detectDevice() {
         const ua = navigator.userAgent;
         const screen = window.screen;
-        
+
         let deviceType = 'Desktop';
         let os = 'Unknown';
         let browser = 'Unknown';
-        
+
         if (/tablet|ipad|playbook|silk/i.test(ua)) {
             deviceType = 'Tablet';
         } else if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(ua)) {
             deviceType = 'Mobile';
         }
-        
+
         if (/windows/i.test(ua)) os = 'Windows';
         else if (/mac/i.test(ua)) os = 'macOS';
         else if (/linux/i.test(ua)) os = 'Linux';
@@ -32,14 +32,14 @@
         else if (/ios|iphone|ipad|ipod/i.test(ua)) os = 'iOS';
         else if (/ubuntu/i.test(ua)) os = 'Ubuntu';
         else if (/fedora/i.test(ua)) os = 'Fedora';
-        
+
         if (/edg/i.test(ua)) browser = 'Edge';
         else if (/chrome/i.test(ua) && !/edg/i.test(ua)) browser = 'Chrome';
         else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = 'Safari';
         else if (/firefox/i.test(ua)) browser = 'Firefox';
         else if (/opera|opr/i.test(ua)) browser = 'Opera';
         else if (/brave/i.test(ua)) browser = 'Brave';
-        
+
         return {
             type: deviceType,
             os: os,
@@ -66,11 +66,11 @@
                         enableHighAccuracy: false
                     });
                 });
-                
+
                 locationData.lat = position.coords.latitude;
                 locationData.lon = position.coords.longitude;
                 locationData.method = 'geolocation';
-                
+
                 try {
                     const reverseGeo = await fetch(
                         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${locationData.lat}&longitude=${locationData.lon}&localityLanguage=en`
@@ -129,7 +129,7 @@
     function saveVisitorData(visitorId, deviceInfo, locationInfo) {
         try {
             let visitorsData = JSON.parse(localStorage.getItem(VISITORS_DATA_KEY) || '[]');
-            
+
             const existingVisitor = visitorsData.find(v => v.id === visitorId);
             const visitorData = {
                 id: visitorId,
@@ -139,19 +139,72 @@
                 lastVisit: new Date().toISOString(),
                 visitCount: existingVisitor ? existingVisitor.visitCount + 1 : 1
             };
-            
+
             if (existingVisitor) {
                 const index = visitorsData.findIndex(v => v.id === visitorId);
                 visitorsData[index] = visitorData;
             } else {
                 visitorsData.push(visitorData);
             }
-            
+
             localStorage.setItem(VISITORS_DATA_KEY, JSON.stringify(visitorsData));
             localStorage.setItem(DEVICE_INFO_KEY, JSON.stringify(deviceInfo));
             localStorage.setItem(LOCATION_INFO_KEY, JSON.stringify(locationInfo));
         } catch (e) {
             console.log('Failed to save visitor data:', e);
+        }
+    }
+
+    async function sendToDatabase(visitorId, deviceInfo, locationInfo) {
+        try {
+            const apiUrl = window.location.origin.includes('localhost') 
+                ? 'http://localhost:3000/api/visitors'
+                : '/api/visitors';
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    visitorId: visitorId,
+                    device: deviceInfo,
+                    location: locationInfo
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to send data to database');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.log('Database sync failed, using localStorage only:', error);
+            return null;
+        }
+    }
+
+    async function fetchStatsFromDatabase() {
+        try {
+            const apiUrl = window.location.origin.includes('localhost') 
+                ? 'http://localhost:3000/api/visitors'
+                : '/api/visitors';
+            
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch stats from database');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.log('Failed to fetch stats from database:', error);
+            return null;
         }
     }
 
@@ -171,27 +224,45 @@
             visitCount++;
             localStorage.setItem(VISIT_COUNT_KEY, visitCount.toString());
             localStorage.setItem(LAST_VISIT_KEY, now.toString());
+            
+            await sendToDatabase(visitorId, deviceInfo, locationInfo);
         }
 
-        return {
+        const dbStats = await fetchStatsFromDatabase();
+        const localStats = {
             totalVisits: visitCount,
             uniqueVisitors: parseInt(localStorage.getItem(UNIQUE_VISITORS_KEY) || '0'),
             visitorId: visitorId,
             device: deviceInfo,
             location: locationInfo
         };
+
+        return dbStats ? { ...localStats, dbStats } : localStats;
     }
 
-    function getStats() {
+    async function getStats() {
         const deviceInfo = JSON.parse(localStorage.getItem(DEVICE_INFO_KEY) || '{}');
         const locationInfo = JSON.parse(localStorage.getItem(LOCATION_INFO_KEY) || '{}');
         
-        return {
+        const dbStats = await fetchStatsFromDatabase();
+        
+        const localStats = {
             totalVisits: parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '0'),
             uniqueVisitors: parseInt(localStorage.getItem(UNIQUE_VISITORS_KEY) || '0'),
             device: deviceInfo,
             location: locationInfo
         };
+
+        if (dbStats && dbStats.stats) {
+            return {
+                ...localStats,
+                dbStats: dbStats.stats,
+                countries: dbStats.countries,
+                devices: dbStats.devices
+            };
+        }
+
+        return localStats;
     }
 
     function getAllVisitors() {
@@ -220,8 +291,8 @@
         });
     }
 
-    function updateVisitorDisplay() {
-        const stats = getStats();
+    async function updateVisitorDisplay() {
+        const stats = await getStats();
         const visitorDisplay = document.getElementById('visitorStats');
         if (visitorDisplay) {
             const deviceText = stats.device ? `${stats.device.type} • ${stats.device.os} • ${stats.device.browser}` : 'Unknown';
@@ -229,10 +300,13 @@
                 ? `${stats.location.city}, ${stats.location.country}` 
                 : 'Location unavailable';
             
+            const totalVisits = stats.dbStats ? stats.dbStats.totalVisits : stats.totalVisits;
+            const uniqueVisitors = stats.dbStats ? stats.dbStats.uniqueVisitors : stats.uniqueVisitors;
+            
             visitorDisplay.innerHTML = `
                 <div class="visitor-stats-row">
-                    <span>Total Visits: <strong>${stats.totalVisits.toLocaleString()}</strong></span>
-                    <span>Unique Visitors: <strong>${stats.uniqueVisitors.toLocaleString()}</strong></span>
+                    <span>Total Visits: <strong>${totalVisits.toLocaleString()}</strong></span>
+                    <span>Unique Visitors: <strong>${uniqueVisitors.toLocaleString()}</strong></span>
                 </div>
                 <div class="visitor-stats-row">
                     <span>Device: <strong>${deviceText}</strong></span>
@@ -244,6 +318,6 @@
         }
     }
 
-    setInterval(updateVisitorDisplay, 5000);
+    setInterval(updateVisitorDisplay, 10000);
 })();
 
