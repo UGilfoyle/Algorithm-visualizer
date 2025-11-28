@@ -99,6 +99,7 @@ const LANGUAGE_SPEED = {
     elixir: 4.5,     // BEAM VM - Good for concurrency, slower for CPU-bound
     python: 7.5,     // Interpreted - CPython is slower, PyPy faster
     php: 9.0,        // Interpreted - Server-side optimized
+    bash: 10.0,      // Shell script - Interpreted, slower than Python
     ruby: 11.0       // Interpreted - Slower than Python
 };
 
@@ -129,7 +130,8 @@ function getLanguageIcons() {
         csharp: 'icons/csharp.svg',
         rust: isDarkMode ? 'icons/rust-dark.png' : 'icons/rust.svg',
         go: 'icons/go.svg',
-        c: 'icons/cplusplus.svg' // Use C++ icon for C
+        c: 'icons/cplusplus.svg',
+        bash: 'icons/bash.svg'
     };
     _cachedTheme = currentTheme;
     return _cachedLanguageIcons;
@@ -158,7 +160,8 @@ function getLanguageInfo() {
             kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', icon: icons.kotlin },
             swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', icon: icons.swift },
             typescript: { name: 'TypeScript', symbol: 'TS', color: '#3178c6', icon: icons.typescript },
-            c: { name: 'C', symbol: 'C', color: '#a8b9cc', icon: icons.c }
+            c: { name: 'C', symbol: 'C', color: '#a8b9cc', icon: icons.c },
+            bash: { name: 'Bash', symbol: 'SH', color: '#4EAA25', icon: icons.bash }
         };
     }
     return _cachedLanguageInfo;
