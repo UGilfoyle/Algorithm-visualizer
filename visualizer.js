@@ -871,7 +871,7 @@ class LanguageArena {
                     <span class="lang-name">${info.name}</span>
                 </div>
                 <div class="track-bar">
-                    <div class="track-runner" id="runner-${lang}" style="background: ${info.color}; border-color: ${info.color}">
+                    <div class="track-runner" id="runner-${lang}">
                         <img src="${info.icon}" alt="${info.name}" class="lang-icon-img runner-icon" loading="lazy" />
                     </div>
                 </div>
