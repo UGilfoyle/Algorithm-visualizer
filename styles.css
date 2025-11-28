@@ -1297,7 +1297,10 @@ select:focus {
     min-height: 150px;
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .dp-cell {
@@ -1345,7 +1348,10 @@ select:focus {
     border: 1px solid var(--border-color);
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .math-container {
@@ -1358,7 +1364,10 @@ select:focus {
     border: 1px solid var(--border-color);
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .string-char {

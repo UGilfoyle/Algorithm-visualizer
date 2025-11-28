@@ -564,10 +564,6 @@
                             <span class="stat-label">Time:</span>
                             <span class="stat-value" id="stringTime">0ms</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Speed:</span>
-                            <span class="stat-value" id="stringSpeed">-</span>
-                        </div>
                     </div>
                 </div>
 
@@ -603,6 +599,10 @@
                     <div class="panel-header">
                         <h3>Math Visualization</h3>
                         <div class="controls-inline">
+                            <div class="control-group">
+                                <label>Speed</label>
+                                <input type="range" id="mathSpeed" min="1" max="100" value="50">
+                            </div>
                             <input type="number" id="mathInput1" placeholder="Number 1" value="48">
                             <input type="number" id="mathInput2" placeholder="Number 2" value="18">
                             <button id="startMath" class="btn btn-primary">▶ Calculate</button>
@@ -621,10 +621,6 @@
                         <div class="stat-item">
                             <span class="stat-label">Time:</span>
                             <span class="stat-value" id="mathTime">0ms</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Speed:</span>
-                            <span class="stat-value" id="mathSpeed">-</span>
                         </div>
                     </div>
                 </div>

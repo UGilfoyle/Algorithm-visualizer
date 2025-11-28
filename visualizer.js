@@ -1654,6 +1654,8 @@ class StringVisualizer {
         this.isRunning = true;
         this.shouldStop = false;
 
+        const startTime = performance.now();
+
         const textEl = document.getElementById('stringText');
         const patternEl = document.getElementById('stringPattern');
         const text = textEl?.value || 'ABABDABACDABABCABAB';
@@ -1697,6 +1699,13 @@ class StringVisualizer {
             }
         }
 
+        if (!this.shouldStop) {
+            const endTime = performance.now();
+            const elapsed = endTime - startTime;
+            const timeEl = document.getElementById('stringTime');
+            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+        }
+
         this.isRunning = false;
     }
 }
@@ -1707,6 +1716,7 @@ class MathVisualizer {
         this.container = document.getElementById('mathVisualization');
         this.isRunning = false;
         this.shouldStop = false;
+        this.speed = 50;
         this.init();
     }
 
@@ -1721,7 +1731,14 @@ class MathVisualizer {
 
     bindEvents() {
         const startBtn = document.getElementById('startMath');
+        const speedSlider = document.getElementById('mathSpeed');
+        
         if (startBtn) startBtn.addEventListener('click', () => this.calculate());
+        if (speedSlider) {
+            speedSlider.addEventListener('input', (e) => {
+                this.speed = parseInt(e.target.value);
+            });
+        }
     }
 
     async calculate() {
@@ -1752,6 +1769,7 @@ class MathVisualizer {
         if (!this.container) return;
         this.container.innerHTML = '';
         let steps = 0;
+        const delay = Math.max(50, 550 - (this.speed * 5));
 
         while (b !== 0 && !this.shouldStop) {
             steps++;
@@ -1766,7 +1784,7 @@ class MathVisualizer {
             this.container.appendChild(step);
 
             if (typeof audioEngine !== 'undefined') audioEngine.playTone(a % 100);
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, delay));
 
             const temp = b;
             b = a % b;
