@@ -154,9 +154,9 @@ class App {
                 if (section === 'playground') {
                     this.showPlaygroundModal();
                 } else {
-                    this.switchSection(section);
-                    navButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+                this.switchSection(section);
+                navButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
                 }
             });
         });
@@ -440,8 +440,8 @@ class App {
                     dpVisualizer.stop();
                     if (dpVisualizer.reset) {
                         dpVisualizer.reset();
-                    }
-                }
+        }
+    }
                 break;
             case 'strings':
                 if (typeof stringVisualizer !== 'undefined' && stringVisualizer) {
@@ -478,9 +478,12 @@ function initTheme() {
             localStorage.setItem('theme', newTheme);
             updateThemeUI(newTheme);
             
-            // Update Rust icons when theme changes
+            // Update Rust and Deno icons when theme changes
             if (typeof updateRustIcons === 'function') {
                 updateRustIcons();
+            }
+            if (typeof updateDenoIcons === 'function') {
+                updateDenoIcons();
             }
             
             // Re-initialize language icons

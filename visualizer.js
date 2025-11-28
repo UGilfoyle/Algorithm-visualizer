@@ -117,7 +117,7 @@ function getLanguageIcons() {
     _cachedLanguageIcons = {
         java: 'icons/java.svg',
         python: 'icons/python.svg',
-        deno: 'icons/deno.png',
+        deno: isDarkMode ? 'icons/deno-light.svg' : 'icons/deno.png',
         node: 'icons/nodejs.svg',
         typescript: 'icons/typescript.svg',
         php: 'icons/php.svg',
@@ -172,14 +172,11 @@ const LANGUAGE_ICONS = getLanguageIcons();
 const LANGUAGE_INFO = getLanguageInfo();
 
 function updateRustIcons() {
-    // Clear cache to force rebuild
     _cachedLanguageInfo = null;
     const icons = getLanguageIcons();
     const rustIcon = icons.rust;
     
-    // Batch DOM updates using requestAnimationFrame
     requestAnimationFrame(() => {
-        // Use more specific selector for better performance
         const rustImages = document.querySelectorAll('img[src*="rust"]');
         rustImages.forEach(img => {
             if (img.src.includes('rust')) {
