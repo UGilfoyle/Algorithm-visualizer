@@ -2682,7 +2682,12 @@ class SearchingVisualizer {
 
     showArrayInfo() {
         if (!this.array || this.array.length === 0) {
-            alert('Please generate an array first by clicking "Generate"');
+            const modal = document.getElementById('searchInfoModal');
+            const content = document.getElementById('searchInfoContent');
+            if (content) {
+                content.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please generate an array first by clicking "Generate"</p>';
+            }
+            if (modal) modal.style.display = 'flex';
             return;
         }
         
@@ -2699,24 +2704,68 @@ class SearchingVisualizer {
         } else {
             const first20 = this.array.slice(0, 20).join(', ');
             const last20 = this.array.slice(-20).join(', ');
-            arrayPreview = `${first20} ... (${size - 40} more values) ... ${last20}`;
+            arrayPreview = `${first20} ... <span style="color: var(--text-secondary);">(${size - 40} more values)</span> ... ${last20}`;
         }
         
-        const info = `Array Information:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Size: ${size} elements
-Min Value: ${min}
-Max Value: ${max}
-Range: ${min} to ${max}
-Is Sorted: ${isSorted ? 'Yes ✓' : 'No ✗'}
-Target: ${this.target}
-
-Array Values:
-${arrayPreview}
-
-Note: Array is generated as [5, 10, 15, ..., ${size * 5}]`;
+        const modal = document.getElementById('searchInfoModal');
+        const content = document.getElementById('searchInfoContent');
         
-        alert(info);
+        if (content) {
+            content.innerHTML = `
+                <div class="search-info-grid">
+                    <div class="search-info-item">
+                        <span class="search-info-label">Size:</span>
+                        <span class="search-info-value">${size} elements</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Min Value:</span>
+                        <span class="search-info-value">${min}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Max Value:</span>
+                        <span class="search-info-value">${max}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Range:</span>
+                        <span class="search-info-value">${min} to ${max}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Is Sorted:</span>
+                        <span class="search-info-value">${isSorted ? '<span style="color: #22c55e;">Yes ✓</span>' : '<span style="color: #dc2626;">No ✗</span>'}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Target:</span>
+                        <span class="search-info-value">${this.target}</span>
+                    </div>
+                </div>
+                <div class="search-info-array">
+                    <div class="search-info-label" style="margin-bottom: var(--spacing-sm);">Array Values:</div>
+                    <div class="search-info-array-preview">${arrayPreview}</div>
+                </div>
+                <div class="search-info-note">
+                    <strong>Note:</strong> Array is generated as [5, 10, 15, ..., ${size * 5}]
+                </div>
+            `;
+        }
+        
+        if (modal) modal.style.display = 'flex';
+        
+        // Close button handler
+        const closeBtn = document.getElementById('searchInfoCloseBtn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                if (modal) modal.style.display = 'none';
+            };
+        }
+        
+        // Close on outside click
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
     }
 
     resetStats() {

@@ -364,7 +364,7 @@
                                 <input type="range" id="searchSpeed" min="25" max="100" value="50">
                             </div>
                             <button id="generateSearchArray" class="btn btn-secondary">🔄 Generate</button>
-                            <button id="searchInfoBtn" class="btn btn-outline" title="Show array info">ℹ️ Info</button>
+                            <button id="searchInfoBtn" class="info-icon-btn" title="Show array info">i</button>
                             <button id="startSearch" class="btn btn-primary">▶ Search</button>
                             <button id="toggleSearchCompare" class="btn btn-outline">⚔️ Compare</button>
                         </div>
@@ -1285,6 +1285,15 @@
     </footer>
 
     <!-- Feedback Modal -->
+    <!-- Search Array Info Modal -->
+    <div class="search-info-modal" id="searchInfoModal" style="display: none;">
+        <div class="search-info-modal-content">
+            <button class="search-info-close-btn" id="searchInfoCloseBtn">&times;</button>
+            <h2>Array Information</h2>
+            <div id="searchInfoContent" class="search-info-content"></div>
+        </div>
+    </div>
+
     <div class="feedback-modal" id="feedbackModal" style="display: none;">
         <div class="feedback-modal-content">
             <button class="feedback-close-btn" id="feedbackCloseBtn">&times;</button>
