@@ -1469,6 +1469,19 @@ select:focus {
     content: '• • • • • • • • • • • •';
 }
 
+.footer-author {
+    margin-top: var(--spacing-md);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.footer-author .author-name {
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
 /* ========================================
    Responsive Design
    ======================================== */
