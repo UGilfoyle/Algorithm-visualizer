@@ -20,6 +20,7 @@ class App {
     }
     
     init() {
+        initLanguageIcons();
         this.setupNavigation();
         this.setupAlgorithmSelectors();
         this.setupLanguageTabs();
