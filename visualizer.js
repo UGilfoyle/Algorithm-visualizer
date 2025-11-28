@@ -467,6 +467,25 @@ class PathfindingVisualizer {
         this.shouldStop = true;
         this.isRunning = false;
 
+        // Cleanup old event listeners
+        if (this.grid && this.grid.length > 0) {
+            this.grid.forEach(row => {
+                row.forEach(cell => {
+                    if (cell && cell._handlers) {
+                        const handlers = cell._handlers;
+                        const cellEl = Array.from(this.container.children).find(
+                            el => el.dataset.row == cell.row && el.dataset.col == cell.col
+                        );
+                        if (cellEl) {
+                            cellEl.removeEventListener('mousedown', handlers.handleMouseDown);
+                            cellEl.removeEventListener('mouseenter', handlers.handleMouseEnter);
+                            cellEl.removeEventListener('mouseup', handlers.handleMouseUp);
+                        }
+                    }
+                });
+            });
+        }
+
         this.grid = [];
         this.container.innerHTML = '';
         this.container.style.gridTemplateColumns = `repeat(${this.cols}, 22px)`;
@@ -487,32 +506,51 @@ class PathfindingVisualizer {
                     cell.textContent = 'E';
                 }
 
-                // Mouse events for drawing walls
-                cell.addEventListener('mousedown', (e) => {
+                // Mouse events for drawing walls (throttled for performance)
+                let lastToggleTime = 0;
+                const throttleDelay = 16; // ~60fps
+                
+                const handleMouseDown = (e) => {
                     e.preventDefault();
                     if (!this.isRunning) {
                         this.isDrawing = true;
                         this.toggleWall(i, j);
+                        lastToggleTime = Date.now();
                     }
-                });
-                cell.addEventListener('mouseenter', () => {
-                    if (this.isDrawing && !this.isRunning) {
+                };
+                
+                const handleMouseEnter = () => {
+                    const now = Date.now();
+                    if (this.isDrawing && !this.isRunning && (now - lastToggleTime) >= throttleDelay) {
                         this.toggleWall(i, j);
+                        lastToggleTime = now;
                     }
-                });
-                cell.addEventListener('mouseup', () => {
+                };
+                
+                const handleMouseUp = () => {
                     this.isDrawing = false;
-                });
+                };
+                
+                cell.addEventListener('mousedown', handleMouseDown);
+                cell.addEventListener('mouseenter', handleMouseEnter);
+                cell.addEventListener('mouseup', handleMouseUp);
+                
+                // Store handlers for cleanup
+                cell._handlers = { handleMouseDown, handleMouseEnter, handleMouseUp };
 
                 this.container.appendChild(cell);
                 this.grid[i][j] = { isWall: false, isVisited: false, isPath: false };
             }
         }
 
-        // Global mouseup to stop drawing
-        document.addEventListener('mouseup', () => {
+        // Global mouseup to stop drawing (with cleanup)
+        if (this.globalMouseUpHandler) {
+            document.removeEventListener('mouseup', this.globalMouseUpHandler);
+        }
+        this.globalMouseUpHandler = () => {
             this.isDrawing = false;
-        });
+        };
+        document.addEventListener('mouseup', this.globalMouseUpHandler);
 
         this.resetStats();
         this.shouldStop = false;
@@ -801,6 +839,18 @@ class LanguageArena {
         const container = document.getElementById('raceTracks');
         if (!container) return;
 
+        // Use DocumentFragment for better performance
+        const fragment = document.createDocumentFragment();
+        const oldTracks = container.querySelectorAll('.race-track');
+        
+        // Cleanup old event listeners before removing
+        oldTracks.forEach(track => {
+            const timeFormatSelect = track.querySelector('select');
+            if (timeFormatSelect && timeFormatSelect._changeHandler) {
+                timeFormatSelect.removeEventListener('change', timeFormatSelect._changeHandler);
+            }
+        });
+        
         container.innerHTML = '';
 
         this.selectedLanguages.forEach(lang => {
@@ -812,12 +862,12 @@ class LanguageArena {
             track.id = `track-${lang}`;
             track.innerHTML = `
                 <div class="track-lang">
-                    <img src="${info.icon}" alt="${info.name}" class="lang-icon-img" />
+                    <img src="${info.icon}" alt="${info.name}" class="lang-icon-img" loading="lazy" />
                     <span class="lang-name">${info.name}</span>
                 </div>
                 <div class="track-bar">
                     <div class="track-runner" id="runner-${lang}" style="background: ${info.color}; border-color: ${info.color}">
-                        <img src="${info.icon}" alt="${info.name}" class="lang-icon-img runner-icon" />
+                        <img src="${info.icon}" alt="${info.name}" class="lang-icon-img runner-icon" loading="lazy" />
                     </div>
                 </div>
                 <div class="track-time" id="time-${lang}">

@@ -4,12 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
+    <meta name="theme-color" content="#1a1a2e">
     <title>Algorithm Universe | 100+ Algorithm Visualizations</title>
+    
+    <!-- Resource Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="main.js" as="script">
+    <link rel="preload" href="visualizer.js" as="script">
+    
+    <!-- Stylesheets -->
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"></noscript>
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -863,6 +878,24 @@
     <script src="algorithms.js"></script>
     <script src="visualizer.js"></script>
     <script src="main.js"></script>
+    <script>
+        // Register Service Worker for caching
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => {
+                        console.log('Service Worker registered:', reg);
+                        // Check for updates every hour
+                        setInterval(() => {
+                            reg.update();
+                        }, 3600000);
+                    })
+                    .catch((err) => {
+                        console.log('Service Worker registration failed:', err);
+                    });
+            });
+        }
+    </script>
     <script>
         // Initialize icons after all scripts load
         document.addEventListener('DOMContentLoaded', () => {

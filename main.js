@@ -30,9 +30,14 @@ function initLanguageIcons() {
         'elixir': 'elixir'
     };
     
+    // Icon cache to avoid redundant processing
+    const processedIcons = new WeakSet();
+    
     function injectIcons() {
         // Update all lang-logo elements with data-lang attribute
         document.querySelectorAll('.lang-logo[data-lang], span[data-lang]').forEach(el => {
+            if (processedIcons.has(el)) return;
+            
             const lang = el.getAttribute('data-lang');
             if (!lang) return;
             
@@ -44,13 +49,19 @@ function initLanguageIcons() {
                     img.src = LANGUAGE_ICONS[iconKey];
                     img.alt = lang;
                     img.className = 'lang-icon-img';
+                    img.loading = 'lazy'; // Lazy load icons
                     el.replaceWith(img);
+                    processedIcons.add(img);
+                } else {
+                    processedIcons.add(el);
                 }
             }
         });
         
         // Also check parent buttons with data-lang and find/create icon
         document.querySelectorAll('.lang-tab[data-lang]').forEach(button => {
+            if (processedIcons.has(button)) return;
+            
             const lang = button.getAttribute('data-lang');
             const iconKey = langMap[lang];
             if (iconKey && LANGUAGE_ICONS[iconKey]) {
@@ -64,11 +75,17 @@ function initLanguageIcons() {
                     img.src = LANGUAGE_ICONS[iconKey];
                     img.alt = lang;
                     img.className = 'lang-icon-img';
+                    img.loading = 'lazy'; // Lazy load icons
                     button.insertBefore(img, button.firstChild);
+                    processedIcons.add(img);
                 } else if (iconEl.tagName === 'IMG') {
-                    // Update existing img src
-                    iconEl.src = LANGUAGE_ICONS[iconKey];
+                    // Only update if src is different
+                    if (iconEl.src !== new URL(LANGUAGE_ICONS[iconKey], window.location.href).href) {
+                        iconEl.src = LANGUAGE_ICONS[iconKey];
+                    }
+                    processedIcons.add(iconEl);
                 }
+                processedIcons.add(button);
             }
         });
     }
@@ -76,13 +93,37 @@ function initLanguageIcons() {
     // Initial injection
     injectIcons();
     
-    // Watch for dynamically added elements
+    // Watch for dynamically added elements (optimized with debouncing)
     if (!window.iconObserver) {
-        window.iconObserver = new MutationObserver(() => {
-            injectIcons();
+        let iconUpdateTimeout;
+        const debouncedInjectIcons = () => {
+            clearTimeout(iconUpdateTimeout);
+            iconUpdateTimeout = setTimeout(() => {
+                injectIcons();
+            }, 100); // Debounce to avoid excessive calls
+        };
+        
+        window.iconObserver = new MutationObserver((mutations) => {
+            // Only process if relevant nodes were added
+            const hasRelevantChanges = mutations.some(mutation => {
+                return Array.from(mutation.addedNodes).some(node => {
+                    return node.nodeType === 1 && (
+                        node.classList?.contains('lang-tab') ||
+                        node.querySelector?.('.lang-tab, .lang-logo, [data-lang]')
+                    );
+                });
+            });
+            
+            if (hasRelevantChanges) {
+                debouncedInjectIcons();
+            }
         });
         
-        window.iconObserver.observe(document.body, { childList: true, subtree: true });
+        // Only observe childList changes, not attributes or characterData
+        window.iconObserver.observe(document.body, { 
+            childList: true, 
+            subtree: true 
+        });
     }
 }
 
