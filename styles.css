@@ -1408,7 +1408,9 @@ select:focus {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     overflow-x: auto;
+    overflow-y: auto;
     justify-content: center;
+    max-height: 400px;
 }
 
 .cell {
@@ -2011,7 +2013,7 @@ select:focus {
     min-height: 150px;
     max-height: 400px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
