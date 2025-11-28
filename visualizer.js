@@ -96,23 +96,26 @@ function stopAllVisualizations() {
 
 // Language performance multipliers (higher = slower execution time)
 // Based on real-world benchmarks for typical algorithms
+// Language performance multipliers based on real-world benchmarks
+// Lower multiplier = faster execution time
+// Based on average performance across multiple algorithm types
 const LANGUAGE_SPEED = {
-    cpp: 1.0,        // Baseline (fastest)
-    rust: 1.0,       // Similar to C++
-    c: 1.0,          // Similar to C++
-    go: 1.2,         // Slightly slower than C++
-    java: 1.5,       // JIT compiled, fast but not as fast as native
-    csharp: 1.6,     // Similar to Java
-    kotlin: 1.7,     // JVM-based, similar to Java
-    swift: 1.3,      // Fast, optimized
-    node: 2.0,       // V8 JIT, surprisingly fast for JS
-    deno: 2.1,       // Deno runtime, V8 based, slightly slower than Node
-    javascript: 2.2, // V8 optimized but still slower
-    typescript: 2.2, // Compiles to JS, similar performance
-    python: 8.0,     // Interpreted, significantly slower
-    ruby: 12.0,      // Interpreted, slower than Python
-    php: 10.0,       // Server-side, slower
-    elixir: 5.0      // BEAM VM, moderate speed
+    cpp: 1.0,        // Baseline (fastest) - Native compiled
+    rust: 1.0,       // Similar to C++ - Native compiled, zero-cost abstractions
+    c: 1.0,          // Similar to C++ - Native compiled
+    go: 1.15,        // Slightly slower - Compiled, GC overhead
+    swift: 1.2,      // Fast - Native compiled, ARC
+    java: 1.4,       // JIT compiled - HotSpot optimization
+    csharp: 1.5,     // Similar to Java - .NET JIT
+    kotlin: 1.6,     // JVM-based - Similar to Java
+    node: 1.8,       // V8 JIT - Highly optimized JavaScript
+    deno: 1.9,       // V8 based - Similar to Node, slight overhead
+    javascript: 2.0, // V8 optimized - Modern JS engines are fast
+    typescript: 2.0, // Compiles to JS - Same performance as JS
+    elixir: 4.5,     // BEAM VM - Good for concurrency, slower for CPU-bound
+    python: 7.5,     // Interpreted - CPython is slower, PyPy faster
+    php: 9.0,        // Interpreted - Server-side optimized
+    ruby: 11.0       // Interpreted - Slower than Python
 };
 
 // Language icon paths - cached for performance
