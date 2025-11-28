@@ -22,9 +22,17 @@ function getBestTimeFormat(ms) {
 }
 
 function formatTimeValue(ms, format = 'ms') {
-    // Auto-format if format is 'auto' or if using default 'ms' for large values
+    // Always auto-format large values for readability
     if (format === 'auto' || ((!format || format === 'ms') && ms >= 60000)) {
         format = getBestTimeFormat(ms);
+    }
+    // Force days for very large values even if user selected hours
+    if (ms >= 86400000 && format !== 'd') {
+        format = 'd';
+    }
+    // Force hours for large values even if user selected minutes
+    if (ms >= 3600000 && ms < 86400000 && format !== 'd' && format !== 'h') {
+        format = 'h';
     }
     
     switch (format) {
