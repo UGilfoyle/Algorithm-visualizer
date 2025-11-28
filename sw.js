@@ -3,18 +3,7 @@ const CACHE_NAME = 'algorithm-visualizer-v1';
 const STATIC_CACHE = 'static-v1';
 const ICON_CACHE = 'icons-v1';
 
-// Get base path for GitHub Pages compatibility
-const getBasePath = () => {
-    // For GitHub Pages, use repository name as base path
-    // For root domain or Vercel, use empty string
-    const path = self.location.pathname;
-    if (path.includes('/Algorithm-visualizer/')) {
-        return '/Algorithm-visualizer';
-    }
-    return '';
-};
-
-const BASE_PATH = getBasePath();
+const BASE_PATH = '';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -31,8 +20,7 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(STATIC_CACHE).then((cache) => {
-            return cache.addAll(STATIC_ASSETS).catch((err) => {
-                console.log('Cache install error:', err);
+            return cache.addAll(STATIC_ASSETS).catch(() => {
             });
         })
     );
@@ -81,8 +69,8 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Cache static assets
-    const assetPath = url.pathname.replace(BASE_PATH, '');
-    if (STATIC_ASSETS.some(asset => assetPath.includes(asset.replace(BASE_PATH, ''))) ||
+    const assetPath = url.pathname;
+    if (STATIC_ASSETS.some(asset => assetPath.includes(asset)) ||
         assetPath === '/' || assetPath === '/index.html' ||
         assetPath.endsWith('.css') || assetPath.endsWith('.js')) {
         event.respondWith(
