@@ -1777,9 +1777,9 @@ class LanguageArena {
         const maxTime = Math.max(...this.results.map(r => r.time));
         const minTime = Math.min(...this.results.map(r => r.time));
         
-        // Create SVG line graph
-        const width = 700;
-        const height = 450;
+        // Create SVG line graph (rectangular aspect ratio)
+        const width = 750;
+        const height = 420;
         const padding = { top: 50, right: 80, bottom: 80, left: 80 };
         const chartWidth = width - padding.left - padding.right;
         const chartHeight = height - padding.top - padding.bottom;
