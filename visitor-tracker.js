@@ -157,10 +157,10 @@
 
     async function sendToDatabase(visitorId, deviceInfo, locationInfo) {
         try {
-            const apiUrl = window.location.origin.includes('localhost') 
+            const apiUrl = window.location.origin.includes('localhost')
                 ? 'http://localhost:3000/api/visitors'
                 : '/api/visitors';
-            
+
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
@@ -186,10 +186,10 @@
 
     async function fetchStatsFromDatabase() {
         try {
-            const apiUrl = window.location.origin.includes('localhost') 
+            const apiUrl = window.location.origin.includes('localhost')
                 ? 'http://localhost:3000/api/visitors'
                 : '/api/visitors';
-            
+
             const response = await fetch(apiUrl, {
                 method: 'GET',
                 headers: {
@@ -217,14 +217,14 @@
 
         const deviceInfo = detectDevice();
         const locationInfo = await getLocation();
-        
+
         saveVisitorData(visitorId, deviceInfo, locationInfo);
 
         if (now - lastVisit > 30000) {
             visitCount++;
             localStorage.setItem(VISIT_COUNT_KEY, visitCount.toString());
             localStorage.setItem(LAST_VISIT_KEY, now.toString());
-            
+
             await sendToDatabase(visitorId, deviceInfo, locationInfo);
         }
 
@@ -243,9 +243,9 @@
     async function getStats() {
         const deviceInfo = JSON.parse(localStorage.getItem(DEVICE_INFO_KEY) || '{}');
         const locationInfo = JSON.parse(localStorage.getItem(LOCATION_INFO_KEY) || '{}');
-        
+
         const dbStats = await fetchStatsFromDatabase();
-        
+
         const localStats = {
             totalVisits: parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '0'),
             uniqueVisitors: parseInt(localStorage.getItem(UNIQUE_VISITORS_KEY) || '0'),
@@ -281,43 +281,14 @@
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            trackVisit().then(() => {
-                updateVisitorDisplay();
-            });
+            trackVisit();
         });
     } else {
-        trackVisit().then(() => {
-            updateVisitorDisplay();
-        });
+        trackVisit();
     }
 
     async function updateVisitorDisplay() {
-        const stats = await getStats();
-        const visitorDisplay = document.getElementById('visitorStats');
-        if (visitorDisplay) {
-            const deviceText = stats.device ? `${stats.device.type} • ${stats.device.os} • ${stats.device.browser}` : 'Unknown';
-            const locationText = stats.location && stats.location.country !== 'Unknown' 
-                ? `${stats.location.city}, ${stats.location.country}` 
-                : 'Location unavailable';
-            
-            const totalVisits = stats.dbStats ? stats.dbStats.totalVisits : stats.totalVisits;
-            const uniqueVisitors = stats.dbStats ? stats.dbStats.uniqueVisitors : stats.uniqueVisitors;
-            
-            visitorDisplay.innerHTML = `
-                <div class="visitor-stats-row">
-                    <span>Total Visits: <strong>${totalVisits.toLocaleString()}</strong></span>
-                    <span>Unique Visitors: <strong>${uniqueVisitors.toLocaleString()}</strong></span>
-                </div>
-                <div class="visitor-stats-row">
-                    <span>Device: <strong>${deviceText}</strong></span>
-                </div>
-                <div class="visitor-stats-row">
-                    <span>Location: <strong>${locationText}</strong></span>
-                </div>
-            `;
-        }
+        // Data is tracked and stored in database, but not displayed to users
     }
-
-    setInterval(updateVisitorDisplay, 10000);
 })();
 
