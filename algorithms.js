@@ -2106,7 +2106,9 @@ const LANGUAGES = {
     ruby: { name: 'Ruby', icon: '💎', color: '#cc342d' },
     swift: { name: 'Swift', icon: '🍎', color: '#fa7343' },
     kotlin: { name: 'Kotlin', icon: '🎯', color: '#7f52ff' },
-    c: { name: 'C', icon: '🔵', color: '#a8b9cc' }
+    c: { name: 'C', icon: '🔵', color: '#a8b9cc' },
+    node: { name: 'Node.js', icon: '🟢', color: '#339933' },
+    deno: { name: 'Deno', icon: '🦕', color: '#000000' }
 };
 
 // Get all algorithms as flat array

@@ -18,28 +18,28 @@ class App {
         };
         this.init();
     }
-
+    
     init() {
         this.setupNavigation();
         this.setupAlgorithmSelectors();
         this.setupLanguageTabs();
         this.loadAlgorithmInfo();
     }
-
+    
     setupNavigation() {
         const navButtons = document.querySelectorAll('.nav-btn');
-
+        
         navButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const section = btn.dataset.section;
                 this.switchSection(section);
-
+                
                 navButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             });
         });
     }
-
+    
     switchSection(sectionId) {
         // Stop all running visualizations before switching
         if (typeof window.stopAllVisualizations === 'function') {
@@ -54,7 +54,7 @@ class App {
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
         });
-
+        
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.classList.add('active');
@@ -62,11 +62,11 @@ class App {
             this.onSectionChange(sectionId);
         }
     }
-
+    
     onSectionChange(sectionId) {
         // Short delay to ensure stop completes
         setTimeout(() => {
-            switch (sectionId) {
+        switch (sectionId) {
                 case 'sorting':
                     if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
                         sortingVisualizer.generateArray();
@@ -77,7 +77,7 @@ class App {
                         searchingVisualizer.generateArray();
                     }
                     break;
-                case 'pathfinding':
+            case 'pathfinding':
                     if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
                         pathfindingVisualizer.initGrid();
                     }
@@ -102,18 +102,18 @@ class App {
                     if (typeof stringVisualizer !== 'undefined' && stringVisualizer) {
                         stringVisualizer.render();
                     }
-                    break;
+                break;
                 case 'math':
                     if (typeof mathVisualizer !== 'undefined' && mathVisualizer) {
                         // Math visualizer ready
-                    }
-                    break;
+                }
+                break;
                 case 'arena':
                     if (typeof languageArena !== 'undefined' && languageArena) {
                         languageArena.reset();
-                    }
-                    break;
-            }
+                }
+                break;
+        }
             this.loadAlgorithmInfo();
         }, 150);
     }
@@ -245,8 +245,8 @@ class App {
                     this.currentLanguage = activeLang;
                 }
             }
-            // Node.js uses JavaScript code
-            const langCode = activeLang === 'node' ? 'javascript' : activeLang;
+            // Node.js and Deno use JavaScript code
+            const langCode = (activeLang === 'node' || activeLang === 'deno') ? 'javascript' : activeLang;
             const code = algo.code[langCode] || algo.code.javascript || algo.code.java || algo.code.cpp || 'No implementation available';
             codeEl.textContent = code;
         }
@@ -315,7 +315,7 @@ function initTheme() {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     const app = new App();
-
+    
     console.log(`
     ᛭ ALGORITHM UNIVERSE ᛭
     
