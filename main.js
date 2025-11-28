@@ -421,6 +421,16 @@ function initTheme() {
             localStorage.setItem('theme', newTheme);
             updateThemeUI(newTheme);
             
+            // Update Rust icons when theme changes
+            if (typeof updateRustIcons === 'function') {
+                updateRustIcons();
+            }
+            
+            // Re-initialize language icons
+            if (typeof initLanguageIcons === 'function') {
+                setTimeout(() => initLanguageIcons(), 100);
+            }
+            
             if (typeof audioEngine !== 'undefined') {
                 audioEngine.playSectionChange();
             }
