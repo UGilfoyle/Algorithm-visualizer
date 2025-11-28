@@ -1398,9 +1398,9 @@ select:focus {
     align-items: center;
     gap: var(--spacing-md);
     padding: var(--spacing-md);
-    background: var(--bg-secondary);
+    background: transparent;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
+    border: none;
     margin-bottom: var(--spacing-sm);
     transition: all 0.3s ease;
 }
