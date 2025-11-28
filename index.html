@@ -84,7 +84,7 @@
                     <!-- Algorithms will be populated by JS -->
                 </div>
             </div>
-            
+
             <div class="visualization-split">
                 <div class="viz-panel">
                     <div class="panel-header">
@@ -95,7 +95,7 @@
                                 <input type="range" id="arraySize" min="10" max="100" value="30">
                                 <span id="arraySizeValue">30</span>
                             </div>
-                <div class="control-group">
+                            <div class="control-group">
                                 <label>Speed</label>
                                 <input type="range" id="sortSpeed" min="1" max="100" value="50">
                             </div>
@@ -121,7 +121,7 @@
                                 <option value="ms" selected>ms</option>
                                 <option value="s">sec</option>
                                 <option value="m">min</option>
-                        </select>
+                            </select>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Speed:</span>
@@ -134,9 +134,9 @@
                     <div class="panel-header">
                         <h3>Code Implementation</h3>
                         <div class="language-tabs" id="languageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JavaScript</button>
+                            <button class="lang-tab" data-lang="javascript">JavaScript</button>
                             <button class="lang-tab" data-lang="python">Python</button>
-                            <button class="lang-tab" data-lang="java">Java</button>
+                            <button class="lang-tab active" data-lang="java">Java</button>
                             <button class="lang-tab" data-lang="cpp">C++</button>
                             <button class="lang-tab" data-lang="c">C</button>
                             <button class="lang-tab" data-lang="go">Go</button>
@@ -234,9 +234,9 @@
                     <div class="panel-header">
                         <h3>Code Implementation</h3>
                         <div class="language-tabs" id="searchLanguageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JavaScript</button>
+                            <button class="lang-tab" data-lang="javascript">JavaScript</button>
                             <button class="lang-tab" data-lang="python">Python</button>
-                            <button class="lang-tab" data-lang="java">Java</button>
+                            <button class="lang-tab active" data-lang="java">Java</button>
                             <button class="lang-tab" data-lang="cpp">C++</button>
                             <button class="lang-tab" data-lang="go">Go</button>
                             <button class="lang-tab" data-lang="rust">Rust</button>
@@ -285,37 +285,37 @@
                     <div class="panel-header">
                         <h3>Grid Visualization</h3>
                         <div class="controls-inline">
-                <div class="control-group">
-                    <label>Speed</label>
-                    <input type="range" id="pathSpeed" min="1" max="100" value="50">
-                </div>
-                        <select id="mazePattern">
-                            <option value="random">Random Walls</option>
-                            <option value="recursive">Recursive Division</option>
-                            <option value="spiral">Spiral</option>
-                            <option value="clear">Clear Grid</option>
-                        </select>
+                            <div class="control-group">
+                                <label>Speed</label>
+                                <input type="range" id="pathSpeed" min="1" max="100" value="50">
+                            </div>
+                            <select id="mazePattern">
+                                <option value="random">Random Walls</option>
+                                <option value="recursive">Recursive Division</option>
+                                <option value="spiral">Spiral</option>
+                                <option value="clear">Clear Grid</option>
+                            </select>
                             <button id="generateMaze" class="btn btn-secondary">🏗️ Maze</button>
                             <button id="startPath" class="btn btn-primary">▶ Find Path</button>
                             <button id="clearPath" class="btn btn-outline">🧹 Clear</button>
                         </div>
                     </div>
-                <div class="grid-container" id="pathGrid"></div>
-                <div class="legend">
-                    <div class="legend-item"><span class="legend-color start"></span>Start</div>
-                    <div class="legend-item"><span class="legend-color end"></span>End</div>
-                    <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
-                    <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
-                    <div class="legend-item"><span class="legend-color path"></span>Path</div>
-                </div>
+                    <div class="grid-container" id="pathGrid"></div>
+                    <div class="legend">
+                        <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                        <div class="legend-item"><span class="legend-color end"></span>End</div>
+                        <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                        <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                        <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                    </div>
                     <div class="stats-row">
                         <div class="stat-item">
                             <span class="stat-label">Nodes Visited:</span>
-                    <span class="stat-value" id="nodesVisited">0</span>
-                </div>
+                            <span class="stat-value" id="nodesVisited">0</span>
+                        </div>
                         <div class="stat-item">
                             <span class="stat-label">Path Length:</span>
-                    <span class="stat-value" id="pathLength">0</span>
+                            <span class="stat-value" id="pathLength">0</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Time:</span>
@@ -337,9 +337,9 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="pathLanguageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="javascript">JS</button>
                             <button class="lang-tab" data-lang="python">Py</button>
-                            <button class="lang-tab" data-lang="cpp">C++</button>
+                            <button class="lang-tab active" data-lang="cpp">C++</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -396,7 +396,7 @@
                         <div class="stat-item">
                             <span class="stat-label">Speed:</span>
                             <span class="stat-value" id="treeSpeed">-</span>
-                </div>
+                        </div>
                     </div>
                 </div>
 
@@ -404,9 +404,9 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="treeLanguageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="javascript">JS</button>
                             <button class="lang-tab" data-lang="python">Py</button>
-                            <button class="lang-tab" data-lang="java">Java</button>
+                            <button class="lang-tab active" data-lang="java">Java</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -432,13 +432,17 @@
                     <div class="panel-header">
                         <h3>Graph Visualization</h3>
                         <div class="controls-inline">
+                            <div class="control-group">
+                                <label>Speed</label>
+                                <input type="range" id="graphSpeed" min="1" max="100" value="50">
+                            </div>
                             <select id="graphType">
                                 <option value="random">Random Graph</option>
                                 <option value="complete">Complete Graph</option>
                                 <option value="bipartite">Bipartite</option>
                                 <option value="dag">DAG</option>
                             </select>
-                            <input type="number" id="graphNodes" placeholder="Nodes" min="3" max="20" value="8">
+                            <input type="number" id="graphNodes" placeholder="Nodes" min="3" max="100" value="8">
                             <button id="generateGraph" class="btn btn-secondary">🔄 Generate</button>
                             <button id="startGraphAlgo" class="btn btn-primary">▶ Run</button>
                             <button id="clearGraph" class="btn btn-outline">🧹 Clear</button>
@@ -466,8 +470,8 @@
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Speed:</span>
-                            <span class="stat-value" id="graphSpeed">-</span>
-                </div>
+                            <span class="stat-value" id="graphSpeedStat">-</span>
+                        </div>
                     </div>
                 </div>
 
@@ -475,9 +479,9 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="graphLanguageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="javascript">JS</button>
                             <button class="lang-tab" data-lang="python">Py</button>
-                            <button class="lang-tab" data-lang="cpp">C++</button>
+                            <button class="lang-tab active" data-lang="cpp">C++</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -533,9 +537,9 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="dpLanguageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="javascript">JS</button>
                             <button class="lang-tab" data-lang="python">Py</button>
-                            <button class="lang-tab" data-lang="cpp">C++</button>
+                            <button class="lang-tab active" data-lang="cpp">C++</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -591,9 +595,9 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="stringLanguageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="javascript">JS</button>
                             <button class="lang-tab" data-lang="python">Py</button>
-                            <button class="lang-tab" data-lang="java">Java</button>
+                            <button class="lang-tab active" data-lang="java">Java</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -649,9 +653,9 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="mathLanguageTabs">
-                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="javascript">JS</button>
                             <button class="lang-tab" data-lang="python">Py</button>
-                            <button class="lang-tab" data-lang="cpp">C++</button>
+                            <button class="lang-tab active" data-lang="cpp">C++</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -737,7 +741,7 @@
                     <span>Progress</span>
                     <span>Time</span>
                     <span>Position</span>
-                    </div>
+                </div>
                 <div class="race-tracks" id="raceTracks">
                     <!-- Race tracks will be generated dynamically -->
                 </div>

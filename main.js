@@ -222,9 +222,30 @@ class App {
             math: 'mathCodeDisplay'
         };
 
+        const tabContainerIds = {
+            sorting: 'languageTabs',
+            searching: 'searchLanguageTabs',
+            pathfinding: 'pathLanguageTabs',
+            trees: 'treeLanguageTabs',
+            graphs: 'graphLanguageTabs',
+            dp: 'dpLanguageTabs',
+            strings: 'stringLanguageTabs',
+            math: 'mathLanguageTabs'
+        };
+
         const codeEl = document.getElementById(codeDisplayIds[section]);
         if (codeEl && algo.code) {
-            const code = algo.code[this.currentLanguage] || algo.code.javascript || 'No implementation available';
+            // Get the active language from the tabs
+            const tabContainer = document.getElementById(tabContainerIds[section]);
+            let activeLang = 'javascript';
+            if (tabContainer) {
+                const activeTab = tabContainer.querySelector('.lang-tab.active');
+                if (activeTab) {
+                    activeLang = activeTab.dataset.lang;
+                    this.currentLanguage = activeLang;
+                }
+            }
+            const code = algo.code[activeLang] || algo.code.java || algo.code.cpp || algo.code.javascript || 'No implementation available';
             codeEl.textContent = code;
         }
 

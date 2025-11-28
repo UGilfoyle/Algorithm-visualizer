@@ -689,7 +689,7 @@ class LanguageArena {
     constructor() {
         this.isRacing = false;
         this.shouldStop = false;
-        this.selectedLanguages = ['javascript', 'python', 'java', 'cpp', 'go', 'rust'];
+        this.selectedLanguages = [];
         this.iterations = 10000;
         this.algorithm = 'fibonacci';
         this.results = [];
@@ -698,8 +698,16 @@ class LanguageArena {
     }
 
     init() {
+        this.updateSelectedLanguages();
         this.bindEvents();
         this.renderTracks();
+    }
+
+    updateSelectedLanguages() {
+        const langCheckboxes = document.querySelectorAll('#languageSelection input[type="checkbox"]');
+        this.selectedLanguages = Array.from(langCheckboxes)
+            .filter(c => c.checked)
+            .map(c => c.value);
     }
 
     bindEvents() {
@@ -726,9 +734,7 @@ class LanguageArena {
 
         langCheckboxes.forEach(cb => {
             cb.addEventListener('change', () => {
-                this.selectedLanguages = Array.from(langCheckboxes)
-                    .filter(c => c.checked)
-                    .map(c => c.value);
+                this.updateSelectedLanguages();
                 this.renderTracks();
             });
         });
@@ -1323,6 +1329,8 @@ class GraphVisualizer {
         this.edges = [];
         this.isRunning = false;
         this.shouldStop = false;
+        this.speed = 50;
+        this.startTime = null;
         this.svg = document.getElementById('graphSvg');
         this.init();
     }
@@ -1341,10 +1349,16 @@ class GraphVisualizer {
         const generateBtn = document.getElementById('generateGraph');
         const startBtn = document.getElementById('startGraphAlgo');
         const clearBtn = document.getElementById('clearGraph');
+        const speedSlider = document.getElementById('graphSpeed');
 
         if (generateBtn) generateBtn.addEventListener('click', () => this.generateGraph());
         if (startBtn) startBtn.addEventListener('click', () => this.runAlgorithm());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clear());
+        if (speedSlider) {
+            speedSlider.addEventListener('input', (e) => {
+                this.speed = parseInt(e.target.value);
+            });
+        }
     }
 
     generateGraph() {
@@ -1392,6 +1406,7 @@ class GraphVisualizer {
         if (this.isRunning || this.nodes.length === 0) return;
         this.isRunning = true;
         this.shouldStop = false;
+        this.startTime = performance.now();
 
         this.render();
 
@@ -1399,6 +1414,7 @@ class GraphVisualizer {
         const queue = [0];
         visited.add(0);
         const result = [];
+        const delay = Math.max(10, 510 - (this.speed * 5));
 
         while (queue.length > 0 && !this.shouldStop) {
             const current = queue.shift();
@@ -1406,7 +1422,7 @@ class GraphVisualizer {
 
             this.highlightNode(current);
             if (typeof audioEngine !== 'undefined') audioEngine.playVisit();
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, delay));
 
             for (const edge of this.edges) {
                 if (this.shouldStop) break;
@@ -1422,8 +1438,19 @@ class GraphVisualizer {
         }
 
         if (!this.shouldStop) {
+            const endTime = performance.now();
+            const elapsed = endTime - this.startTime;
+            const steps = result.length;
+            const speed = steps > 0 ? (steps / (elapsed / 1000)).toFixed(1) : '0';
+
             const resultEl = document.getElementById('graphResult');
+            const timeEl = document.getElementById('graphTime');
+            const speedEl = document.getElementById('graphSpeedStat');
+
             if (resultEl) resultEl.textContent = result.join(' → ');
+            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+            if (speedEl) speedEl.textContent = `${speed} ops/s`;
+
             if (typeof audioEngine !== 'undefined') audioEngine.playComplete();
         }
 
