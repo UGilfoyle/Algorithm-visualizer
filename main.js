@@ -2,6 +2,74 @@
 // Main Application Controller
 // ========================================
 
+// Initialize SVG icons
+function initLanguageIcons() {
+    // Wait for LANGUAGE_SVGS to be available
+    if (typeof LANGUAGE_SVGS === 'undefined') {
+        setTimeout(() => initLanguageIcons(), 100);
+        return;
+    }
+    
+    // Map language names to SVG keys
+    const langMap = {
+        'python': 'python',
+        'java': 'java',
+        'node': 'node',
+        'deno': 'deno',
+        'cpp': 'cpp',
+        'c': 'cpp', // Use C++ SVG for C
+        'go': 'go',
+        'rust': 'rust',
+        'typescript': 'typescript',
+        'ruby': 'ruby',
+        'swift': 'swift',
+        'kotlin': 'kotlin',
+        'csharp': 'csharp',
+        'javascript': 'javascript',
+        'php': 'php',
+        'elixir': 'elixir'
+    };
+    
+    function injectSVGs() {
+        // Update all lang-logo elements with data-lang attribute
+        document.querySelectorAll('.lang-logo[data-lang], .lang-logo-svg[data-lang]').forEach(el => {
+            const lang = el.getAttribute('data-lang');
+            const svgKey = langMap[lang];
+            if (svgKey && LANGUAGE_SVGS[svgKey]) {
+                el.innerHTML = LANGUAGE_SVGS[svgKey];
+                el.className = 'lang-logo-svg';
+            }
+        });
+        
+        // Also check for elements that might be created dynamically
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            if (el.classList.contains('lang-logo') || el.classList.contains('lang-logo-svg')) {
+                const lang = el.getAttribute('data-lang');
+                const svgKey = langMap[lang];
+                if (svgKey && LANGUAGE_SVGS[svgKey] && !el.innerHTML.trim()) {
+                    el.innerHTML = LANGUAGE_SVGS[svgKey];
+                    el.className = 'lang-logo-svg';
+                }
+            }
+        });
+    }
+    
+    // Initial injection
+    injectSVGs();
+    
+    // Watch for dynamically added elements
+    if (!window.svgObserver) {
+        window.svgObserver = new MutationObserver(() => {
+            injectSVGs();
+        });
+        
+        window.svgObserver.observe(document.body, { childList: true, subtree: true });
+    }
+}
+
+// Make function globally available
+window.initLanguageIcons = initLanguageIcons;
+
 class App {
     constructor() {
         this.currentSection = 'sorting';
