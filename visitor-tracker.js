@@ -55,55 +55,75 @@
             city: 'Unknown',
             lat: null,
             lon: null,
-            method: 'none'
+            method: 'ip'
         };
 
-        if (navigator.geolocation) {
-            try {
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        timeout: 5000,
-                        enableHighAccuracy: false
-                    });
-                });
-
-                locationData.lat = position.coords.latitude;
-                locationData.lon = position.coords.longitude;
-                locationData.method = 'geolocation';
-
-                try {
-                    const reverseGeo = await fetch(
-                        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${locationData.lat}&longitude=${locationData.lon}&localityLanguage=en`
-                    );
-                    const geoData = await reverseGeo.json();
-                    if (geoData.countryName) locationData.country = geoData.countryName;
-                    if (geoData.city) locationData.city = geoData.city;
-                } catch (e) {
-                }
-            } catch (e) {
+        const ipServices = [
+            {
+                url: 'https://ipapi.co/json/',
+                parse: (data) => ({
+                    country: data.country_name,
+                    city: data.city,
+                    lat: data.latitude,
+                    lon: data.longitude,
+                    region: data.region,
+                    postal: data.postal
+                })
+            },
+            {
+                url: 'https://ip-api.com/json/',
+                parse: (data) => ({
+                    country: data.country,
+                    city: data.city,
+                    lat: data.lat,
+                    lon: data.lon,
+                    region: data.regionName,
+                    postal: data.zip
+                })
+            },
+            {
+                url: 'https://api.ipgeolocation.io/ipgeo?apiKey=free',
+                parse: (data) => ({
+                    country: data.country_name,
+                    city: data.city,
+                    lat: parseFloat(data.latitude),
+                    lon: parseFloat(data.longitude),
+                    region: data.state_prov,
+                    postal: data.zipcode
+                })
+            },
+            {
+                url: 'https://ipwho.is/',
+                parse: (data) => ({
+                    country: data.country,
+                    city: data.city,
+                    lat: data.latitude,
+                    lon: data.longitude,
+                    region: data.region,
+                    postal: data.postal
+                })
             }
-        }
+        ];
 
-        if (locationData.method === 'none') {
+        for (const service of ipServices) {
             try {
-                const ipResponse = await fetch('https://ipapi.co/json/');
-                const ipData = await ipResponse.json();
-                if (ipData.country_name) locationData.country = ipData.country_name;
-                if (ipData.city) locationData.city = ipData.city;
-                if (ipData.latitude) locationData.lat = ipData.latitude;
-                if (ipData.longitude) locationData.lon = ipData.longitude;
-                locationData.method = 'ip';
-            } catch (e) {
-                try {
-                    const ipResponse2 = await fetch('https://ip-api.com/json/');
-                    const ipData2 = await ipResponse2.json();
-                    if (ipData2.country) locationData.country = ipData2.country;
-                    if (ipData2.city) locationData.city = ipData2.city;
-                    if (ipData2.lat) locationData.lat = ipData2.lat;
-                    if (ipData2.lon) locationData.lon = ipData2.lon;
-                    locationData.method = 'ip';
-                } catch (e2) {
+                const response = await fetch(service.url, {
+                    signal: AbortSignal.timeout(3000)
+                });
+                if (!response.ok) continue;
+                
+                const data = await response.json();
+                const parsed = service.parse(data);
+                
+                if (parsed.country && parsed.country !== 'Unknown') {
+                    locationData.country = parsed.country;
+                    if (parsed.city) locationData.city = parsed.city;
+                    if (parsed.lat && !isNaN(parsed.lat)) locationData.lat = parsed.lat;
+                    if (parsed.lon && !isNaN(parsed.lon)) locationData.lon = parsed.lon;
+                    break;
                 }
+            } catch (e) {
+                continue;
             }
         }
 
