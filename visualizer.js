@@ -227,6 +227,8 @@ class SortingVisualizer {
         this.container = document.getElementById('sortingBars');
         this.startTime = null;
         this.pausedTime = 0; // Accumulated paused time
+        this.isCompareMode = false;
+        this.compareResults = { algo1: null, algo2: null };
         this.init();
     }
 
@@ -248,8 +250,50 @@ class SortingVisualizer {
             sizeSlider.addEventListener('input', (e) => {
                 this.size = parseInt(e.target.value);
                 document.getElementById('arraySizeValue').textContent = this.size;
+                this.updateSizePresets();
                 this.generateArray();
             });
+        }
+
+        // Size preset buttons
+        document.querySelectorAll('.btn-preset').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const size = parseInt(btn.dataset.size);
+                this.size = size;
+                sizeSlider.value = size;
+                document.getElementById('arraySizeValue').textContent = size;
+                this.updateSizePresets();
+                this.generateArray();
+            });
+        });
+
+        // Comparison mode toggle
+        const toggleCompareBtn = document.getElementById('toggleCompare');
+        const compareControls = document.getElementById('compareControls');
+        const compareContainer = document.getElementById('compareContainer');
+        const startCompareBtn = document.getElementById('startCompare');
+        
+        if (toggleCompareBtn) {
+            toggleCompareBtn.addEventListener('click', () => {
+                this.isCompareMode = !this.isCompareMode;
+                if (this.isCompareMode) {
+                    compareControls.style.display = 'block';
+                    compareContainer.style.display = 'grid';
+                    this.container.style.display = 'none';
+                    toggleCompareBtn.textContent = '❌ Exit Compare';
+                    toggleCompareBtn.classList.add('active');
+                } else {
+                    compareControls.style.display = 'none';
+                    compareContainer.style.display = 'none';
+                    this.container.style.display = 'flex';
+                    toggleCompareBtn.textContent = '⚔️ Compare';
+                    toggleCompareBtn.classList.remove('active');
+                }
+            });
+        }
+
+        if (startCompareBtn) {
+            startCompareBtn.addEventListener('click', () => this.startComparison());
         }
 
         if (speedSlider) {
@@ -347,6 +391,17 @@ class SortingVisualizer {
         // The algorithm will continue naturally from the delay() function
     }
 
+    updateSizePresets() {
+        document.querySelectorAll('.btn-preset').forEach(btn => {
+            const presetSize = parseInt(btn.dataset.size);
+            if (presetSize === this.size) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
     generateArray() {
         this.stop();
         this.array = Array.from({ length: this.size }, () => Math.floor(Math.random() * 100) + 1);
@@ -355,22 +410,33 @@ class SortingVisualizer {
         this.updateButtonStates();
     }
 
-    render(comparing = [], swapping = [], sorted = []) {
-        if (!this.container) return;
-        this.container.innerHTML = '';
+    render(comparing = [], swapping = [], sorted = [], container = null) {
+        const targetContainer = container || this.container;
+        if (!targetContainer) return;
+        
+        // For large arrays (>1000), use sampling for performance
+        const shouldSample = this.array.length > 1000;
+        const sampleSize = shouldSample ? 1000 : this.array.length;
+        const step = shouldSample ? Math.ceil(this.array.length / sampleSize) : 1;
+        
+        targetContainer.innerHTML = '';
         const maxVal = Math.max(...this.array);
 
-        this.array.forEach((val, idx) => {
+        for (let i = 0; i < this.array.length; i += step) {
+            const val = this.array[i];
             const bar = document.createElement('div');
             bar.className = 'bar';
             bar.style.height = `${(val / maxVal) * 100}%`;
+            if (shouldSample) {
+                bar.style.width = `${step * 100 / sampleSize}%`;
+            }
 
-            if (sorted.includes(idx)) bar.classList.add('sorted');
-            else if (swapping.includes(idx)) bar.classList.add('swapping');
-            else if (comparing.includes(idx)) bar.classList.add('comparing');
+            if (sorted.includes(i)) bar.classList.add('sorted');
+            else if (swapping.includes(i)) bar.classList.add('swapping');
+            else if (comparing.includes(i)) bar.classList.add('comparing');
 
-            this.container.appendChild(bar);
-        });
+            targetContainer.appendChild(bar);
+        }
     }
 
     resetStats() {
@@ -457,6 +523,359 @@ class SortingVisualizer {
             this.isRunning = false;
             this.pausedTime = 0;
             this.updateButtonStates();
+        }
+    }
+
+    async startComparison() {
+        const algo1 = document.getElementById('compareAlgo1').value;
+        const algo2 = document.getElementById('compareAlgo2').value;
+        
+        if (algo1 === algo2) {
+            alert('Please select two different algorithms to compare!');
+            return;
+        }
+
+        // Generate the same array for both algorithms
+        const testArray = Array.from({ length: this.size }, () => Math.floor(Math.random() * 100) + 1);
+        
+        // Create copies for each algorithm
+        const array1 = [...testArray];
+        const array2 = [...testArray];
+
+        // Update algorithm names
+        document.getElementById('compareAlgo1Name').textContent = this.getAlgorithmName(algo1);
+        document.getElementById('compareAlgo2Name').textContent = this.getAlgorithmName(algo2);
+
+        // Reset stats
+        document.getElementById('comparisons1').textContent = '0';
+        document.getElementById('swaps1').textContent = '0';
+        document.getElementById('sortTime1').textContent = '0ms';
+        document.getElementById('comparisons2').textContent = '0';
+        document.getElementById('swaps2').textContent = '0';
+        document.getElementById('sortTime2').textContent = '0ms';
+
+        // Run both algorithms in parallel
+        const container1 = document.getElementById('sortingBars1');
+        const container2 = document.getElementById('sortingBars2');
+
+        // Render initial arrays
+        this.renderArray(array1, container1);
+        this.renderArray(array2, container2);
+
+        // Run comparisons
+        const [result1, result2] = await Promise.all([
+            this.runAlgorithmForComparison(algo1, array1, container1, 1),
+            this.runAlgorithmForComparison(algo2, array2, container2, 2)
+        ]);
+
+        // Display winner
+        this.displayComparisonResults(result1, result2);
+    }
+
+    getAlgorithmName(algoKey) {
+        const names = {
+            'bubbleSort': 'Bubble Sort',
+            'quickSort': 'Quick Sort',
+            'mergeSort': 'Merge Sort',
+            'insertionSort': 'Insertion Sort',
+            'selectionSort': 'Selection Sort',
+            'heapSort': 'Heap Sort'
+        };
+        return names[algoKey] || algoKey;
+    }
+
+    renderArray(arr, container) {
+        if (!container) return;
+        container.innerHTML = '';
+        const maxVal = Math.max(...arr);
+        const shouldSample = arr.length > 1000;
+        const sampleSize = shouldSample ? 1000 : arr.length;
+        const step = shouldSample ? Math.ceil(arr.length / sampleSize) : 1;
+
+        for (let i = 0; i < arr.length; i += step) {
+            const val = arr[i];
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = `${(val / maxVal) * 100}%`;
+            if (shouldSample) {
+                bar.style.width = `${step * 100 / sampleSize}%`;
+            }
+            container.appendChild(bar);
+        }
+    }
+
+    async runAlgorithmForComparison(algoKey, array, container, panelNum) {
+        const comparisons = { count: 0 };
+        const swaps = { count: 0 };
+        const startTime = performance.now();
+        
+        // Create a temporary visualizer instance for this comparison
+        const tempViz = {
+            array: array,
+            container: container,
+            comparisons: comparisons,
+            swaps: swaps,
+            shouldStop: false,
+            speed: this.speed,
+            getDelay: () => {
+                const baseDelay = Math.max(1, 101 - this.speed);
+                const multiplier = this.speed / 50;
+                return Math.max(0.1, baseDelay / multiplier / 10); // Faster for comparison
+            },
+            delay: async function() {
+                return new Promise(resolve => setTimeout(resolve, this.getDelay()));
+            },
+            updateStat: (id, value) => {
+                const statId = id === 'comparisons' ? `comparisons${panelNum}` : 
+                              id === 'swaps' ? `swaps${panelNum}` : null;
+                if (statId) {
+                    const el = document.getElementById(statId);
+                    if (el) el.textContent = value;
+                }
+            },
+            render: (comparing = [], swapping = [], sorted = []) => {
+                if (!container) return;
+                container.innerHTML = '';
+                const maxVal = Math.max(...array);
+                const shouldSample = array.length > 1000;
+                const sampleSize = shouldSample ? 1000 : array.length;
+                const step = shouldSample ? Math.ceil(array.length / sampleSize) : 1;
+
+                for (let i = 0; i < array.length; i += step) {
+                    const val = array[i];
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    bar.style.height = `${(val / maxVal) * 100}%`;
+                    if (shouldSample) {
+                        bar.style.width = `${step * 100 / sampleSize}%`;
+                    }
+
+                    if (sorted.includes(i)) bar.classList.add('sorted');
+                    else if (swapping.includes(i)) bar.classList.add('swapping');
+                    else if (comparing.includes(i)) bar.classList.add('comparing');
+
+                    container.appendChild(bar);
+                }
+            }
+        };
+
+        // Run the algorithm
+        switch (algoKey) {
+            case 'bubbleSort': await this.bubbleSortForComparison(tempViz); break;
+            case 'quickSort': await this.quickSortForComparison(tempViz, 0, array.length - 1); break;
+            case 'mergeSort': await this.mergeSortWrapperForComparison(tempViz); break;
+            case 'insertionSort': await this.insertionSortForComparison(tempViz); break;
+            case 'selectionSort': await this.selectionSortForComparison(tempViz); break;
+            case 'heapSort': await this.heapSortForComparison(tempViz); break;
+        }
+
+        const endTime = performance.now();
+        const elapsed = endTime - startTime;
+        
+        // Update time display
+        const timeId = `sortTime${panelNum}`;
+        const timeEl = document.getElementById(timeId);
+        if (timeEl) {
+            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
+            timeEl.textContent = formatTimeValue(elapsed, format);
+        }
+
+        // Final render
+        tempViz.render([], [], Array.from({ length: array.length }, (_, i) => i));
+
+        return {
+            time: elapsed,
+            comparisons: comparisons.count,
+            swaps: swaps.count,
+            algorithm: algoKey
+        };
+    }
+
+    displayComparisonResults(result1, result2) {
+        const winner = result1.time < result2.time ? 1 : 2;
+        const faster = result1.time < result2.time ? result1 : result2;
+        const slower = result1.time < result2.time ? result2 : result1;
+        const speedup = (slower.time / faster.time).toFixed(2);
+        
+        // Highlight winner
+        const panel1 = document.querySelector('#sortingBars1').closest('.compare-panel');
+        const panel2 = document.querySelector('#sortingBars2').closest('.compare-panel');
+        
+        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+        
+        // Show comparison message (optional - can be added to UI)
+    }
+
+    // Comparison versions of sorting algorithms (simplified, no audio)
+    async bubbleSortForComparison(viz) {
+        const n = viz.array.length;
+        for (let i = 0; i < n - 1 && !viz.shouldStop; i++) {
+            for (let j = 0; j < n - i - 1 && !viz.shouldStop; j++) {
+                viz.comparisons.count++;
+                viz.updateStat('comparisons', viz.comparisons.count);
+                viz.render([j, j + 1], []);
+                if (viz.array[j] > viz.array[j + 1]) {
+                    [viz.array[j], viz.array[j + 1]] = [viz.array[j + 1], viz.array[j]];
+                    viz.swaps.count++;
+                    viz.updateStat('swaps', viz.swaps.count);
+                    viz.render([], [j, j + 1]);
+                }
+                await viz.delay();
+            }
+        }
+    }
+
+    async insertionSortForComparison(viz) {
+        for (let i = 1; i < viz.array.length && !viz.shouldStop; i++) {
+            let key = viz.array[i];
+            let j = i - 1;
+            while (j >= 0 && viz.array[j] > key && !viz.shouldStop) {
+                viz.comparisons.count++;
+                viz.updateStat('comparisons', viz.comparisons.count);
+                viz.array[j + 1] = viz.array[j];
+                viz.swaps.count++;
+                viz.updateStat('swaps', viz.swaps.count);
+                viz.render([j], [j + 1]);
+                await viz.delay();
+                j--;
+            }
+            viz.array[j + 1] = key;
+        }
+    }
+
+    async selectionSortForComparison(viz) {
+        for (let i = 0; i < viz.array.length - 1 && !viz.shouldStop; i++) {
+            let minIdx = i;
+            for (let j = i + 1; j < viz.array.length && !viz.shouldStop; j++) {
+                viz.comparisons.count++;
+                viz.updateStat('comparisons', viz.comparisons.count);
+                viz.render([minIdx, j], []);
+                await viz.delay();
+                if (viz.array[j] < viz.array[minIdx]) {
+                    minIdx = j;
+                }
+            }
+            if (minIdx !== i && !viz.shouldStop) {
+                [viz.array[i], viz.array[minIdx]] = [viz.array[minIdx], viz.array[i]];
+                viz.swaps.count++;
+                viz.updateStat('swaps', viz.swaps.count);
+                viz.render([], [i, minIdx]);
+                await viz.delay();
+            }
+        }
+    }
+
+    async quickSortForComparison(viz, low, high) {
+        if (low < high && !viz.shouldStop) {
+            const pi = await this.partitionForComparison(viz, low, high);
+            await this.quickSortForComparison(viz, low, pi - 1);
+            await this.quickSortForComparison(viz, pi + 1, high);
+        }
+    }
+
+    async partitionForComparison(viz, low, high) {
+        const pivot = viz.array[high];
+        let i = low - 1;
+        for (let j = low; j < high && !viz.shouldStop; j++) {
+            viz.comparisons.count++;
+            viz.updateStat('comparisons', viz.comparisons.count);
+            viz.render([j, high], []);
+            await viz.delay();
+            if (viz.array[j] < pivot) {
+                i++;
+                [viz.array[i], viz.array[j]] = [viz.array[j], viz.array[i]];
+                viz.swaps.count++;
+                viz.updateStat('swaps', viz.swaps.count);
+                viz.render([], [i, j]);
+                await viz.delay();
+            }
+        }
+        if (!viz.shouldStop) {
+            [viz.array[i + 1], viz.array[high]] = [viz.array[high], viz.array[i + 1]];
+            viz.swaps.count++;
+            viz.updateStat('swaps', viz.swaps.count);
+        }
+        return i + 1;
+    }
+
+    async mergeSortWrapperForComparison(viz) {
+        await this.mergeSortForComparison(viz, 0, viz.array.length - 1);
+    }
+
+    async mergeSortForComparison(viz, l, r) {
+        if (l < r && !viz.shouldStop) {
+            const m = Math.floor((l + r) / 2);
+            await this.mergeSortForComparison(viz, l, m);
+            await this.mergeSortForComparison(viz, m + 1, r);
+            await this.mergeForComparison(viz, l, m, r);
+        }
+    }
+
+    async mergeForComparison(viz, l, m, r) {
+        const left = viz.array.slice(l, m + 1);
+        const right = viz.array.slice(m + 1, r + 1);
+        let i = 0, j = 0, k = l;
+        while (i < left.length && j < right.length && !viz.shouldStop) {
+            viz.comparisons.count++;
+            viz.updateStat('comparisons', viz.comparisons.count);
+            if (left[i] <= right[j]) {
+                viz.array[k] = left[i++];
+            } else {
+                viz.array[k] = right[j++];
+            }
+            viz.render([k], []);
+            k++;
+            await viz.delay();
+        }
+        while (i < left.length && !viz.shouldStop) {
+            viz.array[k++] = left[i++];
+            viz.render([k - 1], []);
+            await viz.delay();
+        }
+        while (j < right.length && !viz.shouldStop) {
+            viz.array[k++] = right[j++];
+            viz.render([k - 1], []);
+            await viz.delay();
+        }
+    }
+
+    async heapSortForComparison(viz) {
+        const n = viz.array.length;
+        for (let i = Math.floor(n / 2) - 1; i >= 0 && !viz.shouldStop; i--) {
+            await this.heapifyForComparison(viz, n, i);
+        }
+        for (let i = n - 1; i > 0 && !viz.shouldStop; i--) {
+            [viz.array[0], viz.array[i]] = [viz.array[i], viz.array[0]];
+            viz.swaps.count++;
+            viz.updateStat('swaps', viz.swaps.count);
+            viz.render([], [0, i]);
+            await viz.delay();
+            await this.heapifyForComparison(viz, i, 0);
+        }
+    }
+
+    async heapifyForComparison(viz, n, i) {
+        if (viz.shouldStop) return;
+        let largest = i;
+        const left = 2 * i + 1;
+        const right = 2 * i + 2;
+        if (left < n) {
+            viz.comparisons.count++;
+            if (viz.array[left] > viz.array[largest]) largest = left;
+        }
+        if (right < n) {
+            viz.comparisons.count++;
+            if (viz.array[right] > viz.array[largest]) largest = right;
+        }
+        viz.updateStat('comparisons', viz.comparisons.count);
+        if (largest !== i && !viz.shouldStop) {
+            [viz.array[i], viz.array[largest]] = [viz.array[largest], viz.array[i]];
+            viz.swaps.count++;
+            viz.updateStat('swaps', viz.swaps.count);
+            viz.render([i, largest], []);
+            await viz.delay();
+            await this.heapifyForComparison(viz, n, largest);
         }
     }
 

@@ -714,6 +714,115 @@ select:focus {
 }
 
 /* ========================================
+   Size Presets
+   ======================================== */
+.size-presets {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.btn-preset {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-mono);
+}
+
+.btn-preset:hover {
+    background: var(--mist);
+    color: var(--text-primary);
+    border-color: var(--ice-blue);
+}
+
+.btn-preset.active {
+    background: var(--ice-blue);
+    color: var(--bg-primary);
+    border-color: var(--ice-blue);
+}
+
+/* ========================================
+   Comparison Feature
+   ======================================== */
+.compare-controls {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+}
+
+.compare-selectors {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.compare-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    flex: 1;
+    min-width: 150px;
+}
+
+.compare-selector label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.compare-select {
+    padding: 0.5rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.compare-select:hover {
+    border-color: var(--ice-blue);
+}
+
+.compare-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+}
+
+.compare-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+}
+
+.compare-panel h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--ice-blue);
+    font-size: 1rem;
+    text-align: center;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.compare-panel .bars-container {
+    height: 250px;
+}
+
+/* ========================================
    Stats Row
    ======================================== */
 .stats-row {

@@ -113,8 +113,15 @@
                         <div class="controls-inline">
                             <div class="control-group">
                                 <label>Size</label>
-                                <input type="range" id="arraySize" min="10" max="100" value="30">
+                                <input type="range" id="arraySize" min="10" max="9999" value="30">
                                 <span id="arraySizeValue">30</span>
+                                <div class="size-presets">
+                                    <button class="btn-preset" data-size="200">200</button>
+                                    <button class="btn-preset" data-size="500">500</button>
+                                    <button class="btn-preset" data-size="1000">1K</button>
+                                    <button class="btn-preset" data-size="5000">5K</button>
+                                    <button class="btn-preset" data-size="9999">9.9K</button>
+                                </div>
                             </div>
                             <div class="control-group">
                                 <label>Speed <span id="sortSpeedMultiplier" class="speed-multiplier">1x</span></label>
@@ -128,6 +135,72 @@
                             <button id="stopSort" class="btn btn-outline"
                                 style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹
                                 Stop</button>
+                            <button id="toggleCompare" class="btn btn-outline">⚔️ Compare</button>
+                        </div>
+                        <div id="compareControls" class="compare-controls" style="display: none;">
+                            <div class="compare-selectors">
+                                <div class="compare-selector">
+                                    <label>Algorithm 1:</label>
+                                    <select id="compareAlgo1" class="compare-select">
+                                        <option value="bubbleSort">Bubble Sort</option>
+                                        <option value="quickSort">Quick Sort</option>
+                                        <option value="mergeSort">Merge Sort</option>
+                                        <option value="insertionSort">Insertion Sort</option>
+                                        <option value="selectionSort">Selection Sort</option>
+                                        <option value="heapSort">Heap Sort</option>
+                                    </select>
+                                </div>
+                                <div class="compare-selector">
+                                    <label>Algorithm 2:</label>
+                                    <select id="compareAlgo2" class="compare-select">
+                                        <option value="quickSort">Quick Sort</option>
+                                        <option value="bubbleSort">Bubble Sort</option>
+                                        <option value="mergeSort">Merge Sort</option>
+                                        <option value="insertionSort">Insertion Sort</option>
+                                        <option value="selectionSort">Selection Sort</option>
+                                        <option value="heapSort">Heap Sort</option>
+                                    </select>
+                                </div>
+                                <button id="startCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="compareContainer" class="compare-container" style="display: none;">
+                        <div class="compare-panel">
+                            <h4 id="compareAlgo1Name">Algorithm 1</h4>
+                            <div class="bars-container" id="sortingBars1"></div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Comparisons:</span>
+                                    <span class="stat-value" id="comparisons1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Swaps:</span>
+                                    <span class="stat-value" id="swaps1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="sortTime1">0ms</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compare-panel">
+                            <h4 id="compareAlgo2Name">Algorithm 2</h4>
+                            <div class="bars-container" id="sortingBars2"></div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Comparisons:</span>
+                                    <span class="stat-value" id="comparisons2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Swaps:</span>
+                                    <span class="stat-value" id="swaps2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="sortTime2">0ms</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="bars-container" id="sortingBars"></div>
@@ -249,7 +322,7 @@
                         <div class="controls-inline">
                             <div class="control-group">
                                 <label>Size</label>
-                                <input type="range" id="searchArraySize" min="10" max="50" value="20">
+                                <input type="range" id="searchArraySize" min="10" max="9999" value="20">
                                 <span id="searchArraySizeValue">20</span>
                             </div>
                 <div class="control-group">
