@@ -1345,30 +1345,27 @@ select:focus {
     cursor: pointer;
 }
 
-.lang-checkbox input:checked + .lang-icon {
+.lang-checkbox input:checked + .lang-icon-img {
     opacity: 1;
 }
 
-.lang-icon {
-    font-weight: bold;
-    font-size: 0.7rem;
+.lang-checkbox .lang-icon-img {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
     opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    object-fit: contain;
 }
 
-.lang-icon.js { color: #f7df1e; }
-.lang-icon.py { color: #3776ab; }
-.lang-icon.java { color: #007396; }
-.lang-icon.cpp { color: #00599c; }
-.lang-icon.go { color: #00add8; }
-.lang-icon.rust { color: #dea584; }
-.lang-icon.cs { color: #239120; }
-.lang-icon.ruby { color: #cc342d; }
-.lang-icon.php { color: #777bb4; }
-.lang-icon.elixir { color: #6e4a7e; }
-.lang-icon.node { color: #339933; }
-.lang-icon.deno { color: #ffffff; }
-.lang-icon.kotlin { color: #7F52FF; }
-.lang-icon.swift { color: #FA7343; }
+.lang-checkbox:hover .lang-icon-img {
+    opacity: 0.9;
+}
+
+.lang-checkbox input:checked ~ .lang-icon-img {
+    opacity: 1;
+}
 
 /* ========================================
    Race Arena - Horizontal Bar Graph Style
