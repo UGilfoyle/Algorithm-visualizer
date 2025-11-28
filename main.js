@@ -402,24 +402,34 @@ class App {
     }
     
     populateComparisonDropdowns(category) {
-        if (!ALGORITHMS[category]) return;
+        // Pathfinding uses graphs category
+        const actualCategory = category === 'pathfinding' ? 'graphs' : category;
+        if (!ALGORITHMS[actualCategory]) return;
         
         const dropdownIds = {
             trees: ['treeCompareAlgo1', 'treeCompareAlgo2'],
             graphs: ['graphCompareAlgo1', 'graphCompareAlgo2'],
-            dp: ['dpCompareAlgo1', 'dpCompareAlgo2']
+            dp: ['dpCompareAlgo1', 'dpCompareAlgo2'],
+            pathfinding: ['pathCompareAlgo1', 'pathCompareAlgo2']
         };
         
         const ids = dropdownIds[category];
         if (!ids) return;
+        
+        // Filter pathfinding algorithms (bfs, dfs, dijkstra, astar, greedy)
+        const pathfindingAlgos = ['bfs', 'dfs', 'dijkstra', 'astar', 'greedy'];
         
         ids.forEach(id => {
             const dropdown = document.getElementById(id);
             if (!dropdown) return;
             
             dropdown.innerHTML = '';
-            Object.keys(ALGORITHMS[category]).forEach(key => {
-                const algo = ALGORITHMS[category][key];
+            Object.keys(ALGORITHMS[actualCategory]).forEach(key => {
+                // For pathfinding, only show pathfinding algorithms
+                if (category === 'pathfinding' && !pathfindingAlgos.includes(key)) {
+                    return;
+                }
+                const algo = ALGORITHMS[actualCategory][key];
                 const option = document.createElement('option');
                 option.value = key;
                 option.textContent = algo.name;
@@ -558,8 +568,7 @@ class App {
                 break;
             case 'pathfinding':
                 if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
-                    pathfindingVisualizer.stop();
-                    pathfindingVisualizer.clearPath(); // Reset visual state
+                    pathfindingVisualizer.reset();
                 }
                 break;
             case 'trees':

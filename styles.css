@@ -852,7 +852,8 @@ select:focus {
 
 .compare-panel .tree-container.compare-tree,
 .compare-panel .graph-container.compare-graph,
-.compare-panel .dp-container.compare-dp {
+.compare-panel .dp-container.compare-dp,
+.compare-panel .grid-container.compare-grid {
     height: 300px;
     min-height: 300px;
     max-height: 300px;

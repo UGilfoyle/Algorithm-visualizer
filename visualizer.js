@@ -1426,6 +1426,11 @@ class PathfindingVisualizer {
         this.currentAlgorithm = 'bfs';
         this.container = document.getElementById('pathGrid');
         this.speed = 50;
+        this.isCompareMode = false;
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
+        this.compareViz1 = null;
+        this.compareViz2 = null;
         this.init();
     }
 
@@ -1534,10 +1539,20 @@ class PathfindingVisualizer {
         const startBtn = document.getElementById('startPath');
         const clearBtn = document.getElementById('clearPath');
         const speedSlider = document.getElementById('pathSpeed');
+        const infoBtn = document.getElementById('pathInfoBtn');
+        const toggleCompareBtn = document.getElementById('togglePathCompare');
+        const startCompareBtn = document.getElementById('startPathCompare');
+        const pauseResumeCompareBtn = document.getElementById('pauseResumePathCompare');
+        const stopCompareBtn = document.getElementById('stopPathCompare');
+        const compareControls = document.getElementById('pathCompareControls');
+        const compareContainer = document.getElementById('pathCompareContainer');
+        const regularViz = document.getElementById('pathRegularVisualization');
 
         if (generateBtn) generateBtn.addEventListener('click', () => this.generateMaze());
         if (startBtn) startBtn.addEventListener('click', () => this.start());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clearAll());
+        if (infoBtn) infoBtn.addEventListener('click', () => this.showPathInfo());
+        
         if (speedSlider) {
             const multiplierEl = document.getElementById('pathSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
@@ -1549,6 +1564,354 @@ class PathfindingVisualizer {
             });
             if (multiplierEl) {
                 multiplierEl.textContent = '1x';
+            }
+        }
+        
+        if (toggleCompareBtn) {
+            toggleCompareBtn.addEventListener('click', () => {
+                this.isCompareMode = !this.isCompareMode;
+                if (this.isCompareMode) {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'block';
+                    if (compareContainer) compareContainer.style.display = 'grid';
+                    if (regularViz) regularViz.style.display = 'none';
+                    toggleCompareBtn.textContent = '❌ Exit Compare';
+                    toggleCompareBtn.classList.add('active');
+                } else {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'none';
+                    if (compareContainer) compareContainer.style.display = 'none';
+                    if (regularViz) regularViz.style.display = 'block';
+                    toggleCompareBtn.textContent = '⚔️ Compare';
+                    toggleCompareBtn.classList.remove('active');
+                }
+            });
+        }
+        
+        if (startCompareBtn) {
+            startCompareBtn.addEventListener('click', () => this.startComparison());
+        }
+        
+        if (pauseResumeCompareBtn) {
+            pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
+        }
+        
+        if (stopCompareBtn) {
+            stopCompareBtn.addEventListener('click', () => this.stopComparison());
+        }
+        
+        // Close info modal handlers
+        const closeBtn = document.getElementById('pathInfoCloseBtn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                const modal = document.getElementById('pathInfoModal');
+                if (modal) modal.style.display = 'none';
+            };
+        }
+        
+        const modal = document.getElementById('pathInfoModal');
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+    }
+    
+    showPathInfo() {
+        const rows = this.rows;
+        const cols = this.cols;
+        const totalCells = rows * cols;
+        const wallCount = this.grid.reduce((count, row) => 
+            count + row.filter(cell => cell.isWall).length, 0
+        );
+        const modal = document.getElementById('pathInfoModal');
+        const content = document.getElementById('pathInfoContent');
+        
+        if (content) {
+            content.innerHTML = `
+                <div class="search-info-grid">
+                    <div class="search-info-item">
+                        <span class="search-info-label">Grid Size:</span>
+                        <span class="search-info-value">${rows} × ${cols}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Total Cells:</span>
+                        <span class="search-info-value">${totalCells}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Walls:</span>
+                        <span class="search-info-value">${wallCount}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Start:</span>
+                        <span class="search-info-value">(${this.startCell.row}, ${this.startCell.col})</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">End:</span>
+                        <span class="search-info-value">(${this.endCell.row}, ${this.endCell.col})</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Algorithm:</span>
+                        <span class="search-info-value">${this.currentAlgorithm.toUpperCase()}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (modal) modal.style.display = 'flex';
+    }
+    
+    async startComparison() {
+        if (this.isCompareRunning) return;
+        
+        const algo1 = document.getElementById('pathCompareAlgo1')?.value || 'bfs';
+        const algo2 = document.getElementById('pathCompareAlgo2')?.value || 'dfs';
+        const lang1 = document.getElementById('pathCompareLang1')?.value || 'python';
+        const lang2 = document.getElementById('pathCompareLang2')?.value || 'java';
+        
+        // Update algorithm names
+        const name1El = document.getElementById('pathCompareAlgo1Name');
+        const name2El = document.getElementById('pathCompareAlgo2Name');
+        if (name1El) name1El.textContent = `${algo1.toUpperCase()} (${lang1})`;
+        if (name2El) name2El.textContent = `${algo2.toUpperCase()} (${lang2})`;
+        
+        // Create common grid state
+        const commonGrid = this.grid.map(row => row.map(cell => ({ ...cell })));
+        
+        // Initialize comparison grids
+        this.initComparisonGrid(1, commonGrid);
+        this.initComparisonGrid(2, commonGrid);
+        
+        // Reset stats
+        document.getElementById('nodesVisited1').textContent = '0';
+        document.getElementById('nodesVisited2').textContent = '0';
+        document.getElementById('pathLength1').textContent = '0';
+        document.getElementById('pathLength2').textContent = '0';
+        document.getElementById('pathTime1').textContent = '0ms';
+        document.getElementById('pathTime2').textContent = '0ms';
+        
+        // Reset panels
+        const panel1 = document.querySelector('#pathGrid1').closest('.compare-panel');
+        const panel2 = document.querySelector('#pathGrid2').closest('.compare-panel');
+        if (panel1) panel1.style.borderColor = 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = 'var(--border-color)';
+        
+        this.isCompareRunning = true;
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
+        
+        // Run both algorithms in parallel
+        const [result1, result2] = await Promise.all([
+            this.runAlgorithmForComparison(algo1, lang1, 1, commonGrid),
+            this.runAlgorithmForComparison(algo2, lang2, 2, commonGrid)
+        ]);
+        
+        if (!this.isComparePaused && this.isCompareRunning) {
+            this.displayComparisonResults(result1, result2);
+        }
+        
+        this.isCompareRunning = false;
+        this.updateCompareButtonStates();
+    }
+    
+    initComparisonGrid(panelNum, gridData) {
+        const container = document.getElementById(`pathGrid${panelNum}`);
+        if (!container) return;
+        
+        container.innerHTML = '';
+        container.style.gridTemplateColumns = `repeat(${this.cols}, 22px)`;
+        
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                
+                if (i === this.startCell.row && j === this.startCell.col) {
+                    cell.classList.add('start');
+                    cell.textContent = 'S';
+                } else if (i === this.endCell.row && j === this.endCell.col) {
+                    cell.classList.add('end');
+                    cell.textContent = 'E';
+                } else if (gridData[i][j].isWall) {
+                    cell.classList.add('wall');
+                }
+                
+                container.appendChild(cell);
+            }
+        }
+    }
+    
+    async runAlgorithmForComparison(algoKey, langKey, panelNum, gridData) {
+        const container = document.getElementById(`pathGrid${panelNum}`);
+        if (!container) return { time: 0, nodesVisited: 0, pathLength: 0 };
+        
+        const startTime = performance.now();
+        let nodesVisited = 0;
+        let pathLength = 0;
+        
+        const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
+        const baseDelay = this.getDelay();
+        const delay = Math.max(1, baseDelay / langSpeed);
+        
+        // Run BFS for comparison (simplified)
+        const path = await this.bfsForComparison(container, gridData, delay, panelNum);
+        
+        const endTime = performance.now();
+        const elapsed = endTime - startTime;
+        
+        if (path) {
+            pathLength = path.length;
+            await this.animatePathForComparison(container, path, panelNum);
+        }
+        
+        // Update stats
+        document.getElementById(`nodesVisited${panelNum}`).textContent = nodesVisited;
+        document.getElementById(`pathLength${panelNum}`).textContent = pathLength;
+        const timeEl = document.getElementById(`pathTime${panelNum}`);
+        if (timeEl) {
+            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
+            timeEl.textContent = formatTimeValue(elapsed, format);
+        }
+        
+        return {
+            time: elapsed,
+            nodesVisited: nodesVisited,
+            pathLength: pathLength
+        };
+    }
+    
+    async bfsForComparison(container, gridData, delay, panelNum) {
+        const queue = [{ row: this.startCell.row, col: this.startCell.col, path: [{ row: this.startCell.row, col: this.startCell.col }] }];
+        const visited = new Set();
+        visited.add(`${this.startCell.row},${this.startCell.col}`);
+        let nodesVisited = 0;
+        const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+        
+        while (queue.length > 0 && this.isCompareRunning && !this.isComparePaused) {
+            const { row, col, path } = queue.shift();
+            nodesVisited++;
+            
+            // Update nodes visited stat
+            document.getElementById(`nodesVisited${panelNum}`).textContent = nodesVisited;
+            
+            if (row === this.endCell.row && col === this.endCell.col) {
+                document.getElementById(`pathLength${panelNum}`).textContent = path.length;
+                return path;
+            }
+            
+            // Mark as visited
+            const cell = container.children[row * this.cols + col];
+            if (cell && !cell.classList.contains('start') && !cell.classList.contains('end')) {
+                cell.classList.add('visited');
+            }
+            
+            await new Promise(r => setTimeout(r, delay));
+            
+            // Explore neighbors
+            for (const [dr, dc] of directions) {
+                if (!this.isCompareRunning || this.isComparePaused) break;
+                
+                const newRow = row + dr;
+                const newCol = col + dc;
+                const key = `${newRow},${newCol}`;
+                
+                if (newRow >= 0 && newRow < this.rows &&
+                    newCol >= 0 && newCol < this.cols &&
+                    !visited.has(key) &&
+                    !gridData[newRow][newCol].isWall) {
+                    
+                    visited.add(key);
+                    queue.push({
+                        row: newRow,
+                        col: newCol,
+                        path: [...path, { row: newRow, col: newCol }]
+                    });
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    async animatePathForComparison(container, path, panelNum) {
+        for (let i = 0; i < path.length && this.isCompareRunning; i++) {
+            const { row, col } = path[i];
+            const cell = container.children[row * this.cols + col];
+            if (cell && !cell.classList.contains('start') && !cell.classList.contains('end')) {
+                cell.classList.remove('visited');
+                cell.classList.add('path');
+            }
+            await new Promise(r => setTimeout(r, 30));
+        }
+    }
+    
+    displayComparisonResults(result1, result2) {
+        const winner = result1.time < result2.time ? 1 : 2;
+        const panel1 = document.querySelector('#pathGrid1').closest('.compare-panel');
+        const panel2 = document.querySelector('#pathGrid2').closest('.compare-panel');
+        
+        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+    }
+    
+    togglePauseResumeCompare() {
+        if (this.isComparePaused) {
+            this.resumeComparison();
+        } else {
+            this.pauseComparison();
+        }
+    }
+    
+    pauseComparison() {
+        this.isComparePaused = true;
+        this.updateCompareButtonStates();
+    }
+    
+    resumeComparison() {
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
+    }
+    
+    stopComparison() {
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
+    }
+    
+    updateCompareButtonStates() {
+        const pauseResumeBtn = document.getElementById('pauseResumePathCompare');
+        const stopBtn = document.getElementById('stopPathCompare');
+        
+        if (this.isCompareRunning) {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'visible';
+                pauseResumeBtn.style.position = 'static';
+                pauseResumeBtn.style.opacity = '1';
+                pauseResumeBtn.style.pointerEvents = 'auto';
+                pauseResumeBtn.textContent = this.isComparePaused ? '▶ Resume' : '⏸ Pause';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'visible';
+                stopBtn.style.position = 'static';
+                stopBtn.style.opacity = '1';
+                stopBtn.style.pointerEvents = 'auto';
+            }
+        } else {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'hidden';
+                pauseResumeBtn.style.position = 'absolute';
+                pauseResumeBtn.style.opacity = '0';
+                pauseResumeBtn.style.pointerEvents = 'none';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'hidden';
+                stopBtn.style.position = 'absolute';
+                stopBtn.style.opacity = '0';
+                stopBtn.style.pointerEvents = 'none';
             }
         }
     }
@@ -1624,6 +1987,12 @@ class PathfindingVisualizer {
         this.isRunning = false;
         // Reset visual state when stopped
         this.clearPath();
+    }
+
+    reset() {
+        this.stop();
+        this.clearPath();
+        this.resetStats();
     }
 
     getDelay() {

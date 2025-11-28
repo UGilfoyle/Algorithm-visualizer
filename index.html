@@ -579,49 +579,156 @@
                 <div class="viz-panel wide">
                     <div class="panel-header">
                         <h3>Grid Visualization</h3>
-                        <div class="controls-inline">
-                <div class="control-group">
-                    <label>Speed <span id="pathSpeedMultiplier" class="speed-multiplier">1x</span></label>
-                    <input type="range" id="pathSpeed" min="25" max="100" value="50">
-                </div>
-                        <select id="mazePattern">
-                            <option value="random">Random Walls</option>
-                            <option value="recursive">Recursive Division</option>
-                            <option value="spiral">Spiral</option>
-                            <option value="clear">Clear Grid</option>
-                        </select>
+                        <div class="controls-inline" style="position: relative;">
+                            <button id="pathInfoBtn" class="info-icon-btn" title="Show grid info">i</button>
+                            <div class="control-group">
+                                <label>Speed <span id="pathSpeedMultiplier" class="speed-multiplier">1x</span></label>
+                                <input type="range" id="pathSpeed" min="25" max="100" value="50">
+                            </div>
+                            <select id="mazePattern">
+                                <option value="random">Random Walls</option>
+                                <option value="recursive">Recursive Division</option>
+                                <option value="spiral">Spiral</option>
+                                <option value="clear">Clear Grid</option>
+                            </select>
                             <button id="generateMaze" class="btn btn-secondary">🏗️ Maze</button>
                             <button id="startPath" class="btn btn-primary">▶ Find Path</button>
                             <button id="clearPath" class="btn btn-outline">🧹 Clear</button>
+                            <button id="togglePathCompare" class="btn btn-outline">⚔️ Compare</button>
                         </div>
                     </div>
-                <div class="grid-container" id="pathGrid"></div>
-                <div class="legend">
-                    <div class="legend-item"><span class="legend-color start"></span>Start</div>
-                    <div class="legend-item"><span class="legend-color end"></span>End</div>
-                    <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
-                    <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
-                    <div class="legend-item"><span class="legend-color path"></span>Path</div>
-                </div>
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <span class="stat-label">Nodes Visited:</span>
-                    <span class="stat-value" id="nodesVisited">0</span>
-                </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Path Length:</span>
-                    <span class="stat-value" id="pathLength">0</span>
+                    <div id="pathCompareControls" class="compare-controls" style="display: none;">
+                        <div class="compare-selectors">
+                            <div class="compare-selector">
+                                <label>Algorithm 1:</label>
+                                <select id="pathCompareAlgo1" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 1:</label>
+                                <select id="pathCompareLang1" class="compare-select">
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Algorithm 2:</label>
+                                <select id="pathCompareAlgo2" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 2:</label>
+                                <select id="pathCompareLang2" class="compare-select">
+                                    <option value="java">Java</option>
+                                    <option value="python">Python</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-actions">
+                                <button id="startPathCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                                <button id="pauseResumePathCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏸ Pause</button>
+                                <button id="stopPathCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹ Stop</button>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Time:</span>
-                            <span class="stat-value" id="pathTime">0ms</span>
-                            <select id="pathTimeFormat" class="time-format-select">
-                                <option value="ms" selected>ms</option>
-                                <option value="s">sec</option>
-                                <option value="m">min</option>
-                                <option value="h">hrs</option>
-                                <option value="d">day</option>
-                            </select>
+                    </div>
+                    <div id="pathCompareContainer" class="compare-container" style="display: none;">
+                        <div class="compare-panel">
+                            <h4 id="pathCompareAlgo1Name">Algorithm 1</h4>
+                            <div class="grid-container compare-grid" id="pathGrid1"></div>
+                            <div class="legend">
+                                <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                                <div class="legend-item"><span class="legend-color end"></span>End</div>
+                                <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                                <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                                <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                            </div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Nodes Visited:</span>
+                                    <span class="stat-value" id="nodesVisited1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Path Length:</span>
+                                    <span class="stat-value" id="pathLength1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="pathTime1">0ms</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compare-panel">
+                            <h4 id="pathCompareAlgo2Name">Algorithm 2</h4>
+                            <div class="grid-container compare-grid" id="pathGrid2"></div>
+                            <div class="legend">
+                                <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                                <div class="legend-item"><span class="legend-color end"></span>End</div>
+                                <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                                <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                                <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                            </div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Nodes Visited:</span>
+                                    <span class="stat-value" id="nodesVisited2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Path Length:</span>
+                                    <span class="stat-value" id="pathLength2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="pathTime2">0ms</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pathRegularVisualization">
+                        <div class="grid-container" id="pathGrid"></div>
+                        <div class="legend">
+                            <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                            <div class="legend-item"><span class="legend-color end"></span>End</div>
+                            <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                            <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                            <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                        </div>
+                        <div class="stats-row" id="pathRegularStatsRow">
+                            <div class="stat-item">
+                                <span class="stat-label">Nodes Visited:</span>
+                                <span class="stat-value" id="nodesVisited">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Path Length:</span>
+                                <span class="stat-value" id="pathLength">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Time:</span>
+                                <span class="stat-value" id="pathTime">0ms</span>
+                                <select id="pathTimeFormat" class="time-format-select">
+                                    <option value="ms" selected>ms</option>
+                                    <option value="s">sec</option>
+                                    <option value="m">min</option>
+                                    <option value="h">hrs</option>
+                                    <option value="d">day</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1604,6 +1711,15 @@
             <button class="search-info-close-btn" id="dpInfoCloseBtn">&times;</button>
             <h2>DP Problem Information</h2>
             <div id="dpInfoContent" class="search-info-content"></div>
+        </div>
+    </div>
+
+    <!-- Pathfinding Info Modal -->
+    <div class="search-info-modal" id="pathInfoModal" style="display: none;">
+        <div class="search-info-modal-content">
+            <button class="search-info-close-btn" id="pathInfoCloseBtn">&times;</button>
+            <h2>Grid Information</h2>
+            <div id="pathInfoContent" class="search-info-content"></div>
         </div>
     </div>
 
