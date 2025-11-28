@@ -349,7 +349,8 @@
                 <div class="viz-panel">
                     <div class="panel-header">
                         <h3>Visualization</h3>
-                        <div class="controls-inline">
+                        <div class="controls-inline" style="position: relative;">
+                            <button id="searchInfoBtn" class="info-icon-btn" title="Show array info">i</button>
                             <div class="control-group">
                                 <label>Size</label>
                                 <input type="range" id="searchArraySize" min="10" max="9999" value="20">
@@ -364,7 +365,6 @@
                                 <input type="range" id="searchSpeed" min="25" max="100" value="50">
                             </div>
                             <button id="generateSearchArray" class="btn btn-secondary">🔄 Generate</button>
-                            <button id="searchInfoBtn" class="info-icon-btn" title="Show array info">i</button>
                             <button id="startSearch" class="btn btn-primary">▶ Search</button>
                             <button id="toggleSearchCompare" class="btn btn-outline">⚔️ Compare</button>
                         </div>

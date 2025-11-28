@@ -2149,13 +2149,16 @@ select:focus {
 }
 
 .info-icon-btn {
-    width: 24px;
-    height: 24px;
+    position: absolute;
+    top: -8px;
+    right: 0;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    border: 1px solid #16a34a;
-    background: #16a34a;
-    color: white;
-    font-size: 14px;
+    border: 1px solid var(--ice-blue);
+    background: var(--bg-tertiary);
+    color: var(--ice-blue);
+    font-size: 13px;
     font-weight: 600;
     font-style: italic;
     display: flex;
@@ -2166,12 +2169,16 @@ select:focus {
     margin: 0;
     transition: all 0.2s;
     font-family: Georgia, serif;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .info-icon-btn:hover {
-    background: #15803d;
-    border-color: #15803d;
+    background: var(--ice-blue);
+    color: var(--bg-primary);
+    border-color: var(--ice-blue);
     transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(147, 197, 253, 0.4);
 }
 
 .search-info-modal {
