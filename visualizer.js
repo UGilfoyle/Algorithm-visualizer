@@ -71,22 +71,22 @@ const LANGUAGE_SPEED = {
 
 // Language icon paths
 const LANGUAGE_ICONS = {
-    java: 'icons/java-original.png',
-    python: 'icons/python-original.png',
-    deno: 'icons/deno-logo.png',
-    node: 'icons/nodejs-original.png',
-    typescript: 'icons/typescript-original.png',
-    php: 'icons/php-original.png',
-    elixir: 'icons/elixir-original.png',
-    kotlin: 'icons/kotlin-original.png',
-    swift: 'icons/swift-original.png',
-    ruby: 'icons/ruby-original.png',
-    javascript: 'icons/javascript-original.png',
-    cpp: 'icons/cplusplus-original.png',
-    csharp: 'icons/csharp-original.png',
-    rust: 'icons/rust-original.png',
-    go: 'icons/go-original.png',
-    c: 'icons/cplusplus-original.png' // Use C++ icon for C
+    java: 'icons/java.svg',
+    python: 'icons/python.svg',
+    deno: 'icons/deno.png',
+    node: 'icons/nodejs.svg',
+    typescript: 'icons/typescript.svg',
+    php: 'icons/php.svg',
+    elixir: 'icons/elixir.svg',
+    kotlin: 'icons/kotlin.svg',
+    swift: 'icons/swift.svg',
+    ruby: 'icons/ruby.svg',
+    javascript: 'icons/javascript.svg',
+    cpp: 'icons/cplusplus.svg',
+    csharp: 'icons/csharp.svg',
+    rust: 'icons/rust.svg',
+    go: 'icons/go.svg',
+    c: 'icons/cplusplus.svg' // Use C++ icon for C
 };
 
 const LANGUAGE_INFO = {
