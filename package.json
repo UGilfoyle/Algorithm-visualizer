@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'No build step required'",
-    "start": "vercel dev"
+    "start": "vercel dev",
+    "init-db": "node api/init-db.js"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "pg": "^8.11.3"
   },
   "devDependencies": {
@@ -17,4 +19,3 @@
     "node": ">=18.x"
   }
 }
-

@@ -7,7 +7,11 @@ const pool = new Pool({
     }
 });
 
+let dbInitialized = false;
+
 async function initDatabase() {
+    if (dbInitialized) return;
+    
     try {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS visitors (
@@ -45,8 +49,7 @@ async function initDatabase() {
                 device_os VARCHAR(100),
                 device_browser VARCHAR(100),
                 country VARCHAR(100),
-                city VARCHAR(100),
-                FOREIGN KEY (visitor_id) REFERENCES visitors(visitor_id) ON DELETE CASCADE
+                city VARCHAR(100)
             )
         `);
 
@@ -54,8 +57,12 @@ async function initDatabase() {
             CREATE INDEX IF NOT EXISTS idx_visit_logs_visitor ON visit_logs(visitor_id);
             CREATE INDEX IF NOT EXISTS idx_visit_logs_time ON visit_logs(visit_time);
         `);
+        
+        dbInitialized = true;
+        console.log('Database tables initialized successfully');
     } catch (error) {
         console.error('Database initialization error:', error);
+        throw error;
     }
 }
 
