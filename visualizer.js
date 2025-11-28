@@ -18,7 +18,7 @@ function formatTimeValue(ms, format = 'ms') {
             format = getBestTimeFormat(ms);
         }
     }
-    
+
     if (ms >= 86400000 && format !== 'd') {
         format = 'd';
     } else if (ms >= 3600000 && ms < 86400000 && format !== 'd' && format !== 'h') {
@@ -28,7 +28,7 @@ function formatTimeValue(ms, format = 'ms') {
     } else if (ms >= 2000 && ms < 60000 && format !== 'd' && format !== 'h' && format !== 'm' && format !== 's') {
         format = 's';
     }
-    
+
     switch (format) {
         case 's':
             return `${(ms / 1000).toFixed(3)}s`;
@@ -115,7 +115,7 @@ function getLanguageIcons() {
     if (_cachedLanguageIcons && _cachedTheme === currentTheme) {
         return _cachedLanguageIcons;
     }
-    
+
     const isDarkMode = currentTheme !== 'light';
     _cachedLanguageIcons = {
         java: 'icons/java.svg',
@@ -178,7 +178,7 @@ function updateRustIcons() {
     _cachedLanguageInfo = null;
     const icons = getLanguageIcons();
     const rustIcon = icons.rust;
-    
+
     requestAnimationFrame(() => {
         const rustImages = document.querySelectorAll('img[src*="rust"]');
         rustImages.forEach(img => {
@@ -187,7 +187,7 @@ function updateRustIcons() {
             }
         });
     });
-    
+
     // Update cached LANGUAGE_INFO
     if (_cachedLanguageInfo && _cachedLanguageInfo.rust) {
         _cachedLanguageInfo.rust.icon = rustIcon;
@@ -198,7 +198,7 @@ function updateDenoIcons() {
     _cachedLanguageInfo = null;
     const icons = getLanguageIcons();
     const denoIcon = icons.deno;
-    
+
     requestAnimationFrame(() => {
         const denoImages = document.querySelectorAll('img[src*="deno"]');
         denoImages.forEach(img => {
@@ -207,7 +207,7 @@ function updateDenoIcons() {
             }
         });
     });
-    
+
     if (_cachedLanguageInfo && _cachedLanguageInfo.deno) {
         _cachedLanguageInfo.deno.icon = denoIcon;
     }
@@ -233,6 +233,7 @@ class SortingVisualizer {
         this.isComparePaused = false;
         this.compareViz1 = null;
         this.compareViz2 = null;
+        this.sizeUpdateTimeout = null; // For debouncing size updates
         this.init();
     }
 
@@ -251,37 +252,96 @@ class SortingVisualizer {
         const stopBtn = document.getElementById('stopSort');
 
         if (sizeSlider) {
+            // Update display immediately on input
             sizeSlider.addEventListener('input', (e) => {
-                this.size = parseInt(e.target.value);
-                document.getElementById('arraySizeValue').textContent = this.size;
-                this.updateSizePresets();
-                this.generateArray();
+                const newSize = parseInt(e.target.value, 10);
+                const sizeValueEl = document.getElementById('arraySizeValue');
+                if (sizeValueEl && !isNaN(newSize) && newSize >= 10 && newSize <= 9999) {
+                    sizeValueEl.textContent = newSize;
+                }
+            });
+
+            // Debounce the actual array generation on change
+            sizeSlider.addEventListener('change', (e) => {
+                try {
+                    const newSize = parseInt(e.target.value, 10);
+                    const sizeValueEl = document.getElementById('arraySizeValue');
+                    // Validate size value
+                    if (!isNaN(newSize) && newSize >= 10 && newSize <= 9999) {
+                        // Clear any pending timeout
+                        if (this.sizeUpdateTimeout) {
+                            clearTimeout(this.sizeUpdateTimeout);
+                        }
+                        
+                        // Debounce the array generation
+                        this.sizeUpdateTimeout = setTimeout(() => {
+                            // Only update if not in comparison mode or if regular visualization is visible
+                            const regularViz = document.getElementById('regularVisualization');
+                            if (!this.isCompareMode || (regularViz && regularViz.style.display !== 'none')) {
+                                this.size = newSize;
+                                if (sizeValueEl) {
+                                    sizeValueEl.textContent = this.size;
+                                }
+                                this.updateSizePresets();
+                                // Only generate if container exists and is visible
+                                if (this.container && this.container.offsetParent !== null) {
+                                    this.generateArray();
+                                }
+                            }
+                        }, 150); // 150ms debounce
+                    }
+                } catch (error) {
+                    console.error('Error updating array size:', error);
+                    // Reset to default if error occurs
+                    this.size = 30;
+                    const sizeValueEl = document.getElementById('arraySizeValue');
+                    if (sizeValueEl) {
+                        sizeValueEl.textContent = '30';
+                    }
+                    if (sizeSlider) {
+                        sizeSlider.value = 30;
+                    }
+                }
             });
         }
 
-        // Size preset buttons
-        document.querySelectorAll('.btn-preset').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const size = parseInt(btn.dataset.size);
-                this.size = size;
-                sizeSlider.value = size;
-                document.getElementById('arraySizeValue').textContent = size;
-                this.updateSizePresets();
-                this.generateArray();
+        // Size preset buttons - only bind to sorting section presets
+        const sortingSection = document.getElementById('sorting');
+        if (sortingSection) {
+            sortingSection.querySelectorAll('.btn-preset[data-size]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    try {
+                        const size = parseInt(btn.dataset.size, 10);
+                        if (!isNaN(size) && size >= 10 && size <= 9999) {
+                            this.size = size;
+                            if (sizeSlider) {
+                                sizeSlider.value = size;
+                            }
+                            const sizeValueEl = document.getElementById('arraySizeValue');
+                            if (sizeValueEl) {
+                                sizeValueEl.textContent = size;
+                            }
+                            this.updateSizePresets();
+                            this.generateArray();
+                        }
+                    } catch (error) {
+                        console.error('Error setting preset size:', error);
+                    }
+                });
             });
-        });
+        }
 
         // Comparison mode toggle
         const toggleCompareBtn = document.getElementById('toggleCompare');
         const compareControls = document.getElementById('compareControls');
         const compareContainer = document.getElementById('compareContainer');
         const startCompareBtn = document.getElementById('startCompare');
-        
+
         if (toggleCompareBtn) {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
                 const regularViz = document.getElementById('regularVisualization');
-                
+
                 if (this.isCompareMode) {
                     this.stopComparison(); // Stop any running comparison
                     compareControls.style.display = 'block';
@@ -307,28 +367,42 @@ class SortingVisualizer {
         // Comparison mode pause/resume and stop buttons
         const pauseResumeCompareBtn = document.getElementById('pauseResumeCompare');
         const stopCompareBtn = document.getElementById('stopCompare');
-        
+
         if (pauseResumeCompareBtn) {
             pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
         }
-        
+
         if (stopCompareBtn) {
             stopCompareBtn.addEventListener('click', () => this.stopComparison());
         }
 
         if (speedSlider) {
             const multiplierEl = document.getElementById('sortSpeedMultiplier');
+            if (multiplierEl) {
+                // Initialize multiplier display
+                const initialMultiplier = Math.round((this.speed / 50) * 10) / 10;
+                multiplierEl.textContent = `${initialMultiplier}x`;
+            }
             speedSlider.addEventListener('input', (e) => {
-                this.speed = parseInt(e.target.value);
-                if (multiplierEl) {
-                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
-                    multiplierEl.textContent = `${multiplier}x`;
+                try {
+                    const newSpeed = parseInt(e.target.value, 10);
+                    // Validate speed value
+                    if (!isNaN(newSpeed) && newSpeed >= 25 && newSpeed <= 100) {
+                        this.speed = newSpeed;
+                        if (multiplierEl) {
+                            const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                            multiplierEl.textContent = `${multiplier}x`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error updating speed:', error);
+                    // Reset to default if error occurs
+                    this.speed = 50;
+                    if (multiplierEl) {
+                        multiplierEl.textContent = '1x';
+                    }
                 }
             });
-            if (multiplierEl) {
-                const multiplier = Math.round((this.speed / 50) * 10) / 10;
-                multiplierEl.textContent = `${multiplier}x`;
-            }
         }
 
         if (shuffleBtn) shuffleBtn.addEventListener('click', () => this.generateArray());
@@ -341,7 +415,7 @@ class SortingVisualizer {
         const startBtn = document.getElementById('startSort');
         const pauseResumeBtn = document.getElementById('pauseResumeSort');
         const stopBtn = document.getElementById('stopSort');
-        
+
         if (this.isRunning) {
             if (startBtn) {
                 startBtn.style.visibility = 'hidden';
@@ -423,9 +497,28 @@ class SortingVisualizer {
     }
 
     generateArray() {
+        // Don't generate if in comparison mode and regular viz is hidden
+        if (this.isCompareMode) {
+            const regularViz = document.getElementById('regularVisualization');
+            if (regularViz && regularViz.style.display === 'none') {
+                return; // Don't update regular visualization when in comparison mode
+            }
+        }
+        
         this.stop();
+        
+        // Validate size before generating
+        if (this.size < 10 || this.size > 9999 || isNaN(this.size)) {
+            this.size = 30;
+        }
+        
         this.array = Array.from({ length: this.size }, () => Math.floor(Math.random() * 100) + 1);
-        this.render();
+        
+        // Only render if container exists and is visible
+        if (this.container && this.container.offsetParent !== null) {
+            this.render();
+        }
+        
         this.resetStats();
         this.updateButtonStates();
     }
@@ -434,29 +527,52 @@ class SortingVisualizer {
         const targetContainer = container || this.container;
         if (!targetContainer) return;
         
+        // Safety check: ensure container is in DOM and visible
+        if (!targetContainer.parentNode || targetContainer.offsetParent === null) {
+            return;
+        }
+
+        // Validate array exists and has valid length
+        if (!this.array || this.array.length === 0) {
+            return;
+        }
+
         // For large arrays (>1000), use sampling for performance
         const shouldSample = this.array.length > 1000;
         const sampleSize = shouldSample ? 1000 : this.array.length;
         const step = shouldSample ? Math.ceil(this.array.length / sampleSize) : 1;
-        
-        targetContainer.innerHTML = '';
-        const maxVal = Math.max(...this.array);
 
-        for (let i = 0; i < this.array.length; i += step) {
-            const val = this.array[i];
-            const bar = document.createElement('div');
-            bar.className = 'bar';
-            bar.style.height = `${(val / maxVal) * 100}%`;
-            if (shouldSample) {
-                bar.style.width = `${step * 100 / sampleSize}%`;
+        // Use requestAnimationFrame for smoother rendering
+        requestAnimationFrame(() => {
+            try {
+                targetContainer.innerHTML = '';
+                const maxVal = Math.max(...this.array);
+                
+                if (maxVal === 0 || isNaN(maxVal)) {
+                    return; // Invalid array values
+                }
+
+                for (let i = 0; i < this.array.length; i += step) {
+                    const val = this.array[i];
+                    if (isNaN(val)) continue; // Skip invalid values
+                    
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    bar.style.height = `${(val / maxVal) * 100}%`;
+                    if (shouldSample) {
+                        bar.style.width = `${step * 100 / sampleSize}%`;
+                    }
+
+                    if (sorted.includes(i)) bar.classList.add('sorted');
+                    else if (swapping.includes(i)) bar.classList.add('swapping');
+                    else if (comparing.includes(i)) bar.classList.add('comparing');
+
+                    targetContainer.appendChild(bar);
+                }
+            } catch (error) {
+                console.error('Error rendering array:', error);
             }
-
-            if (sorted.includes(i)) bar.classList.add('sorted');
-            else if (swapping.includes(i)) bar.classList.add('swapping');
-            else if (comparing.includes(i)) bar.classList.add('comparing');
-
-            targetContainer.appendChild(bar);
-        }
+        });
     }
 
     resetStats() {
@@ -484,13 +600,13 @@ class SortingVisualizer {
 
     async start() {
         if (this.isRunning && !this.isPaused) return;
-        
+
         // If resuming from pause, just resume
         if (this.isPaused) {
             this.resume();
             return;
         }
-        
+
         // Starting fresh
         this.isRunning = true;
         this.isPaused = false;
@@ -548,7 +664,7 @@ class SortingVisualizer {
 
     async startComparison() {
         if (this.isCompareRunning && !this.isComparePaused) return;
-        
+
         if (this.isComparePaused) {
             this.resumeComparison();
             return;
@@ -558,7 +674,7 @@ class SortingVisualizer {
         const algo2 = document.getElementById('compareAlgo2').value;
         const lang1 = document.getElementById('compareLang1').value;
         const lang2 = document.getElementById('compareLang2').value;
-        
+
         if (algo1 === algo2 && lang1 === lang2) {
             alert('Please select different algorithms or languages to compare!');
             return;
@@ -573,7 +689,7 @@ class SortingVisualizer {
 
         // Generate the same array for both algorithms
         const testArray = Array.from({ length: this.size }, () => Math.floor(Math.random() * 100) + 1);
-        
+
         // Create copies for each algorithm
         const array1 = [...testArray];
         const array2 = [...testArray];
@@ -609,7 +725,7 @@ class SortingVisualizer {
 
         // Display winner
         this.displayComparisonResults(result1, result2);
-        
+
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
     }
@@ -651,7 +767,7 @@ class SortingVisualizer {
         const startBtn = document.getElementById('startCompare');
         const pauseResumeBtn = document.getElementById('pauseResumeCompare');
         const stopBtn = document.getElementById('stopCompare');
-        
+
         if (this.isCompareRunning) {
             if (startBtn) {
                 startBtn.style.visibility = 'hidden';
@@ -711,7 +827,7 @@ class SortingVisualizer {
         container.innerHTML = '';
         const maxVal = Math.max(...arr);
         if (maxVal === 0) return;
-        
+
         const shouldSample = arr.length > 1000;
         const sampleSize = shouldSample ? 1000 : arr.length;
         const step = shouldSample ? Math.ceil(arr.length / sampleSize) : 1;
@@ -732,10 +848,10 @@ class SortingVisualizer {
         const comparisons = { count: 0 };
         const swaps = { count: 0 };
         const startTime = performance.now();
-        
+
         // Get language speed factor
         const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
-        
+
         // Create a temporary visualizer instance for this comparison
         const tempViz = {
             array: array,
@@ -753,7 +869,7 @@ class SortingVisualizer {
                 const langMultiplier = 1 / langSpeed;
                 return Math.max(0.1, (baseDelay / multiplier / 10) * langMultiplier);
             },
-            delay: async function() {
+            delay: async function () {
                 // Wait for resume if paused
                 while (this.isPaused && !this.shouldStop) {
                     await new Promise(resolve => setTimeout(resolve, 50));
@@ -762,8 +878,8 @@ class SortingVisualizer {
                 return new Promise(resolve => setTimeout(resolve, this.getDelay()));
             },
             updateStat: (id, value) => {
-                const statId = id === 'comparisons' ? `comparisons${panelNum}` : 
-                              id === 'swaps' ? `swaps${panelNum}` : null;
+                const statId = id === 'comparisons' ? `comparisons${panelNum}` :
+                    id === 'swaps' ? `swaps${panelNum}` : null;
                 if (statId) {
                     const el = document.getElementById(statId);
                     if (el) el.textContent = value;
@@ -811,14 +927,14 @@ class SortingVisualizer {
 
         const endTime = performance.now();
         const elapsed = endTime - startTime;
-        
+
         // Calculate simulated execution time based on operations and language speed
         // Base time per operation (in ms) - comparisons and swaps have different weights
         const baseTimePerComparison = 0.1; // ms per comparison
         const baseTimePerSwap = 0.2; // ms per swap (swaps are more expensive)
         const totalOperations = (comparisons.count * baseTimePerComparison) + (swaps.count * baseTimePerSwap);
         const simulatedTime = totalOperations / langSpeed;
-        
+
         // Update time display
         const timeId = `sortTime${panelNum}`;
         const timeEl = document.getElementById(timeId);
@@ -843,21 +959,21 @@ class SortingVisualizer {
         const faster = result1.time < result2.time ? result1 : result2;
         const slower = result1.time < result2.time ? result2 : result1;
         const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
-        
+
         // Highlight winner
         const panel1 = document.querySelector('#sortingBars1').closest('.compare-panel');
         const panel2 = document.querySelector('#sortingBars2').closest('.compare-panel');
-        
+
         // Remove any existing winner badges
         const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
         const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
         existingBadges1?.forEach(b => b.remove());
         existingBadges2?.forEach(b => b.remove());
-        
+
         if (panel1) {
             panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
             panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
-            
+
             // Add winner badge
             if (winner === 1) {
                 const badge = document.createElement('div');
@@ -868,11 +984,11 @@ class SortingVisualizer {
                 panel1.appendChild(badge);
             }
         }
-        
+
         if (panel2) {
             panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
             panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
-            
+
             // Add winner badge
             if (winner === 2) {
                 const badge = document.createElement('div');
@@ -1275,13 +1391,13 @@ class SortingVisualizer {
         const bucketCount = n;
         const buckets = Array(bucketCount).fill(null).map(() => []);
         const bucketSize = (max - min) / bucketCount;
-        
+
         for (let num of this.array) {
             const bucketIndex = Math.floor((num - min) / bucketSize);
             const idx = bucketIndex === bucketCount ? bucketCount - 1 : bucketIndex;
             buckets[idx].push(num);
         }
-        
+
         let index = 0;
         for (let i = 0; i < buckets.length && !this.shouldStop; i++) {
             buckets[i].sort((a, b) => a - b);
@@ -1300,7 +1416,7 @@ class SortingVisualizer {
         let swapped = true;
         let start = 0;
         let end = this.array.length - 1;
-        
+
         while (swapped && !this.shouldStop) {
             swapped = false;
             for (let i = start; i < end && !this.shouldStop; i++) {
@@ -1340,7 +1456,7 @@ class SortingVisualizer {
         const shrink = 1.3;
         let gap = this.array.length;
         let sorted = false;
-        
+
         while (!sorted && !this.shouldStop) {
             gap = Math.floor(gap / shrink);
             if (gap <= 1) {
@@ -1525,7 +1641,7 @@ class PathfindingVisualizer {
                 // Mouse events for drawing walls (throttled for performance)
                 let lastToggleTime = 0;
                 const throttleDelay = 16; // ~60fps
-                
+
                 const handleMouseDown = (e) => {
                     e.preventDefault();
                     if (!this.isRunning) {
@@ -1534,7 +1650,7 @@ class PathfindingVisualizer {
                         lastToggleTime = Date.now();
                     }
                 };
-                
+
                 const handleMouseEnter = () => {
                     const now = Date.now();
                     if (this.isDrawing && !this.isRunning && (now - lastToggleTime) >= throttleDelay) {
@@ -1542,15 +1658,15 @@ class PathfindingVisualizer {
                         lastToggleTime = now;
                     }
                 };
-                
+
                 const handleMouseUp = () => {
                     this.isDrawing = false;
                 };
-                
+
                 cell.addEventListener('mousedown', handleMouseDown);
                 cell.addEventListener('mouseenter', handleMouseEnter);
                 cell.addEventListener('mouseup', handleMouseUp);
-                
+
                 // Store handlers for cleanup
                 cell._handlers = { handleMouseDown, handleMouseEnter, handleMouseUp };
 
@@ -1590,7 +1706,7 @@ class PathfindingVisualizer {
         if (startBtn) startBtn.addEventListener('click', () => this.start());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clearAll());
         if (infoBtn) infoBtn.addEventListener('click', () => this.showPathInfo());
-        
+
         if (speedSlider) {
             const multiplierEl = document.getElementById('pathSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
@@ -1604,7 +1720,7 @@ class PathfindingVisualizer {
                 multiplierEl.textContent = '1x';
             }
         }
-        
+
         if (toggleCompareBtn) {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
@@ -1625,19 +1741,19 @@ class PathfindingVisualizer {
                 }
             });
         }
-        
+
         if (startCompareBtn) {
             startCompareBtn.addEventListener('click', () => this.startComparison());
         }
-        
+
         if (pauseResumeCompareBtn) {
             pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
         }
-        
+
         if (stopCompareBtn) {
             stopCompareBtn.addEventListener('click', () => this.stopComparison());
         }
-        
+
         // Close info modal handlers
         const closeBtn = document.getElementById('pathInfoCloseBtn');
         if (closeBtn) {
@@ -1646,7 +1762,7 @@ class PathfindingVisualizer {
                 if (modal) modal.style.display = 'none';
             };
         }
-        
+
         const modal = document.getElementById('pathInfoModal');
         if (modal) {
             modal.onclick = (e) => {
@@ -1656,17 +1772,17 @@ class PathfindingVisualizer {
             };
         }
     }
-    
+
     showPathInfo() {
         const rows = this.rows;
         const cols = this.cols;
         const totalCells = rows * cols;
-        const wallCount = this.grid.reduce((count, row) => 
+        const wallCount = this.grid.reduce((count, row) =>
             count + row.filter(cell => cell.isWall).length, 0
         );
         const modal = document.getElementById('pathInfoModal');
         const content = document.getElementById('pathInfoContent');
-        
+
         if (content) {
             content.innerHTML = `
                 <div class="search-info-grid">
@@ -1697,31 +1813,31 @@ class PathfindingVisualizer {
                 </div>
             `;
         }
-        
+
         if (modal) modal.style.display = 'flex';
     }
-    
+
     async startComparison() {
         if (this.isCompareRunning) return;
-        
+
         const algo1 = document.getElementById('pathCompareAlgo1')?.value || 'bfs';
         const algo2 = document.getElementById('pathCompareAlgo2')?.value || 'dfs';
         const lang1 = document.getElementById('pathCompareLang1')?.value || 'python';
         const lang2 = document.getElementById('pathCompareLang2')?.value || 'java';
-        
+
         // Update algorithm names
         const name1El = document.getElementById('pathCompareAlgo1Name');
         const name2El = document.getElementById('pathCompareAlgo2Name');
         if (name1El) name1El.textContent = `${algo1.toUpperCase()} (${lang1})`;
         if (name2El) name2El.textContent = `${algo2.toUpperCase()} (${lang2})`;
-        
+
         // Create common grid state
         const commonGrid = this.grid.map(row => row.map(cell => ({ ...cell })));
-        
+
         // Initialize comparison grids
         this.initComparisonGrid(1, commonGrid);
         this.initComparisonGrid(2, commonGrid);
-        
+
         // Reset stats
         document.getElementById('nodesVisited1').textContent = '0';
         document.getElementById('nodesVisited2').textContent = '0';
@@ -1729,45 +1845,45 @@ class PathfindingVisualizer {
         document.getElementById('pathLength2').textContent = '0';
         document.getElementById('pathTime1').textContent = '0ms';
         document.getElementById('pathTime2').textContent = '0ms';
-        
+
         // Reset panels
         const panel1 = document.querySelector('#pathGrid1').closest('.compare-panel');
         const panel2 = document.querySelector('#pathGrid2').closest('.compare-panel');
         if (panel1) panel1.style.borderColor = 'var(--border-color)';
         if (panel2) panel2.style.borderColor = 'var(--border-color)';
-        
+
         this.isCompareRunning = true;
         this.isComparePaused = false;
         this.updateCompareButtonStates();
-        
+
         // Run both algorithms in parallel
         const [result1, result2] = await Promise.all([
             this.runAlgorithmForComparison(algo1, lang1, 1, commonGrid),
             this.runAlgorithmForComparison(algo2, lang2, 2, commonGrid)
         ]);
-        
+
         if (!this.isComparePaused && this.isCompareRunning) {
             this.displayComparisonResults(result1, result2);
         }
-        
+
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
     }
-    
+
     initComparisonGrid(panelNum, gridData) {
         const container = document.getElementById(`pathGrid${panelNum}`);
         if (!container) return;
-        
+
         container.innerHTML = '';
         container.style.gridTemplateColumns = `repeat(${this.cols}, 22px)`;
-        
+
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.cols; j++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.row = i;
                 cell.dataset.col = j;
-                
+
                 if (i === this.startCell.row && j === this.startCell.col) {
                     cell.classList.add('start');
                     cell.textContent = 'S';
@@ -1777,40 +1893,40 @@ class PathfindingVisualizer {
                 } else if (gridData[i][j].isWall) {
                     cell.classList.add('wall');
                 }
-                
+
                 container.appendChild(cell);
             }
         }
     }
-    
+
     async runAlgorithmForComparison(algoKey, langKey, panelNum, gridData) {
         const container = document.getElementById(`pathGrid${panelNum}`);
         if (!container) return { time: 0, nodesVisited: 0, pathLength: 0 };
-        
+
         const startTime = performance.now();
         let nodesVisited = 0;
         let pathLength = 0;
-        
+
         const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
         const baseDelay = this.getDelay();
         const delay = Math.max(1, baseDelay / langSpeed);
-        
+
         // Run BFS for comparison (simplified)
         const path = await this.bfsForComparison(container, gridData, delay, panelNum);
-        
+
         const endTime = performance.now();
         const elapsed = endTime - startTime;
-        
+
         if (path) {
             pathLength = path.length;
             await this.animatePathForComparison(container, path, panelNum);
         }
-        
+
         // Calculate simulated execution time based on nodes visited and language speed
         // Base time per node (in ms) - adjusted by language speed
         const baseTimePerNode = 0.4; // ms per node
         const simulatedTime = (nodesVisited * baseTimePerNode) / langSpeed;
-        
+
         // Update stats
         document.getElementById(`nodesVisited${panelNum}`).textContent = nodesVisited;
         document.getElementById(`pathLength${panelNum}`).textContent = pathLength;
@@ -1819,54 +1935,54 @@ class PathfindingVisualizer {
             const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
             timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
-        
+
         return {
             time: simulatedTime, // Use simulated time for comparison
             nodesVisited: nodesVisited,
             pathLength: pathLength
         };
     }
-    
+
     async bfsForComparison(container, gridData, delay, panelNum) {
         const queue = [{ row: this.startCell.row, col: this.startCell.col, path: [{ row: this.startCell.row, col: this.startCell.col }] }];
         const visited = new Set();
         visited.add(`${this.startCell.row},${this.startCell.col}`);
         let nodesVisited = 0;
         const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-        
+
         while (queue.length > 0 && this.isCompareRunning && !this.isComparePaused) {
             const { row, col, path } = queue.shift();
             nodesVisited++;
-            
+
             // Update nodes visited stat
             document.getElementById(`nodesVisited${panelNum}`).textContent = nodesVisited;
-            
+
             if (row === this.endCell.row && col === this.endCell.col) {
                 document.getElementById(`pathLength${panelNum}`).textContent = path.length;
                 return path;
             }
-            
+
             // Mark as visited
             const cell = container.children[row * this.cols + col];
             if (cell && !cell.classList.contains('start') && !cell.classList.contains('end')) {
                 cell.classList.add('visited');
             }
-            
+
             await new Promise(r => setTimeout(r, delay));
-            
+
             // Explore neighbors
             for (const [dr, dc] of directions) {
                 if (!this.isCompareRunning || this.isComparePaused) break;
-                
+
                 const newRow = row + dr;
                 const newCol = col + dc;
                 const key = `${newRow},${newCol}`;
-                
+
                 if (newRow >= 0 && newRow < this.rows &&
                     newCol >= 0 && newCol < this.cols &&
                     !visited.has(key) &&
                     !gridData[newRow][newCol].isWall) {
-                    
+
                     visited.add(key);
                     queue.push({
                         row: newRow,
@@ -1876,10 +1992,10 @@ class PathfindingVisualizer {
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     async animatePathForComparison(container, path, panelNum) {
         for (let i = 0; i < path.length && this.isCompareRunning; i++) {
             const { row, col } = path[i];
@@ -1891,26 +2007,26 @@ class PathfindingVisualizer {
             await new Promise(r => setTimeout(r, 30));
         }
     }
-    
+
     displayComparisonResults(result1, result2) {
         const winner = result1.time < result2.time ? 1 : 2;
         const faster = result1.time < result2.time ? result1 : result2;
         const slower = result1.time < result2.time ? result2 : result1;
         const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
-        
+
         const panel1 = document.querySelector('#pathGrid1').closest('.compare-panel');
         const panel2 = document.querySelector('#pathGrid2').closest('.compare-panel');
-        
+
         // Remove any existing winner badges
         const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
         const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
         existingBadges1?.forEach(b => b.remove());
         existingBadges2?.forEach(b => b.remove());
-        
+
         if (panel1) {
             panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
             panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
-            
+
             if (winner === 1) {
                 const badge = document.createElement('div');
                 badge.className = 'winner-badge';
@@ -1920,11 +2036,11 @@ class PathfindingVisualizer {
                 panel1.appendChild(badge);
             }
         }
-        
+
         if (panel2) {
             panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
             panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
-            
+
             if (winner === 2) {
                 const badge = document.createElement('div');
                 badge.className = 'winner-badge';
@@ -1935,7 +2051,7 @@ class PathfindingVisualizer {
             }
         }
     }
-    
+
     togglePauseResumeCompare() {
         if (this.isComparePaused) {
             this.resumeComparison();
@@ -1943,27 +2059,27 @@ class PathfindingVisualizer {
             this.pauseComparison();
         }
     }
-    
+
     pauseComparison() {
         this.isComparePaused = true;
         this.updateCompareButtonStates();
     }
-    
+
     resumeComparison() {
         this.isComparePaused = false;
         this.updateCompareButtonStates();
     }
-    
+
     stopComparison() {
         this.isCompareRunning = false;
         this.isComparePaused = false;
         this.updateCompareButtonStates();
     }
-    
+
     updateCompareButtonStates() {
         const pauseResumeBtn = document.getElementById('pauseResumePathCompare');
         const stopBtn = document.getElementById('stopPathCompare');
-        
+
         if (this.isCompareRunning) {
             if (pauseResumeBtn) {
                 pauseResumeBtn.style.visibility = 'visible';
@@ -2217,14 +2333,14 @@ class LanguageArena {
                 if (formatSelect._changeHandler) {
                     formatSelect.removeEventListener('change', formatSelect._changeHandler);
                 }
-                
+
                 // Create and store new handler
                 formatSelect._changeHandler = (e) => {
                     const timeValueEl = document.querySelector(`#time-${lang} .time-value`);
                     if (timeValueEl && this.rawTimes[lang] > 0) {
                         let format = e.target.value;
                         const time = this.rawTimes[lang];
-                        
+
                         // Auto-format: if >= 2000ms, use seconds
                         if (time >= 2000 && time < 60000) {
                             format = 's';
@@ -2246,7 +2362,7 @@ class LanguageArena {
                         timeValueEl.textContent = formatTimeValue(time, format);
                     }
                 };
-                
+
                 formatSelect.addEventListener('change', formatSelect._changeHandler);
             }
         });
@@ -2269,13 +2385,13 @@ class LanguageArena {
 
         if (startBtn) startBtn.addEventListener('click', () => this.startRace());
         if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
-        
+
         if (selectAllBtn) {
             const updateSelectAllButton = () => {
                 const allChecked = Array.from(langCheckboxes).every(cb => cb.checked);
                 selectAllBtn.textContent = allChecked ? 'Deselect All' : 'Select All';
             };
-            
+
             selectAllBtn.addEventListener('click', () => {
                 const allChecked = Array.from(langCheckboxes).every(cb => cb.checked);
                 langCheckboxes.forEach(cb => cb.checked = !allChecked);
@@ -2284,13 +2400,13 @@ class LanguageArena {
                 this.setupTimeFormatListeners();
                 updateSelectAllButton();
             });
-            
+
             langCheckboxes.forEach(cb => {
                 cb.addEventListener('change', () => {
                     updateSelectAllButton();
                 });
             });
-            
+
             updateSelectAllButton();
         }
 
@@ -2329,7 +2445,7 @@ class LanguageArena {
         // Use DocumentFragment for better performance
         const fragment = document.createDocumentFragment();
         const oldTracks = container.querySelectorAll('.race-track');
-        
+
         // Cleanup old event listeners before removing
         oldTracks.forEach(track => {
             const timeFormatSelect = track.querySelector('select');
@@ -2337,10 +2453,10 @@ class LanguageArena {
                 timeFormatSelect.removeEventListener('change', timeFormatSelect._changeHandler);
             }
         });
-        
+
         // Batch DOM updates
         container.innerHTML = '';
-        
+
         // Get cached language info for better performance
         const langInfo = getLanguageInfo();
 
@@ -2375,7 +2491,7 @@ class LanguageArena {
             `;
             container.appendChild(track);
         });
-        
+
         // Set up time format listeners after tracks are rendered
         this.setupTimeFormatListeners();
     }
@@ -2422,10 +2538,10 @@ class LanguageArena {
             // Add realistic variance (5-10% random variation)
             const variance = 0.95 + Math.random() * 0.1;
             const speedMultiplier = LANGUAGE_SPEED[lang] || 10;
-            
+
             // Calculate time: base time * language speed multiplier * variance
             times[lang] = baseTime * speedMultiplier * variance;
-            
+
             // Ensure minimum time for very fast operations
             if (times[lang] < 0.1) {
                 times[lang] = 0.1 + Math.random() * 0.5;
@@ -2434,7 +2550,7 @@ class LanguageArena {
 
         const minTime = Math.min(...Object.values(times));
         const maxTime = Math.max(...Object.values(times));
-        
+
         // Calculate animation duration based on actual execution times
         // Map execution time to animation duration for better alignment
         const baseAnimationDuration = this.calculateAnimationDurationFromTime(minTime, maxTime);
@@ -2473,18 +2589,18 @@ class LanguageArena {
     calculateAnimationDurationFromTime(minTime, maxTime) {
         // Calculate animation duration based on actual execution times
         // Align animation speed with language execution speed
-        
+
         // Convert times from milliseconds to seconds for easier calculation
         const minTimeSeconds = minTime / 1000;
         const maxTimeSeconds = maxTime / 1000;
-        
+
         // Map execution time to animation duration
         // For very fast times (< 0.01s = 10ms): 2-3 seconds animation
         // For fast times (0.01-0.1s = 10-100ms): 3-5 seconds animation
         // For medium times (0.1-1s = 100ms-1s): 5-10 seconds animation
         // For slow times (1-10s): 10-20 seconds animation
         // For very slow times (> 10s): 20-60 seconds animation
-        
+
         if (minTimeSeconds < 0.01) {
             // Very fast (< 10ms): 2-3 seconds
             return 2500; // 2.5 seconds
@@ -2509,16 +2625,16 @@ class LanguageArena {
 
     getBaseTime() {
         const iter = this.iterations;
-        
+
         const normalizeIter = (value) => {
             if (value > 1000000000) return value / 1000000;
             if (value > 1000000) return value / 1000;
             return value;
         };
-        
+
         const normalizedIter = normalizeIter(iter);
         const scaleFactor = iter > 1000000000 ? 1000000 : iter > 1000000 ? 1000 : 1;
-        
+
         switch (this.algorithm) {
             case 'fibonacci':
                 return normalizedIter * 0.8 * scaleFactor;
@@ -2530,7 +2646,7 @@ class LanguageArena {
                 return normalizedIter * 0.01 * scaleFactor;
             case 'stringConcat':
                 return normalizedIter * 0.05 * scaleFactor;
-            
+
             case 'sorting':
             case 'quickSort':
                 return normalizedIter * Math.log2(normalizedIter || 1) * 0.08 * scaleFactor;
@@ -2538,7 +2654,7 @@ class LanguageArena {
                 return normalizedIter * Math.log2(normalizedIter || 1) * 0.1 * scaleFactor;
             case 'heapSort':
                 return normalizedIter * Math.log2(normalizedIter || 1) * 0.12 * scaleFactor;
-            
+
             case 'nestedLoop':
                 return normalizedIter * normalizedIter * 0.0008 * scaleFactor;
             case 'bubbleSort':
@@ -2549,37 +2665,37 @@ class LanguageArena {
                 return size * size * size * 0.3 * scaleFactor;
             case 'selectionSort':
                 return normalizedIter * normalizedIter * 0.012 * scaleFactor;
-            
+
             case 'primes':
                 return normalizedIter * Math.log2(Math.log2(normalizedIter || 1) || 1) * 10 * scaleFactor;
-            
+
             case 'binarySearch':
                 return Math.log2(normalizedIter || 1) * 100 * scaleFactor;
-            
+
             case 'recursiveFibonacci':
                 const expLimit = Math.min(normalizedIter / 100, 20);
                 return Math.pow(2, expLimit) * 500 * scaleFactor;
-            
+
             case 'permutations':
                 const n = Math.min(normalizedIter / 1000, 10);
                 let fact = 1;
                 for (let i = 2; i <= n; i++) fact *= i;
                 return fact * 100 * scaleFactor;
-            
+
             case 'graphBFS':
                 return normalizedIter * 0.2 * scaleFactor;
             case 'graphDFS':
                 return normalizedIter * 0.15 * scaleFactor;
             case 'dijkstra':
                 return normalizedIter * normalizedIter * 0.02 * scaleFactor;
-            
+
             case 'stringSearch':
             case 'stringPatternSearch':
                 return normalizedIter * 0.03 * scaleFactor;
             case 'stringHash':
             case 'stringHashing':
                 return normalizedIter * 0.02 * scaleFactor;
-            
+
             default:
                 return normalizedIter * 1 * scaleFactor;
         }
@@ -2598,7 +2714,7 @@ class LanguageArena {
         // But ensure all finish within the calculated window
         const timeRatio = time / maxTime; // Ratio compared to slowest
         const racerDuration = baseDuration * timeRatio;
-        
+
         const info = getLanguageInfo()[lang];
         // Get the actual usable width of the track (accounting for any padding)
         const trackRect = trackBarEl.getBoundingClientRect();
@@ -2611,7 +2727,7 @@ class LanguageArena {
 
         // Ensure ball starts at left edge
         runnerEl.style.left = '0px';
-        
+
         return new Promise(resolve => {
             const startTime = performance.now();
             let lastTickTime = 0;
@@ -2629,23 +2745,23 @@ class LanguageArena {
                 // Use easing function for natural, engaging movement
                 // Ease-in-out cubic for smooth acceleration and deceleration
                 const easeInOutCubic = (t) => {
-                    return t < 0.5 
-                        ? 4 * t * t * t 
+                    return t < 0.5
+                        ? 4 * t * t * t
                         : 1 - Math.pow(-2 * t + 2, 3) / 2;
                 };
-                
+
                 // Apply easing to progress for smooth, slow movement
                 const easedProgress = easeInOutCubic(progress);
-                
+
                 // Add very subtle oscillation for visual interest (minimal back-and-forth)
                 // Only 1-2 gentle cycles throughout the entire duration for engagement
                 const cycles = Math.max(1, Math.min(2, Math.floor(racerDuration / 8000)));
                 const subtleOscillation = Math.sin(progress * Math.PI * cycles) * 0.02; // Very subtle (2% max)
-                
+
                 // Combine: almost pure forward progress with minimal oscillation
                 // 98% forward progress, 2% subtle oscillation for visual interest
                 const finalProgress = Math.max(0, Math.min(1, easedProgress + subtleOscillation));
-                
+
                 // Calculate actual position - move slowly and smoothly from 0 (left edge) to maxPosition (right edge)
                 // The ball will take the full duration to travel edge-to-edge
                 let position = finalProgress * maxPosition;
@@ -2667,33 +2783,33 @@ class LanguageArena {
                     // Ensure ball reaches the end
                     runnerEl.style.left = `${maxPosition}px`;
                     if (trackEl) trackEl.classList.add('finished');
-                    
+
                     // Store raw time value
                     this.rawTimes[lang] = time;
-                    
+
                     // Auto-select best format and update dropdown for large values
                     const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
                     let bestFormat = getBestTimeFormat(time);
-                    
+
                     // If time is >= 2000ms (2 seconds), use seconds format
                     if (time >= 2000 && time < 60000) {
                         bestFormat = 's';
                     }
-                    
+
                     if (formatSelect) {
                         if (time >= 2000) {
                             formatSelect.value = bestFormat;
                         }
                     }
-                    
+
                     // Use best format for display if value is >= 2000ms, otherwise use dropdown value
                     const format = (time >= 2000) ? bestFormat : (formatSelect ? formatSelect.value : 'ms');
                     const displayTime = formatTimeValue(time, format);
-                    
+
                     const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
                     if (timeValueEl) timeValueEl.textContent = displayTime;
-                    
-                    
+
+
                     this.results.push({ lang, time, displayTime });
                     if (typeof audioEngine !== 'undefined') audioEngine.playSuccess();
                     resolve();
@@ -2729,7 +2845,7 @@ class LanguageArena {
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const graphShownKey = 'complexityGraphShown';
         let graphShownCount = parseInt(sessionStorage.getItem(graphShownKey) || '0');
-        
+
         // Show graph if: localhost (unlimited) OR less than 5 times
         if (isLocalhost || graphShownCount < 5) {
             // Show the complexity graph first, then results after it closes
@@ -2797,13 +2913,13 @@ class LanguageArena {
         // Get algorithm complexity info
         const algoKey = this.algorithm;
         const algo = this.getAlgorithmComplexity(algoKey);
-        
+
         // Render graph
         container.innerHTML = this.renderComplexityGraph(algo);
-        
+
         // Show modal
         modal.style.display = 'flex';
-        
+
         // Close button handler (X icon)
         const closeBtn = document.getElementById('closeComplexityGraphX');
         if (closeBtn) {
@@ -2811,7 +2927,7 @@ class LanguageArena {
             closeBtn.onclick = null;
             closeBtn.addEventListener('click', () => this.hideComplexityGraph());
         }
-        
+
         // Also close on backdrop click
         modal.onclick = (e) => {
             if (e.target === modal) {
@@ -2857,7 +2973,7 @@ class LanguageArena {
             'stringSearch': { time: 'O(n+m)', space: 'O(m)', name: 'String Search' },
             'stringHash': { time: 'O(n)', space: 'O(1)', name: 'String Hash' }
         };
-        
+
         return complexities[algorithm] || { time: 'O(n)', space: 'O(1)', name: 'Algorithm' };
     }
 
@@ -2865,14 +2981,14 @@ class LanguageArena {
         const langInfo = getLanguageInfo();
         const maxTime = Math.max(...this.results.map(r => r.time));
         const minTime = Math.min(...this.results.map(r => r.time));
-        
+
         // Create SVG line graph (rectangular aspect ratio, larger for better visibility)
         const width = 900;
         const height = 500;
         const padding = { top: 60, right: 100, bottom: 100, left: 100 };
         const chartWidth = width - padding.left - padding.right;
         const chartHeight = height - padding.top - padding.bottom;
-        
+
         let svg = `<svg width="${width}" height="${height}" style="background: transparent;">
             <defs>
                 <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -2882,21 +2998,21 @@ class LanguageArena {
                 </linearGradient>
             </defs>
             
-            <text x="${width/2}" y="30" text-anchor="middle" fill="var(--text-primary)" font-size="22" font-weight="bold">${algo.name} - Performance Analysis</text>
-            <text x="${width/2}" y="52" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Time: ${algo.time} | Space: ${algo.space}</text>
+            <text x="${width / 2}" y="30" text-anchor="middle" fill="var(--text-primary)" font-size="22" font-weight="bold">${algo.name} - Performance Analysis</text>
+            <text x="${width / 2}" y="52" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Time: ${algo.time} | Space: ${algo.space}</text>
             
             <rect x="${padding.left}" y="${padding.top}" width="${chartWidth}" height="${chartHeight}" 
                   fill="var(--bg-tertiary)" rx="8" opacity="0.3"/>`;
-        
+
         const gridDivisions = 10;
         const sortedResults = [...this.results].sort((a, b) => a.time - b.time);
         const numLanguages = sortedResults.length;
-        
+
         for (let i = 0; i <= gridDivisions; i++) {
             const y = padding.top + (chartHeight / gridDivisions) * i;
             svg += `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" 
                      stroke="var(--border-color)" stroke-width="1" opacity="0.2"/>`;
-            
+
             if (i % 2 === 0 || i === 0 || i === gridDivisions) {
                 const timeValue = maxTime - ((maxTime - minTime) / gridDivisions) * i;
                 let formattedTime;
@@ -2913,45 +3029,45 @@ class LanguageArena {
                          fill="var(--text-primary)" font-size="11" font-weight="500">${formattedTime}</text>`;
             }
         }
-        
+
         for (let i = 0; i < numLanguages; i++) {
             const x = padding.left + (numLanguages > 1 ? (chartWidth / (numLanguages - 1)) * i : chartWidth / 2);
             svg += `<line x1="${x}" y1="${padding.top}" x2="${x}" y2="${padding.top + chartHeight}" 
                      stroke="var(--border-color)" stroke-width="1" opacity="0.15"/>`;
         }
-        
+
         const averageTime = this.results.reduce((sum, r) => sum + r.time, 0) / this.results.length;
         const avgY = padding.top + chartHeight - ((averageTime - minTime) / (maxTime - minTime || 1)) * chartHeight;
         svg += `<line x1="${padding.left}" y1="${avgY}" x2="${padding.left + chartWidth}" y2="${avgY}" 
                  stroke="var(--gold)" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
                  <text x="${padding.left + chartWidth + 10}" y="${avgY + 5}" 
                  fill="var(--gold)" font-size="10" font-weight="600">Avg</text>`;
-        
+
         const points = [];
-        
+
         sortedResults.forEach((result, idx) => {
             const info = langInfo[result.lang];
             if (!info) return;
-            
+
             const x = padding.left + (numLanguages > 1 ? (chartWidth / (numLanguages - 1)) * idx : chartWidth / 2);
             const y = padding.top + chartHeight - ((result.time - minTime) / (maxTime - minTime || 1)) * chartHeight;
             points.push({ x, y, result, info });
         });
-        
+
         // Draw line
         if (points.length > 1) {
             let pathData = `M ${points[0].x} ${points[0].y}`;
             for (let i = 1; i < points.length; i++) {
                 pathData += ` L ${points[i].x} ${points[i].y}`;
             }
-            
+
             svg += `<path d="${pathData}" fill="none" stroke="url(#lineGradient)" stroke-width="3" 
                      stroke-linecap="round" stroke-linejoin="round"/>`;
         }
-        
+
         points.forEach((point, idx) => {
             const iconPath = point.info.icon;
-            
+
             if (iconPath) {
                 svg += `<g>
                     <circle cx="${point.x}" cy="${point.y}" r="12" fill="var(--bg-primary)" 
@@ -2963,27 +3079,27 @@ class LanguageArena {
                 svg += `<circle cx="${point.x}" cy="${point.y}" r="6" fill="${point.info.color}" 
                          stroke="var(--bg-primary)" stroke-width="2"/>`;
             }
-            
+
             svg += `<text x="${point.x}" y="${padding.top + chartHeight + 25}" 
                      text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="600">${point.info.symbol}</text>`;
-            
+
             svg += `<text x="${point.x}" y="${padding.top + chartHeight + 42}" 
                      text-anchor="middle" fill="var(--text-secondary)" font-size="11">${point.info.name}</text>`;
-            
+
             svg += `<text x="${point.x}" y="${point.y - 18}" 
                      text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="600">${point.result.displayTime}</text>`;
         });
-        
+
         // Y-axis label (larger and more visible)
-        svg += `<text x="35" y="${height/2}" text-anchor="middle" fill="var(--text-primary)" 
-                 font-size="14" font-weight="600" transform="rotate(-90, 35, ${height/2})">Execution Time</text>`;
-        
+        svg += `<text x="35" y="${height / 2}" text-anchor="middle" fill="var(--text-primary)" 
+                 font-size="14" font-weight="600" transform="rotate(-90, 35, ${height / 2})">Execution Time</text>`;
+
         // X-axis label (larger and more visible)
-        svg += `<text x="${width/2}" y="${height - 25}" text-anchor="middle" 
+        svg += `<text x="${width / 2}" y="${height - 25}" text-anchor="middle" 
                  fill="var(--text-primary)" font-size="14" font-weight="600">Languages (sorted by performance)</text>`;
-        
+
         svg += `</svg>`;
-        
+
         return svg;
     }
 
@@ -3074,7 +3190,7 @@ class SearchingVisualizer {
         }
 
         const infoBtn = document.getElementById('searchInfoBtn');
-        
+
         if (generateBtn) generateBtn.addEventListener('click', () => this.generateArray());
         if (infoBtn) infoBtn.addEventListener('click', () => this.showArrayInfo());
         if (startBtn) startBtn.addEventListener('click', () => this.start());
@@ -3083,7 +3199,7 @@ class SearchingVisualizer {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
                 const regularViz = document.getElementById('searchRegularVisualization');
-                
+
                 if (this.isCompareMode) {
                     this.stopComparison();
                     if (compareControls) compareControls.style.display = 'block';
@@ -3137,13 +3253,13 @@ class SearchingVisualizer {
             if (modal) modal.style.display = 'flex';
             return;
         }
-        
+
         const size = this.array.length;
         const min = Math.min(...this.array);
         const max = Math.max(...this.array);
         const sorted = [...this.array].sort((a, b) => a - b);
         const isSorted = JSON.stringify(this.array) === JSON.stringify(sorted);
-        
+
         // Show first 20 and last 20 values if array is large
         let arrayPreview = '';
         if (size <= 40) {
@@ -3153,10 +3269,10 @@ class SearchingVisualizer {
             const last20 = this.array.slice(-20).join(', ');
             arrayPreview = `${first20} ... <span style="color: var(--text-secondary);">(${size - 40} more values)</span> ... ${last20}`;
         }
-        
+
         const modal = document.getElementById('searchInfoModal');
         const content = document.getElementById('searchInfoContent');
-        
+
         if (content) {
             content.innerHTML = `
                 <div class="search-info-grid">
@@ -3194,9 +3310,9 @@ class SearchingVisualizer {
                 </div>
             `;
         }
-        
+
         if (modal) modal.style.display = 'flex';
-        
+
         // Close button handler
         const closeBtn = document.getElementById('searchInfoCloseBtn');
         if (closeBtn) {
@@ -3204,7 +3320,7 @@ class SearchingVisualizer {
                 if (modal) modal.style.display = 'none';
             };
         }
-        
+
         // Close on outside click
         if (modal) {
             modal.onclick = (e) => {
@@ -3316,7 +3432,7 @@ class SearchingVisualizer {
         const baseDelay = Math.max(100, 200);
         const multiplier = this.speed / 50;
         const delay = Math.max(50, baseDelay / multiplier);
-        
+
         for (let i = 0; i < this.array.length && !this.shouldStop; i++) {
             checked.push(i);
             const stepsEl = document.getElementById('searchSteps');
@@ -3360,7 +3476,7 @@ class SearchingVisualizer {
 
     async startComparison() {
         if (this.isCompareRunning) return;
-        
+
         const algo1 = document.getElementById('searchCompareAlgo1')?.value || 'linearSearch';
         const algo2 = document.getElementById('searchCompareAlgo2')?.value || 'binarySearch';
         const lang1 = document.getElementById('searchCompareLang1')?.value || 'python';
@@ -3377,9 +3493,9 @@ class SearchingVisualizer {
         const targetEl = document.getElementById('searchTarget');
         const size = parseInt(sizeEl?.value || 20);
         const target = parseInt(targetEl?.value || 42);
-        
+
         const commonArray = Array.from({ length: size }, (_, i) => (i + 1) * 5).sort((a, b) => a - b);
-        
+
         // Reset stats
         document.getElementById('searchSteps1').textContent = '0';
         document.getElementById('searchSteps2').textContent = '0';
@@ -3416,9 +3532,9 @@ class SearchingVisualizer {
         const steps = { count: 0 };
         const startTime = performance.now();
         let foundIndex = -1;
-        
+
         const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
-        
+
         const tempViz = {
             array: array,
             container: container,
@@ -3434,7 +3550,7 @@ class SearchingVisualizer {
                 const langMultiplier = 1 / langSpeed;
                 return Math.max(50, (baseDelay / multiplier) * langMultiplier);
             },
-            delay: async function() {
+            delay: async function () {
                 while (this.isPaused && !this.shouldStop) {
                     await new Promise(resolve => setTimeout(resolve, 50));
                 }
@@ -3485,12 +3601,12 @@ class SearchingVisualizer {
 
         const endTime = performance.now();
         const elapsed = endTime - startTime;
-        
+
         // Calculate simulated execution time based on steps and language speed
         // Base time per step (in ms) - adjusted by language speed
         const baseTimePerStep = 0.5; // ms per step
         const simulatedTime = (steps.count * baseTimePerStep) / langSpeed;
-        
+
         const timeEl = document.getElementById(`searchTime${panelNum}`);
         if (timeEl) {
             const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
@@ -3560,20 +3676,20 @@ class SearchingVisualizer {
         const faster = result1.time < result2.time ? result1 : result2;
         const slower = result1.time < result2.time ? result2 : result1;
         const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
-        
+
         const panel1 = document.querySelector('#searchBars1').closest('.compare-panel');
         const panel2 = document.querySelector('#searchBars2').closest('.compare-panel');
-        
+
         // Remove any existing winner badges
         const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
         const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
         existingBadges1?.forEach(b => b.remove());
         existingBadges2?.forEach(b => b.remove());
-        
+
         if (panel1) {
             panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
             panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
-            
+
             if (winner === 1) {
                 const badge = document.createElement('div');
                 badge.className = 'winner-badge';
@@ -3583,11 +3699,11 @@ class SearchingVisualizer {
                 panel1.appendChild(badge);
             }
         }
-        
+
         if (panel2) {
             panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
             panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
-            
+
             if (winner === 2) {
                 const badge = document.createElement('div');
                 badge.className = 'winner-badge';
@@ -3632,7 +3748,7 @@ class SearchingVisualizer {
     updateCompareButtonStates() {
         const pauseResumeBtn = document.getElementById('pauseResumeSearchCompare');
         const stopBtn = document.getElementById('stopSearchCompare');
-        
+
         if (this.isCompareRunning) {
             if (pauseResumeBtn) {
                 pauseResumeBtn.style.visibility = 'visible';
@@ -3705,7 +3821,7 @@ class TreeVisualizer {
         const compareControls = document.getElementById('treeCompareControls');
         const compareContainer = document.getElementById('treeCompareContainer');
         const regularViz = document.getElementById('treeRegularVisualization');
-        
+
         if (speedSlider) {
             const multiplierEl = document.getElementById('treeSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
@@ -3726,7 +3842,7 @@ class TreeVisualizer {
         if (clearBtn) clearBtn.addEventListener('click', () => this.clear());
         if (traverseBtn) traverseBtn.addEventListener('click', () => this.traverse());
         if (infoBtn) infoBtn.addEventListener('click', () => this.showTreeInfo());
-        
+
         if (toggleCompareBtn) {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
@@ -3747,19 +3863,19 @@ class TreeVisualizer {
                 }
             });
         }
-        
+
         if (startCompareBtn) {
             startCompareBtn.addEventListener('click', () => this.startComparison());
         }
-        
+
         if (pauseResumeCompareBtn) {
             pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
         }
-        
+
         if (stopCompareBtn) {
             stopCompareBtn.addEventListener('click', () => this.stopComparison());
         }
-        
+
         // Close info modal handlers
         const closeBtn = document.getElementById('treeInfoCloseBtn');
         if (closeBtn) {
@@ -3768,7 +3884,7 @@ class TreeVisualizer {
                 if (modal) modal.style.display = 'none';
             };
         }
-        
+
         const modal = document.getElementById('treeInfoModal');
         if (modal) {
             modal.onclick = (e) => {
@@ -3778,13 +3894,13 @@ class TreeVisualizer {
             };
         }
     }
-    
+
     showTreeInfo() {
         const nodeCount = this.countNodes(this.root);
         const height = this.getHeight(this.root);
         const modal = document.getElementById('treeInfoModal');
         const content = document.getElementById('treeInfoContent');
-        
+
         if (content) {
             content.innerHTML = `
                 <div class="search-info-grid">
@@ -3803,32 +3919,32 @@ class TreeVisualizer {
                 </div>
             `;
         }
-        
+
         if (modal) modal.style.display = 'flex';
     }
-    
+
     async startComparison() {
         if (this.isCompareRunning) return;
-        
+
         const algo1 = document.getElementById('treeCompareAlgo1')?.value || 'inorderTraversal';
         const algo2 = document.getElementById('treeCompareAlgo2')?.value || 'preorderTraversal';
         const lang1 = document.getElementById('treeCompareLang1')?.value || 'python';
         const lang2 = document.getElementById('treeCompareLang2')?.value || 'java';
-        
+
         // Update algorithm names
         const name1El = document.getElementById('treeCompareAlgo1Name');
         const name2El = document.getElementById('treeCompareAlgo2Name');
         if (name1El) name1El.textContent = `${algo1} (${lang1})`;
         if (name2El) name2El.textContent = `${algo2} (${lang2})`;
-        
+
         // Clone the current tree for both comparisons
         const tree1 = this.cloneTree(this.root);
         const tree2 = this.cloneTree(this.root);
-        
+
         // Initialize comparison SVGs
         this.initComparisonTree(1, tree1);
         this.initComparisonTree(2, tree2);
-        
+
         // Reset stats
         document.getElementById('treeNodes1').textContent = '0';
         document.getElementById('treeNodes2').textContent = '0';
@@ -3836,31 +3952,31 @@ class TreeVisualizer {
         document.getElementById('treeHeight2').textContent = '0';
         document.getElementById('treeTime1').textContent = '0ms';
         document.getElementById('treeTime2').textContent = '0ms';
-        
+
         // Reset panels
         const panel1 = document.querySelector('#treeSvg1').closest('.compare-panel');
         const panel2 = document.querySelector('#treeSvg2').closest('.compare-panel');
         if (panel1) panel1.style.borderColor = 'var(--border-color)';
         if (panel2) panel2.style.borderColor = 'var(--border-color)';
-        
+
         this.isCompareRunning = true;
         this.isComparePaused = false;
         this.updateCompareButtonStates();
-        
+
         // Run both algorithms in parallel
         const [result1, result2] = await Promise.all([
             this.runAlgorithmForComparison(algo1, lang1, tree1, 1),
             this.runAlgorithmForComparison(algo2, lang2, tree2, 2)
         ]);
-        
+
         if (!this.isComparePaused && this.isCompareRunning) {
             this.displayComparisonResults(result1, result2);
         }
-        
+
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
     }
-    
+
     cloneTree(node) {
         if (!node) return null;
         return {
@@ -3869,30 +3985,30 @@ class TreeVisualizer {
             right: this.cloneTree(node.right)
         };
     }
-    
+
     initComparisonTree(panelNum, root) {
         const svg = document.getElementById(`treeSvg${panelNum}`);
         if (!svg) return;
-        
+
         svg.innerHTML = '';
         svg.setAttribute('width', '100%');
         svg.setAttribute('height', '300');
         svg.setAttribute('viewBox', '0 0 800 300');
-        
+
         if (!root) return;
-        
+
         const nodeCount = this.countNodes(root);
         const height = this.getHeight(root);
-        
+
         document.getElementById(`treeNodes${panelNum}`).textContent = nodeCount;
         document.getElementById(`treeHeight${panelNum}`).textContent = height;
-        
+
         this.drawNodeForComparison(svg, root, 400, 40, 160, 0);
     }
-    
+
     drawNodeForComparison(svg, node, x, y, offset, depth) {
         if (!node) return;
-        
+
         if (node.left) {
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', x);
@@ -3904,7 +4020,7 @@ class TreeVisualizer {
             svg.appendChild(line);
             this.drawNodeForComparison(svg, node.left, x - offset, y + 60, offset / 2, depth + 1);
         }
-        
+
         if (node.right) {
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', x);
@@ -3916,7 +4032,7 @@ class TreeVisualizer {
             svg.appendChild(line);
             this.drawNodeForComparison(svg, node.right, x + offset, y + 60, offset / 2, depth + 1);
         }
-        
+
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', x);
         circle.setAttribute('cy', y);
@@ -3925,7 +4041,7 @@ class TreeVisualizer {
         circle.setAttribute('stroke', 'var(--gold, #d4a574)');
         circle.setAttribute('stroke-width', '2');
         svg.appendChild(circle);
-        
+
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', x);
         text.setAttribute('y', y + 5);
@@ -3936,43 +4052,43 @@ class TreeVisualizer {
         text.textContent = node.value;
         svg.appendChild(text);
     }
-    
+
     async runAlgorithmForComparison(algoKey, langKey, root, panelNum) {
         const startTime = performance.now();
         const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
         const baseDelay = this.getDelay();
         const delay = Math.max(1, baseDelay / langSpeed);
-        
+
         // Run traversal algorithm
         const result = [];
         await this.traverseForComparison(root, algoKey, result, delay, panelNum);
-        
+
         const endTime = performance.now();
         const elapsed = endTime - startTime;
-        
+
         // Calculate simulated execution time based on nodes visited and language speed
         // Base time per node (in ms) - adjusted by language speed
         const baseTimePerNode = 0.3; // ms per node
         const simulatedTime = (result.length * baseTimePerNode) / langSpeed;
-        
+
         const timeEl = document.getElementById(`treeTime${panelNum}`);
         if (timeEl) {
             const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
             timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
-        
+
         return {
             time: simulatedTime, // Use simulated time for comparison
             nodes: result.length
         };
     }
-    
+
     async traverseForComparison(node, algoKey, result, delay, panelNum) {
         if (!node || !this.isCompareRunning || this.isComparePaused) return;
-        
+
         const svg = document.getElementById(`treeSvg${panelNum}`);
         if (!svg) return;
-        
+
         // Highlight current node
         const circles = svg.querySelectorAll('circle');
         const texts = svg.querySelectorAll('text');
@@ -3985,9 +4101,9 @@ class TreeVisualizer {
                 }, delay);
             }
         });
-        
+
         await new Promise(r => setTimeout(r, delay));
-        
+
         switch (algoKey) {
             case 'inorderTraversal':
                 await this.traverseForComparison(node.left, algoKey, result, delay, panelNum);
@@ -4010,26 +4126,26 @@ class TreeVisualizer {
                 await this.traverseForComparison(node.right, algoKey, result, delay, panelNum);
         }
     }
-    
+
     displayComparisonResults(result1, result2) {
         const winner = result1.time < result2.time ? 1 : 2;
         const faster = result1.time < result2.time ? result1 : result2;
         const slower = result1.time < result2.time ? result2 : result1;
         const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
-        
+
         const panel1 = document.querySelector('#treeSvg1').closest('.compare-panel');
         const panel2 = document.querySelector('#treeSvg2').closest('.compare-panel');
-        
+
         // Remove any existing winner badges
         const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
         const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
         existingBadges1?.forEach(b => b.remove());
         existingBadges2?.forEach(b => b.remove());
-        
+
         if (panel1) {
             panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
             panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
-            
+
             if (winner === 1) {
                 const badge = document.createElement('div');
                 badge.className = 'winner-badge';
@@ -4039,11 +4155,11 @@ class TreeVisualizer {
                 panel1.appendChild(badge);
             }
         }
-        
+
         if (panel2) {
             panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
             panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
-            
+
             if (winner === 2) {
                 const badge = document.createElement('div');
                 badge.className = 'winner-badge';
@@ -4054,7 +4170,7 @@ class TreeVisualizer {
             }
         }
     }
-    
+
     togglePauseResumeCompare() {
         if (this.isComparePaused) {
             this.resumeComparison();
@@ -4062,27 +4178,27 @@ class TreeVisualizer {
             this.pauseComparison();
         }
     }
-    
+
     pauseComparison() {
         this.isComparePaused = true;
         this.updateCompareButtonStates();
     }
-    
+
     resumeComparison() {
         this.isComparePaused = false;
         this.updateCompareButtonStates();
     }
-    
+
     stopComparison() {
         this.isCompareRunning = false;
         this.isComparePaused = false;
         this.updateCompareButtonStates();
     }
-    
+
     updateCompareButtonStates() {
         const pauseResumeBtn = document.getElementById('pauseResumeTreeCompare');
         const stopBtn = document.getElementById('stopTreeCompare');
-        
+
         if (this.isCompareRunning) {
             if (pauseResumeBtn) {
                 pauseResumeBtn.style.visibility = 'visible';
@@ -4188,7 +4304,7 @@ class TreeVisualizer {
         await new Promise(r => setTimeout(r, delay));
         await this.inorder(node.right, result);
     }
-    
+
     getDelay() {
         return Math.max(50, 350 - (this.speed * 3));
     }
@@ -4196,12 +4312,12 @@ class TreeVisualizer {
     render() {
         if (!this.svg) return;
         this.svg.innerHTML = '';
-        
+
         // Set SVG dimensions
         this.svg.setAttribute('width', '100%');
         this.svg.setAttribute('height', '350');
         this.svg.setAttribute('viewBox', '0 0 800 350');
-        
+
         if (!this.root) return;
 
         const nodeCount = this.countNodes(this.root);
@@ -4323,7 +4439,7 @@ class GraphVisualizer {
         if (startBtn) startBtn.addEventListener('click', () => this.runAlgorithm());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clear());
         if (infoBtn) infoBtn.addEventListener('click', () => this.showGraphInfo());
-        
+
         if (speedSlider) {
             const multiplierEl = document.getElementById('graphSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
@@ -4337,7 +4453,7 @@ class GraphVisualizer {
                 multiplierEl.textContent = '1x';
             }
         }
-        
+
         if (toggleCompareBtn) {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
@@ -4358,19 +4474,19 @@ class GraphVisualizer {
                 }
             });
         }
-        
+
         if (startCompareBtn) {
             startCompareBtn.addEventListener('click', () => this.startComparison());
         }
-        
+
         if (pauseResumeCompareBtn) {
             pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
         }
-        
+
         if (stopCompareBtn) {
             stopCompareBtn.addEventListener('click', () => this.stopComparison());
         }
-        
+
         // Close info modal handlers
         const closeBtn = document.getElementById('graphInfoCloseBtn');
         if (closeBtn) {
@@ -4379,7 +4495,7 @@ class GraphVisualizer {
                 if (modal) modal.style.display = 'none';
             };
         }
-        
+
         const modal = document.getElementById('graphInfoModal');
         if (modal) {
             modal.onclick = (e) => {
@@ -4389,13 +4505,13 @@ class GraphVisualizer {
             };
         }
     }
-    
+
     showGraphInfo() {
         const vertices = this.nodes.length;
         const edges = this.edges.length;
         const modal = document.getElementById('graphInfoModal');
         const content = document.getElementById('graphInfoContent');
-        
+
         if (content) {
             content.innerHTML = `
                 <div class="search-info-grid">
@@ -4414,34 +4530,34 @@ class GraphVisualizer {
                 </div>
             `;
         }
-        
+
         if (modal) modal.style.display = 'flex';
     }
-    
+
     async startComparison() {
         if (this.isCompareRunning) return;
-        
+
         const algo1 = document.getElementById('graphCompareAlgo1')?.value || 'bfs';
         const algo2 = document.getElementById('graphCompareAlgo2')?.value || 'dfs';
         const lang1 = document.getElementById('graphCompareLang1')?.value || 'python';
         const lang2 = document.getElementById('graphCompareLang2')?.value || 'java';
-        
+
         // Update algorithm names
         const name1El = document.getElementById('graphCompareAlgo1Name');
         const name2El = document.getElementById('graphCompareAlgo2Name');
         if (name1El) name1El.textContent = `${algo1.toUpperCase()} (${lang1})`;
         if (name2El) name2El.textContent = `${algo2.toUpperCase()} (${lang2})`;
-        
+
         // Clone the current graph for both comparisons
         const nodes1 = JSON.parse(JSON.stringify(this.nodes));
         const nodes2 = JSON.parse(JSON.stringify(this.nodes));
         const edges1 = JSON.parse(JSON.stringify(this.edges));
         const edges2 = JSON.parse(JSON.stringify(this.edges));
-        
+
         // Initialize comparison graphs
         this.initComparisonGraph(1, nodes1, edges1);
         this.initComparisonGraph(2, nodes2, edges2);
-        
+
         // Reset stats
         document.getElementById('graphVertices1').textContent = nodes1.length;
         document.getElementById('graphVertices2').textContent = nodes2.length;
@@ -4449,46 +4565,46 @@ class GraphVisualizer {
         document.getElementById('graphEdges2').textContent = edges2.length;
         document.getElementById('graphTime1').textContent = '0ms';
         document.getElementById('graphTime2').textContent = '0ms';
-        
+
         // Reset panels
         const panel1 = document.querySelector('#graphSvg1').closest('.compare-panel');
         const panel2 = document.querySelector('#graphSvg2').closest('.compare-panel');
         if (panel1) panel1.style.borderColor = 'var(--border-color)';
         if (panel2) panel2.style.borderColor = 'var(--border-color)';
-        
+
         this.isCompareRunning = true;
         this.isComparePaused = false;
         this.updateCompareButtonStates();
-        
+
         // Run both algorithms in parallel
         const [result1, result2] = await Promise.all([
             this.runAlgorithmForComparison(algo1, lang1, nodes1, edges1, 1),
             this.runAlgorithmForComparison(algo2, lang2, nodes2, edges2, 2)
         ]);
-        
+
         if (!this.isComparePaused && this.isCompareRunning) {
             this.displayComparisonResults(result1, result2);
         }
-        
+
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
     }
-    
+
     initComparisonGraph(panelNum, nodes, edges) {
         const svg = document.getElementById(`graphSvg${panelNum}`);
         if (!svg) return;
-        
+
         svg.innerHTML = '';
         svg.setAttribute('width', '100%');
         svg.setAttribute('height', '300');
         svg.setAttribute('viewBox', '0 0 600 300');
-        
+
         // Draw edges
         edges.forEach(edge => {
             const from = nodes[edge.from];
             const to = nodes[edge.to];
             if (!from || !to) return;
-            
+
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', from.x);
             line.setAttribute('y1', from.y);
@@ -4498,7 +4614,7 @@ class GraphVisualizer {
             line.setAttribute('stroke-width', '2');
             svg.appendChild(line);
         });
-        
+
         // Draw nodes
         nodes.forEach(node => {
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -4509,7 +4625,7 @@ class GraphVisualizer {
             circle.setAttribute('stroke', 'var(--gold, #d4a574)');
             circle.setAttribute('stroke-width', '2');
             svg.appendChild(circle);
-            
+
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', node.x);
             text.setAttribute('y', node.y + 5);
@@ -4521,28 +4637,28 @@ class GraphVisualizer {
             svg.appendChild(text);
         });
     }
-    
+
     async runAlgorithmForComparison(algoKey, langKey, nodes, edges, panelNum) {
         const startTime = performance.now();
         const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
         const baseDelay = Math.max(10, 510 - (this.speed * 5));
         const multiplier = this.speed / 50;
         const delay = Math.max(1, (baseDelay / multiplier) / langSpeed);
-        
+
         const visited = new Set();
         const result = [];
         let operations = 0; // Count operations for simulated time
-        
+
         // Run BFS for comparison
         const queue = [0];
         visited.add(0);
         operations++; // Initial visit
-        
+
         while (queue.length > 0 && this.isCompareRunning && !this.isComparePaused) {
             const current = queue.shift();
             result.push(current);
             operations++; // Node processing
-            
+
             // Highlight node
             const svg = document.getElementById(`graphSvg${panelNum}`);
             if (svg) {
@@ -4551,18 +4667,18 @@ class GraphVisualizer {
                     circles[current].setAttribute('fill', '#d4a574');
                 }
             }
-            
+
             await new Promise(r => setTimeout(r, delay));
-            
+
             // Explore neighbors
             for (const edge of edges) {
                 if (!this.isCompareRunning || this.isComparePaused) break;
                 operations++; // Edge check
-                
+
                 let neighbor = null;
                 if (edge.from === current && !visited.has(edge.to)) neighbor = edge.to;
                 if (edge.to === current && !visited.has(edge.from)) neighbor = edge.from;
-                
+
                 if (neighbor !== null) {
                     visited.add(neighbor);
                     queue.push(neighbor);
@@ -4570,48 +4686,48 @@ class GraphVisualizer {
                 }
             }
         }
-        
+
         const endTime = performance.now();
         const elapsed = endTime - startTime;
-        
+
         // Calculate simulated execution time based on operations and language speed
         // Base time per operation (in ms) - adjusted by language speed
         const baseTimePerOp = 0.5; // Base time in ms per operation
         const simulatedTime = (operations * baseTimePerOp) / langSpeed;
-        
+
         const timeEl = document.getElementById(`graphTime${panelNum}`);
         if (timeEl) {
             const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
             timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
-        
+
         return {
             time: simulatedTime, // Use simulated time for comparison
             vertices: result.length,
             edges: edges.length
         };
     }
-    
+
     displayComparisonResults(result1, result2) {
         const winner = result1.time < result2.time ? 1 : 2;
         const faster = result1.time < result2.time ? result1 : result2;
         const slower = result1.time < result2.time ? result2 : result1;
         const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
-        
+
         const panel1 = document.querySelector('#graphSvg1').closest('.compare-panel');
         const panel2 = document.querySelector('#graphSvg2').closest('.compare-panel');
-        
+
         // Remove any existing winner badges
         const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
         const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
         existingBadges1?.forEach(b => b.remove());
         existingBadges2?.forEach(b => b.remove());
-        
+
         // Highlight winner with border
         if (panel1) {
             panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
             panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
-            
+
             // Add winner badge
             if (winner === 1) {
                 const badge = document.createElement('div');
@@ -4622,11 +4738,11 @@ class GraphVisualizer {
                 panel1.appendChild(badge);
             }
         }
-        
+
         if (panel2) {
             panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
             panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
-            
+
             // Add winner badge
             if (winner === 2) {
                 const badge = document.createElement('div');
@@ -4638,7 +4754,7 @@ class GraphVisualizer {
             }
         }
     }
-    
+
     togglePauseResumeCompare() {
         if (this.isComparePaused) {
             this.resumeComparison();
@@ -4646,27 +4762,27 @@ class GraphVisualizer {
             this.pauseComparison();
         }
     }
-    
+
     pauseComparison() {
         this.isComparePaused = true;
         this.updateCompareButtonStates();
     }
-    
+
     resumeComparison() {
         this.isComparePaused = false;
         this.updateCompareButtonStates();
     }
-    
+
     stopComparison() {
         this.isCompareRunning = false;
         this.isComparePaused = false;
         this.updateCompareButtonStates();
     }
-    
+
     updateCompareButtonStates() {
         const pauseResumeBtn = document.getElementById('pauseResumeGraphCompare');
         const stopBtn = document.getElementById('stopGraphCompare');
-        
+
         if (this.isCompareRunning) {
             if (pauseResumeBtn) {
                 pauseResumeBtn.style.visibility = 'visible';
@@ -4789,7 +4905,7 @@ class GraphVisualizer {
                 format = bestFormat;
                 if (formatSelect) formatSelect.value = bestFormat;
             }
-            
+
             const resultEl = document.getElementById('graphResult');
             const timeEl = document.getElementById('graphTime');
             const speedEl = document.getElementById('graphSpeedStat');
@@ -4817,7 +4933,7 @@ class GraphVisualizer {
     render() {
         if (!this.svg) return;
         this.svg.innerHTML = '';
-        
+
         // Set SVG dimensions
         this.svg.setAttribute('width', '100%');
         this.svg.setAttribute('height', '350');
@@ -4897,21 +5013,21 @@ class DPVisualizer {
         this.dpArray = [];
         this.maxN = 0;
         this.stepMode = false;
-        
+
         // Reset visual state - clear container, don't auto-start
         if (this.container) {
             this.container.innerHTML = '';
         }
-        
+
         // Reset stats to 0
         const subEl = document.getElementById('dpSubproblems');
         const resEl = document.getElementById('dpResult');
         const timeEl = document.getElementById('dpTime');
-        
+
         if (subEl) subEl.textContent = '0';
         if (resEl) resEl.textContent = '-';
         if (timeEl) timeEl.textContent = '0ms';
-        
+
         // Don't auto-start - wait for user to click Solve or Step
     }
 
@@ -4927,11 +5043,11 @@ class DPVisualizer {
         const compareControls = document.getElementById('dpCompareControls');
         const compareContainer = document.getElementById('dpCompareContainer');
         const regularViz = document.getElementById('dpRegularVisualization');
-        
+
         if (startBtn) startBtn.addEventListener('click', () => this.start());
         if (stepBtn) stepBtn.addEventListener('click', () => this.step());
         if (infoBtn) infoBtn.addEventListener('click', () => this.showDPInfo());
-        
+
         if (speedSlider) {
             const multiplierEl = document.getElementById('dpSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
@@ -4945,7 +5061,7 @@ class DPVisualizer {
                 multiplierEl.textContent = '1x';
             }
         }
-        
+
         if (toggleCompareBtn) {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
@@ -4966,19 +5082,19 @@ class DPVisualizer {
                 }
             });
         }
-        
+
         if (startCompareBtn) {
             startCompareBtn.addEventListener('click', () => this.startComparison());
         }
-        
+
         if (pauseResumeCompareBtn) {
             pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
         }
-        
+
         if (stopCompareBtn) {
             stopCompareBtn.addEventListener('click', () => this.stopComparison());
         }
-        
+
         // Close info modal handlers
         const closeBtn = document.getElementById('dpInfoCloseBtn');
         if (closeBtn) {
@@ -4987,7 +5103,7 @@ class DPVisualizer {
                 if (modal) modal.style.display = 'none';
             };
         }
-        
+
         const modal = document.getElementById('dpInfoModal');
         if (modal) {
             modal.onclick = (e) => {
@@ -4997,14 +5113,14 @@ class DPVisualizer {
             };
         }
     }
-    
+
     showDPInfo() {
         const inputEl = document.getElementById('dpInput');
         const input = inputEl?.value || 'fibonacci: 10';
         const n = parseInt(input.split(':')[1]) || 10;
         const modal = document.getElementById('dpInfoModal');
         const content = document.getElementById('dpInfoContent');
-        
+
         if (content) {
             content.innerHTML = `
                 <div class="search-info-grid">
@@ -5023,19 +5139,19 @@ class DPVisualizer {
                 </div>
             `;
         }
-        
+
         if (modal) modal.style.display = 'flex';
     }
-    
+
     startComparison() {
         // Placeholder for comparison logic
         console.log('DP comparison started');
     }
-    
+
     togglePauseResumeCompare() {
         this.isComparePaused = !this.isComparePaused;
     }
-    
+
     stopComparison() {
         this.isCompareRunning = false;
         this.isComparePaused = false;
@@ -5061,10 +5177,10 @@ class DPVisualizer {
         this.currentStep = 0;
         this.stepMode = true;
         this.dpArray = [0, 1];
-        
+
         if (!this.container) return;
         this.container.innerHTML = '';
-        
+
         for (let i = 0; i <= n; i++) {
             const cell = document.createElement('div');
             cell.className = 'dp-cell';
@@ -5086,19 +5202,19 @@ class DPVisualizer {
 
         const i = this.currentStep;
         const cell = document.getElementById(`dp-${i}`);
-        
+
         if (cell) {
             if (i <= 1) {
                 this.dpArray[i] = i;
             } else {
                 this.dpArray[i] = this.dpArray[i - 1] + this.dpArray[i - 2];
             }
-            
+
             cell.textContent = this.dpArray[i];
             cell.classList.add('active');
-            
+
             if (typeof audioEngine !== 'undefined') audioEngine.playTone(i * 10);
-            
+
             // Update stats
             const subEl = document.getElementById('dpSubproblems');
             const resEl = document.getElementById('dpResult');
@@ -5111,14 +5227,14 @@ class DPVisualizer {
                     this.reset();
                 }, 2000);
             }
-            
+
             // Remove active class after a moment
             setTimeout(() => {
                 cell.classList.remove('active');
                 cell.classList.add('computed');
             }, 300);
         }
-        
+
         this.currentStep++;
     }
 
@@ -5149,7 +5265,7 @@ class DPVisualizer {
             }
             const timeEl = document.getElementById('dpTime');
             if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
-            
+
             // Reset after completion (2 seconds delay)
             setTimeout(() => {
                 this.reset();
@@ -5173,7 +5289,7 @@ class DPVisualizer {
         }
 
         const delay = Math.max(50, 250 - (this.speed * 2));
-        
+
         for (let i = 0; i <= n && !this.shouldStop; i++) {
             if (i <= 1) {
                 dp[i] = i;
@@ -5337,7 +5453,7 @@ class MathVisualizer {
     bindEvents() {
         const startBtn = document.getElementById('startMath');
         const speedSlider = document.getElementById('mathSpeed');
-        
+
         if (startBtn) startBtn.addEventListener('click', () => this.calculate());
         if (speedSlider) {
             const multiplierEl = document.getElementById('mathSpeedMultiplier');

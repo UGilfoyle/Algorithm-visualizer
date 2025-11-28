@@ -21,16 +21,16 @@ function initLanguageIcons() {
         'php': 'php',
         'elixir': 'elixir'
     };
-    
+
     const processedIcons = new WeakSet();
-    
+
     function injectIcons() {
         document.querySelectorAll('.lang-logo[data-lang], span[data-lang]').forEach(el => {
             if (processedIcons.has(el)) return;
-            
+
             const lang = el.getAttribute('data-lang');
             if (!lang) return;
-            
+
             const iconKey = langMap[lang];
             if (iconKey && LANGUAGE_ICONS[iconKey]) {
                 if (el.tagName !== 'IMG') {
@@ -46,11 +46,11 @@ function initLanguageIcons() {
                 }
             }
         });
-        
+
         // Also check parent buttons with data-lang and find/create icon
         document.querySelectorAll('.lang-tab[data-lang]').forEach(button => {
             if (processedIcons.has(button)) return;
-            
+
             const lang = button.getAttribute('data-lang');
             const iconKey = langMap[lang];
             if (iconKey && LANGUAGE_ICONS[iconKey]) {
@@ -78,10 +78,10 @@ function initLanguageIcons() {
             }
         });
     }
-    
+
     // Initial injection
     injectIcons();
-    
+
     // Watch for dynamically added elements (optimized with debouncing)
     if (!window.iconObserver) {
         let iconUpdateTimeout;
@@ -91,7 +91,7 @@ function initLanguageIcons() {
                 injectIcons();
             }, 100); // Debounce to avoid excessive calls
         };
-        
+
         window.iconObserver = new MutationObserver((mutations) => {
             // Only process if relevant nodes were added
             const hasRelevantChanges = mutations.some(mutation => {
@@ -102,16 +102,16 @@ function initLanguageIcons() {
                     );
                 });
             });
-            
+
             if (hasRelevantChanges) {
                 debouncedInjectIcons();
             }
         });
-        
+
         // Only observe childList changes, not attributes or characterData
-        window.iconObserver.observe(document.body, { 
-            childList: true, 
-            subtree: true 
+        window.iconObserver.observe(document.body, {
+            childList: true,
+            subtree: true
         });
     }
 }
@@ -135,7 +135,7 @@ class App {
         };
         this.init();
     }
-    
+
     init() {
         this.setupNavigation();
         this.setupAlgorithmSelectors();
@@ -144,10 +144,10 @@ class App {
         // Initialize icons after a short delay to ensure LANGUAGE_ICONS is loaded
         setTimeout(() => initLanguageIcons(), 100);
     }
-    
+
     setupNavigation() {
         const navButtons = document.querySelectorAll('.nav-btn');
-        
+
         navButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const section = btn.dataset.section;
@@ -161,25 +161,25 @@ class App {
             });
         });
     }
-    
+
     showPlaygroundModal() {
         const modal = document.getElementById('playgroundModal');
         if (modal) {
             modal.style.display = 'flex';
         }
     }
-    
+
     hidePlaygroundModal() {
         const modal = document.getElementById('playgroundModal');
         if (modal) {
             modal.style.display = 'none';
         }
     }
-    
+
     setupPlaygroundModal() {
         const closeBtn = document.getElementById('closePlaygroundModal');
         const modal = document.getElementById('playgroundModal');
-        
+
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 this.hidePlaygroundModal();
@@ -200,7 +200,7 @@ class App {
             }
         });
     }
-    
+
     switchSection(sectionId) {
         // Stop all running visualizations before switching
         if (typeof window.stopAllVisualizations === 'function') {
@@ -215,7 +215,7 @@ class App {
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
         });
-        
+
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.classList.add('active');
@@ -223,10 +223,10 @@ class App {
             this.onSectionChange(sectionId);
         }
     }
-    
+
     onSectionChange(sectionId) {
         setTimeout(() => {
-        switch (sectionId) {
+            switch (sectionId) {
                 case 'sorting':
                     if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
                         sortingVisualizer.stop();
@@ -239,7 +239,7 @@ class App {
                         searchingVisualizer.generateArray();
                     }
                     break;
-            case 'pathfinding':
+                case 'pathfinding':
                     if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
                         pathfindingVisualizer.stop();
                         pathfindingVisualizer.shouldStop = true;
@@ -290,7 +290,7 @@ class App {
                             stringVisualizer.render();
                         }, 100);
                     }
-                break;
+                    break;
                 case 'math':
                     if (typeof mathVisualizer !== 'undefined' && mathVisualizer) {
                         if (mathVisualizer.stop) mathVisualizer.stop();
@@ -306,14 +306,14 @@ class App {
                             const mathTime = document.getElementById('mathTime');
                             if (mathTime) mathTime.textContent = '0ms';
                         }, 100);
-                }
-                break;
+                    }
+                    break;
                 case 'arena':
                     if (typeof languageArena !== 'undefined' && languageArena) {
                         languageArena.reset();
-                }
-                break;
-        }
+                    }
+                    break;
+            }
             this.loadAlgorithmInfo();
         }, 150);
     }
@@ -396,33 +396,33 @@ class App {
 
             container.appendChild(btn);
         });
-        
+
         // Populate comparison algorithm dropdowns
         this.populateComparisonDropdowns(category);
     }
-    
+
     populateComparisonDropdowns(category) {
         // Pathfinding uses graphs category
         const actualCategory = category === 'pathfinding' ? 'graphs' : category;
         if (!ALGORITHMS[actualCategory]) return;
-        
+
         const dropdownIds = {
             trees: ['treeCompareAlgo1', 'treeCompareAlgo2'],
             graphs: ['graphCompareAlgo1', 'graphCompareAlgo2'],
             dp: ['dpCompareAlgo1', 'dpCompareAlgo2'],
             pathfinding: ['pathCompareAlgo1', 'pathCompareAlgo2']
         };
-        
+
         const ids = dropdownIds[category];
         if (!ids) return;
-        
+
         // Filter pathfinding algorithms (bfs, dfs, dijkstra, astar, greedy)
         const pathfindingAlgos = ['bfs', 'dfs', 'dijkstra', 'astar', 'greedy'];
-        
+
         ids.forEach(id => {
             const dropdown = document.getElementById(id);
             if (!dropdown) return;
-            
+
             dropdown.innerHTML = '';
             Object.keys(ALGORITHMS[actualCategory]).forEach(key => {
                 // For pathfinding, only show pathfinding algorithms
@@ -507,7 +507,7 @@ class App {
             math: 'mathLanguageTabs'
         };
 
-            const codeEl = document.getElementById(codeDisplayIds[section]);
+        const codeEl = document.getElementById(codeDisplayIds[section]);
         if (codeEl && algo.code) {
             // Get the active language from the tabs
             const tabContainer = document.getElementById(tabContainerIds[section]);
@@ -547,7 +547,7 @@ class App {
     resetVisualization() {
         // Reset visualization state when language changes
         const section = this.currentSection;
-        
+
         switch (section) {
             case 'sorting':
                 if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
@@ -587,8 +587,8 @@ class App {
                     dpVisualizer.stop();
                     if (dpVisualizer.reset) {
                         dpVisualizer.reset();
-        }
-    }
+                    }
+                }
                 break;
             case 'strings':
                 if (typeof stringVisualizer !== 'undefined' && stringVisualizer) {
@@ -610,21 +610,23 @@ function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const themeLabel = document.getElementById('themeLabel');
-    
+
     // Check for saved theme preference or default to dark
     const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeUI(savedTheme);
-    
+    // If saved theme is cyberpunk, reset to dark
+    const theme = savedTheme === 'cyberpunk' ? 'dark' : savedTheme;
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeUI(theme);
+
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
+
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeUI(newTheme);
-            
+
             // Update Rust and Deno icons when theme changes
             if (typeof updateRustIcons === 'function') {
                 updateRustIcons();
@@ -632,18 +634,18 @@ function initTheme() {
             if (typeof updateDenoIcons === 'function') {
                 updateDenoIcons();
             }
-            
+
             // Re-initialize language icons
             if (typeof initLanguageIcons === 'function') {
                 setTimeout(() => initLanguageIcons(), 100);
             }
-            
+
             if (typeof audioEngine !== 'undefined') {
                 audioEngine.playSectionChange();
             }
         });
     }
-    
+
     function updateThemeUI(currentTheme) {
         if (themeIcon && themeLabel) {
             // Show the CURRENT theme
@@ -662,7 +664,7 @@ function initTheme() {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     const app = new App();
-    
+
     console.log(`
     ᛭ ALGORITHM UNIVERSE ᛭
     
@@ -697,11 +699,11 @@ function setupFeedbackModal() {
     const ratingText = document.getElementById('ratingText');
     const feedbackText = document.getElementById('feedbackText');
     const successMsg = document.getElementById('feedbackSuccess');
-    
+
     if (!modal || !openBtn) return;
-    
+
     let selectedRating = 0;
-    
+
     function openModal() {
         modal.style.display = 'flex';
         selectedRating = 0;
@@ -709,7 +711,7 @@ function setupFeedbackModal() {
         feedbackText.value = '';
         successMsg.style.display = 'none';
     }
-    
+
     function closeModal() {
         modal.style.display = 'none';
         selectedRating = 0;
@@ -717,7 +719,7 @@ function setupFeedbackModal() {
         feedbackText.value = '';
         successMsg.style.display = 'none';
     }
-    
+
     function updateStars(rating) {
         stars.forEach((star, index) => {
             if (index < rating) {
@@ -726,58 +728,58 @@ function setupFeedbackModal() {
                 star.classList.remove('active');
             }
         });
-        
+
         const ratings = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
         ratingText.textContent = rating > 0 ? ratings[rating] : 'Click to rate';
     }
-    
+
     stars.forEach((star, index) => {
         star.addEventListener('click', () => {
             selectedRating = index + 1;
             updateStars(selectedRating);
         });
-        
+
         star.addEventListener('mouseenter', () => {
             updateStars(index + 1);
         });
     });
-    
+
     const starRating = document.querySelector('.star-rating');
     if (starRating) {
         starRating.addEventListener('mouseleave', () => {
             updateStars(selectedRating);
         });
     }
-    
+
     openBtn.addEventListener('click', openModal);
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-    
+
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModal();
         }
     });
-    
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.style.display === 'flex') {
             closeModal();
         }
     });
-    
+
     if (submitBtn) {
         submitBtn.addEventListener('click', async () => {
             if (selectedRating === 0) {
                 alert('Please select a rating');
                 return;
             }
-            
+
             const comment = feedbackText.value.trim();
             const visitorId = localStorage.getItem('visitorId') || 'anonymous';
-            
+
             let device = {};
             let location = {};
-            
+
             try {
                 const visitorData = localStorage.getItem('visitorData');
                 if (visitorData) {
@@ -795,15 +797,15 @@ function setupFeedbackModal() {
             } catch (e) {
                 console.error('Error parsing visitor data:', e);
             }
-            
+
             try {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
-                
+
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
                     ? 'http://localhost:3000/api/feedback'
                     : '/api/feedback';
-                
+
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
@@ -817,13 +819,13 @@ function setupFeedbackModal() {
                         location: location
                     })
                 });
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     successMsg.style.display = 'block';
                     setTimeout(() => {
