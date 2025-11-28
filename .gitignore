@@ -5,3 +5,7 @@ node_modules/
 *.log
 .DS_Store
 package-lock.json
+
+# Ignore all .md files except README.md
+*.md
+!README.md
