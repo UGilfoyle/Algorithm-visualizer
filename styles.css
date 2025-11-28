@@ -762,6 +762,235 @@ select:focus {
     border-color: var(--ice-blue);
 }
 
+/* Language Logo Icons */
+.lang-logo {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    vertical-align: middle;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.python-logo {
+    background: linear-gradient(135deg, #3776ab 0%, #ffd43b 50%, #3776ab 100%);
+    position: relative;
+    border-radius: 50%;
+}
+
+.python-logo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: #3776ab;
+    border-radius: 50% 0 0 50%;
+}
+
+.python-logo::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: #ffd43b;
+    border-radius: 0 50% 50% 0;
+}
+
+.java-logo {
+    background: linear-gradient(135deg, #007396 0%, #ed8b00 100%);
+    position: relative;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.java-logo::before {
+    content: '☕';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    line-height: 1;
+}
+
+.node-logo {
+    background: linear-gradient(135deg, #339933 0%, #68a063 100%);
+    position: relative;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.node-logo::before {
+    content: 'N';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+}
+
+.deno-logo {
+    background: #000000;
+    position: relative;
+    border-radius: 3px;
+}
+
+.deno-logo::before {
+    content: '🦕';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    line-height: 1;
+}
+
+.cpp-logo {
+    background: linear-gradient(135deg, #00599c 0%, #004482 50%, #00599c 100%);
+    position: relative;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.cpp-logo::before {
+    content: 'C++';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 7px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.csharp-logo {
+    background: linear-gradient(135deg, #239120 0%, #68217a 100%);
+    position: relative;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.csharp-logo::before {
+    content: 'C#';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 7px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.c-logo {
+    background: linear-gradient(135deg, #a8b9cc 0%, #00599c 100%);
+    border-radius: 3px;
+}
+
+.c-logo::before {
+    content: 'C';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+}
+
+.go-logo {
+    background: linear-gradient(135deg, #00add8 0%, #5dc9e2 100%);
+    position: relative;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.go-logo::before {
+    content: 'Go';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 7px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+}
+
+.rust-logo {
+    background: #dea584;
+    border-radius: 3px;
+}
+
+.rust-logo::before {
+    content: '🦀';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    line-height: 1;
+}
+
+.ts-logo {
+    background: linear-gradient(135deg, #3178c6 0%, #235a97 100%);
+    border-radius: 3px;
+}
+
+.ts-logo::before {
+    content: 'TS';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 7px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+}
+
+.ruby-logo {
+    background: linear-gradient(135deg, #cc342d 0%, #820000 100%);
+    border-radius: 50%;
+}
+
+.ruby-logo::before {
+    content: '💎';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    line-height: 1;
+}
+
+.swift-logo {
+    background: linear-gradient(135deg, #fa7343 0%, #ff8c5a 100%);
+    border-radius: 3px;
+}
+
+.swift-logo::before {
+    content: '🍎';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    line-height: 1;
+}
+
+.kotlin-logo {
+    background: linear-gradient(135deg, #7F52FF 0%, #0095d5 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 0% 100%);
+}
+
 .code-container {
     position: relative;
     background: var(--bg-secondary);
@@ -1130,6 +1359,7 @@ select:focus {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .track-time {
@@ -1137,7 +1367,12 @@ select:focus {
 }
 
 .track-time .time-value {
-    min-width: 60px;
+    min-width: 120px;
+    max-width: 200px;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    text-align: right;
+    font-size: 0.8rem;
 }
 
 .track-time .time-format-select {
