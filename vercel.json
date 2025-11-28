@@ -47,6 +47,9 @@
     "functions": {
         "api/visitors.js": {
             "maxDuration": 10
+        },
+        "api/feedback.js": {
+            "maxDuration": 10
         }
     }
 }

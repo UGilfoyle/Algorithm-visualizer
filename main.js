@@ -569,7 +569,157 @@ app.setupPlaygroundModal = function() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         app.setupPlaygroundModal();
+        setupFeedbackModal();
     });
 } else {
     app.setupPlaygroundModal();
+    setupFeedbackModal();
+}
+
+function setupFeedbackModal() {
+    const modal = document.getElementById('feedbackModal');
+    const openBtn = document.getElementById('feedbackBtn');
+    const closeBtn = document.getElementById('feedbackCloseBtn');
+    const cancelBtn = document.getElementById('cancelFeedback');
+    const submitBtn = document.getElementById('submitFeedback');
+    const stars = document.querySelectorAll('.star');
+    const ratingText = document.getElementById('ratingText');
+    const feedbackText = document.getElementById('feedbackText');
+    const successMsg = document.getElementById('feedbackSuccess');
+    
+    if (!modal || !openBtn) return;
+    
+    let selectedRating = 0;
+    
+    function openModal() {
+        modal.style.display = 'flex';
+        selectedRating = 0;
+        updateStars(0);
+        feedbackText.value = '';
+        successMsg.style.display = 'none';
+    }
+    
+    function closeModal() {
+        modal.style.display = 'none';
+        selectedRating = 0;
+        updateStars(0);
+        feedbackText.value = '';
+        successMsg.style.display = 'none';
+    }
+    
+    function updateStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+        
+        const ratings = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+        ratingText.textContent = rating > 0 ? ratings[rating] : 'Click to rate';
+    }
+    
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            selectedRating = index + 1;
+            updateStars(selectedRating);
+        });
+        
+        star.addEventListener('mouseenter', () => {
+            updateStars(index + 1);
+        });
+    });
+    
+    const starRating = document.querySelector('.star-rating');
+    if (starRating) {
+        starRating.addEventListener('mouseleave', () => {
+            updateStars(selectedRating);
+        });
+    }
+    
+    openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeModal();
+        }
+    });
+    
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async () => {
+            if (selectedRating === 0) {
+                alert('Please select a rating');
+                return;
+            }
+            
+            const comment = feedbackText.value.trim();
+            const visitorId = localStorage.getItem('visitorId') || 'anonymous';
+            
+            let device = {};
+            let location = {};
+            
+            try {
+                const visitorData = localStorage.getItem('visitorData');
+                if (visitorData) {
+                    const data = JSON.parse(visitorData);
+                    device = {
+                        type: data.device_type || null,
+                        os: data.device_os || null,
+                        browser: data.device_browser || null
+                    };
+                    location = {
+                        country: data.country || null,
+                        city: data.city || null
+                    };
+                }
+            } catch (e) {
+                console.error('Error parsing visitor data:', e);
+            }
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        rating: selectedRating,
+                        comment: comment || null,
+                        visitor_id: visitorId,
+                        device: device,
+                        location: location
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    successMsg.style.display = 'block';
+                    setTimeout(() => {
+                        closeModal();
+                    }, 2000);
+                } else {
+                    alert('Failed to submit feedback. Please try again.');
+                }
+            } catch (error) {
+                console.error('Feedback submission error:', error);
+                alert('Failed to submit feedback. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Feedback';
+            }
+        });
+    }
 }
