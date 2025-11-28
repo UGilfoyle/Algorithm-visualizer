@@ -191,6 +191,25 @@ function updateRustIcons() {
     }
 }
 
+function updateDenoIcons() {
+    _cachedLanguageInfo = null;
+    const icons = getLanguageIcons();
+    const denoIcon = icons.deno;
+    
+    requestAnimationFrame(() => {
+        const denoImages = document.querySelectorAll('img[src*="deno"]');
+        denoImages.forEach(img => {
+            if (img.src.includes('deno')) {
+                img.src = denoIcon;
+            }
+        });
+    });
+    
+    if (_cachedLanguageInfo && _cachedLanguageInfo.deno) {
+        _cachedLanguageInfo.deno.icon = denoIcon;
+    }
+}
+
 class SortingVisualizer {
     constructor() {
         this.array = [];
