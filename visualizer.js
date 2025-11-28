@@ -1799,14 +1799,15 @@ class LanguageArena {
             <rect x="${padding.left}" y="${padding.top}" width="${chartWidth}" height="${chartHeight}" 
                   fill="var(--bg-tertiary)" rx="8" opacity="0.3"/>`;
         
-        // Grid lines with Y-axis values (more detailed - 10 divisions)
         const gridDivisions = 10;
+        const sortedResults = [...this.results].sort((a, b) => a.time - b.time);
+        const numLanguages = sortedResults.length;
+        
         for (let i = 0; i <= gridDivisions; i++) {
             const y = padding.top + (chartHeight / gridDivisions) * i;
             svg += `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" 
                      stroke="var(--border-color)" stroke-width="1" opacity="0.2"/>`;
             
-            // Y-axis scale values (time values) - show every 2nd division for clarity
             if (i % 2 === 0 || i === 0 || i === gridDivisions) {
                 const timeValue = maxTime - ((maxTime - minTime) / gridDivisions) * i;
                 let formattedTime;
@@ -1824,15 +1825,26 @@ class LanguageArena {
             }
         }
         
-        // Calculate points for line graph
+        for (let i = 0; i < numLanguages; i++) {
+            const x = padding.left + (numLanguages > 1 ? (chartWidth / (numLanguages - 1)) * i : chartWidth / 2);
+            svg += `<line x1="${x}" y1="${padding.top}" x2="${x}" y2="${padding.top + chartHeight}" 
+                     stroke="var(--border-color)" stroke-width="1" opacity="0.15"/>`;
+        }
+        
+        const averageTime = this.results.reduce((sum, r) => sum + r.time, 0) / this.results.length;
+        const avgY = padding.top + chartHeight - ((averageTime - minTime) / (maxTime - minTime || 1)) * chartHeight;
+        svg += `<line x1="${padding.left}" y1="${avgY}" x2="${padding.left + chartWidth}" y2="${avgY}" 
+                 stroke="var(--gold)" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                 <text x="${padding.left + chartWidth + 10}" y="${avgY + 5}" 
+                 fill="var(--gold)" font-size="10" font-weight="600">Avg</text>`;
+        
         const points = [];
-        const sortedResults = [...this.results].sort((a, b) => a.time - b.time);
         
         sortedResults.forEach((result, idx) => {
             const info = langInfo[result.lang];
             if (!info) return;
             
-            const x = padding.left + (sortedResults.length > 1 ? (chartWidth / (sortedResults.length - 1)) * idx : chartWidth / 2);
+            const x = padding.left + (numLanguages > 1 ? (chartWidth / (numLanguages - 1)) * idx : chartWidth / 2);
             const y = padding.top + chartHeight - ((result.time - minTime) / (maxTime - minTime || 1)) * chartHeight;
             points.push({ x, y, result, info });
         });
