@@ -151,6 +151,17 @@
                                     </select>
                                 </div>
                                 <div class="compare-selector">
+                                    <label>Language 1:</label>
+                                    <select id="compareLang1" class="compare-select">
+                                        <option value="python">Python</option>
+                                        <option value="java">Java</option>
+                                        <option value="cpp">C++</option>
+                                        <option value="javascript">JavaScript</option>
+                                        <option value="go">Go</option>
+                                        <option value="rust">Rust</option>
+                                    </select>
+                                </div>
+                                <div class="compare-selector">
                                     <label>Algorithm 2:</label>
                                     <select id="compareAlgo2" class="compare-select">
                                         <option value="quickSort">Quick Sort</option>
@@ -161,14 +172,31 @@
                                         <option value="heapSort">Heap Sort</option>
                                     </select>
                                 </div>
-                                <button id="startCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                                <div class="compare-selector">
+                                    <label>Language 2:</label>
+                                    <select id="compareLang2" class="compare-select">
+                                        <option value="java">Java</option>
+                                        <option value="python">Python</option>
+                                        <option value="cpp">C++</option>
+                                        <option value="javascript">JavaScript</option>
+                                        <option value="go">Go</option>
+                                        <option value="rust">Rust</option>
+                                    </select>
+                                </div>
+                                <div class="compare-actions">
+                                    <button id="startCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                                    <button id="pauseResumeCompare" class="btn btn-outline"
+                                        style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏸ Pause</button>
+                                    <button id="stopCompare" class="btn btn-outline"
+                                        style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹ Stop</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div id="compareContainer" class="compare-container" style="display: none;">
                         <div class="compare-panel">
                             <h4 id="compareAlgo1Name">Algorithm 1</h4>
-                            <div class="bars-container" id="sortingBars1"></div>
+                            <div class="bars-container compare-bars" id="sortingBars1"></div>
                             <div class="stats-row">
                                 <div class="stat-item">
                                     <span class="stat-label">Comparisons:</span>
@@ -186,7 +214,7 @@
                         </div>
                         <div class="compare-panel">
                             <h4 id="compareAlgo2Name">Algorithm 2</h4>
-                            <div class="bars-container" id="sortingBars2"></div>
+                            <div class="bars-container compare-bars" id="sortingBars2"></div>
                             <div class="stats-row">
                                 <div class="stat-item">
                                     <span class="stat-label">Comparisons:</span>

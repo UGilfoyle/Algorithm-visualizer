@@ -798,8 +798,18 @@ select:focus {
 .compare-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
     margin-top: var(--spacing-md);
+    max-width: 100%;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .compare-container {
+        grid-template-columns: 1fr;
+    }
 }
 
 .compare-panel {
@@ -807,6 +817,10 @@ select:focus {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .compare-panel h4 {
@@ -816,10 +830,38 @@ select:focus {
     text-align: center;
     padding-bottom: var(--spacing-sm);
     border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.compare-panel .bars-container {
-    height: 250px;
+.compare-panel .bars-container.compare-bars {
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+    overflow: hidden;
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.compare-panel .bars-container.compare-bars .bar {
+    flex: 1;
+    max-width: 20px;
+}
+
+.compare-selectors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    align-items: flex-end;
+}
+
+.compare-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    position: relative;
 }
 
 /* ========================================

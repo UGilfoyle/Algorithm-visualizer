@@ -229,6 +229,10 @@ class SortingVisualizer {
         this.pausedTime = 0; // Accumulated paused time
         this.isCompareMode = false;
         this.compareResults = { algo1: null, algo2: null };
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
+        this.compareViz1 = null;
+        this.compareViz2 = null;
         this.init();
     }
 
@@ -277,12 +281,14 @@ class SortingVisualizer {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
                 if (this.isCompareMode) {
+                    this.stopComparison(); // Stop any running comparison
                     compareControls.style.display = 'block';
                     compareContainer.style.display = 'grid';
                     this.container.style.display = 'none';
                     toggleCompareBtn.textContent = '❌ Exit Compare';
                     toggleCompareBtn.classList.add('active');
                 } else {
+                    this.stopComparison(); // Stop any running comparison
                     compareControls.style.display = 'none';
                     compareContainer.style.display = 'none';
                     this.container.style.display = 'flex';
@@ -294,6 +300,18 @@ class SortingVisualizer {
 
         if (startCompareBtn) {
             startCompareBtn.addEventListener('click', () => this.startComparison());
+        }
+
+        // Comparison mode pause/resume and stop buttons
+        const pauseResumeCompareBtn = document.getElementById('pauseResumeCompare');
+        const stopCompareBtn = document.getElementById('stopCompare');
+        
+        if (pauseResumeCompareBtn) {
+            pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
+        }
+        
+        if (stopCompareBtn) {
+            stopCompareBtn.addEventListener('click', () => this.stopComparison());
         }
 
         if (speedSlider) {
@@ -527,13 +545,29 @@ class SortingVisualizer {
     }
 
     async startComparison() {
-        const algo1 = document.getElementById('compareAlgo1').value;
-        const algo2 = document.getElementById('compareAlgo2').value;
+        if (this.isCompareRunning && !this.isComparePaused) return;
         
-        if (algo1 === algo2) {
-            alert('Please select two different algorithms to compare!');
+        if (this.isComparePaused) {
+            this.resumeComparison();
             return;
         }
+
+        const algo1 = document.getElementById('compareAlgo1').value;
+        const algo2 = document.getElementById('compareAlgo2').value;
+        const lang1 = document.getElementById('compareLang1').value;
+        const lang2 = document.getElementById('compareLang2').value;
+        
+        if (algo1 === algo2 && lang1 === lang2) {
+            alert('Please select different algorithms or languages to compare!');
+            return;
+        }
+
+        this.isCompareRunning = true;
+        this.isComparePaused = false;
+        this.shouldStop = false;
+
+        // Update button states
+        this.updateCompareButtonStates();
 
         // Generate the same array for both algorithms
         const testArray = Array.from({ length: this.size }, () => Math.floor(Math.random() * 100) + 1);
@@ -542,9 +576,12 @@ class SortingVisualizer {
         const array1 = [...testArray];
         const array2 = [...testArray];
 
-        // Update algorithm names
-        document.getElementById('compareAlgo1Name').textContent = this.getAlgorithmName(algo1);
-        document.getElementById('compareAlgo2Name').textContent = this.getAlgorithmName(algo2);
+        // Update algorithm names with language
+        const langInfo = getLanguageInfo();
+        const lang1Name = langInfo[lang1]?.name || lang1;
+        const lang2Name = langInfo[lang2]?.name || lang2;
+        document.getElementById('compareAlgo1Name').textContent = `${this.getAlgorithmName(algo1)} (${lang1Name})`;
+        document.getElementById('compareAlgo2Name').textContent = `${this.getAlgorithmName(algo2)} (${lang2Name})`;
 
         // Reset stats
         document.getElementById('comparisons1').textContent = '0';
@@ -562,14 +599,97 @@ class SortingVisualizer {
         this.renderArray(array1, container1);
         this.renderArray(array2, container2);
 
-        // Run comparisons
+        // Run comparisons with language speed factors
         const [result1, result2] = await Promise.all([
-            this.runAlgorithmForComparison(algo1, array1, container1, 1),
-            this.runAlgorithmForComparison(algo2, array2, container2, 2)
+            this.runAlgorithmForComparison(algo1, lang1, array1, container1, 1),
+            this.runAlgorithmForComparison(algo2, lang2, array2, container2, 2)
         ]);
 
         // Display winner
         this.displayComparisonResults(result1, result2);
+        
+        this.isCompareRunning = false;
+        this.updateCompareButtonStates();
+    }
+
+    stopComparison() {
+        this.shouldStop = true;
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
+        if (this.compareViz1) this.compareViz1.shouldStop = true;
+        if (this.compareViz2) this.compareViz2.shouldStop = true;
+        this.updateCompareButtonStates();
+    }
+
+    togglePauseResumeCompare() {
+        if (this.isComparePaused) {
+            this.resumeComparison();
+        } else {
+            this.pauseComparison();
+        }
+    }
+
+    pauseComparison() {
+        if (!this.isCompareRunning || this.isComparePaused) return;
+        this.isComparePaused = true;
+        if (this.compareViz1) this.compareViz1.isPaused = true;
+        if (this.compareViz2) this.compareViz2.isPaused = true;
+        this.updateCompareButtonStates();
+    }
+
+    resumeComparison() {
+        if (!this.isComparePaused || !this.isCompareRunning) return;
+        this.isComparePaused = false;
+        if (this.compareViz1) this.compareViz1.isPaused = false;
+        if (this.compareViz2) this.compareViz2.isPaused = false;
+        this.updateCompareButtonStates();
+    }
+
+    updateCompareButtonStates() {
+        const startBtn = document.getElementById('startCompare');
+        const pauseResumeBtn = document.getElementById('pauseResumeCompare');
+        const stopBtn = document.getElementById('stopCompare');
+        
+        if (this.isCompareRunning) {
+            if (startBtn) {
+                startBtn.style.visibility = 'hidden';
+                startBtn.style.position = 'absolute';
+                startBtn.style.opacity = '0';
+                startBtn.style.pointerEvents = 'none';
+            }
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'visible';
+                pauseResumeBtn.style.position = 'static';
+                pauseResumeBtn.style.opacity = '1';
+                pauseResumeBtn.style.pointerEvents = 'auto';
+                pauseResumeBtn.textContent = this.isComparePaused ? '▶ Resume' : '⏸ Pause';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'visible';
+                stopBtn.style.position = 'static';
+                stopBtn.style.opacity = '1';
+                stopBtn.style.pointerEvents = 'auto';
+            }
+        } else {
+            if (startBtn) {
+                startBtn.style.visibility = 'visible';
+                startBtn.style.position = 'static';
+                startBtn.style.opacity = '1';
+                startBtn.style.pointerEvents = 'auto';
+            }
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'hidden';
+                pauseResumeBtn.style.position = 'absolute';
+                pauseResumeBtn.style.opacity = '0';
+                pauseResumeBtn.style.pointerEvents = 'none';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'hidden';
+                stopBtn.style.position = 'absolute';
+                stopBtn.style.opacity = '0';
+                stopBtn.style.pointerEvents = 'none';
+            }
+        }
     }
 
     getAlgorithmName(algoKey) {
@@ -585,9 +705,11 @@ class SortingVisualizer {
     }
 
     renderArray(arr, container) {
-        if (!container) return;
+        if (!container || !arr || arr.length === 0) return;
         container.innerHTML = '';
         const maxVal = Math.max(...arr);
+        if (maxVal === 0) return;
+        
         const shouldSample = arr.length > 1000;
         const sampleSize = shouldSample ? 1000 : arr.length;
         const step = shouldSample ? Math.ceil(arr.length / sampleSize) : 1;
@@ -604,10 +726,13 @@ class SortingVisualizer {
         }
     }
 
-    async runAlgorithmForComparison(algoKey, array, container, panelNum) {
+    async runAlgorithmForComparison(algoKey, langKey, array, container, panelNum) {
         const comparisons = { count: 0 };
         const swaps = { count: 0 };
         const startTime = performance.now();
+        
+        // Get language speed factor
+        const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
         
         // Create a temporary visualizer instance for this comparison
         const tempViz = {
@@ -616,13 +741,22 @@ class SortingVisualizer {
             comparisons: comparisons,
             swaps: swaps,
             shouldStop: false,
+            isPaused: false,
             speed: this.speed,
+            langSpeed: langSpeed,
             getDelay: () => {
                 const baseDelay = Math.max(1, 101 - this.speed);
                 const multiplier = this.speed / 50;
-                return Math.max(0.1, baseDelay / multiplier / 10); // Faster for comparison
+                // Apply language speed factor - faster languages have shorter delays
+                const langMultiplier = 1 / langSpeed;
+                return Math.max(0.1, (baseDelay / multiplier / 10) * langMultiplier);
             },
             delay: async function() {
+                // Wait for resume if paused
+                while (this.isPaused && !this.shouldStop) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                if (this.shouldStop) return;
                 return new Promise(resolve => setTimeout(resolve, this.getDelay()));
             },
             updateStat: (id, value) => {
@@ -658,6 +792,10 @@ class SortingVisualizer {
                 }
             }
         };
+
+        // Store reference for pause/stop control
+        if (panelNum === 1) this.compareViz1 = tempViz;
+        else this.compareViz2 = tempViz;
 
         // Run the algorithm
         switch (algoKey) {
