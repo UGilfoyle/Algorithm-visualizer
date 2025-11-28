@@ -1383,7 +1383,7 @@ select:focus {
 
 .race-track-header {
     display: grid;
-    grid-template-columns: 140px 1fr 100px 80px;
+    grid-template-columns: 160px 1fr 150px 80px;
     gap: var(--spacing-md);
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: 0.7rem;
@@ -1392,11 +1392,12 @@ select:focus {
     letter-spacing: 1px;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: var(--spacing-md);
+    align-items: center;
 }
 
 .race-track {
     display: grid;
-    grid-template-columns: 140px 1fr 100px 80px;
+    grid-template-columns: 160px 1fr 150px 80px;
     align-items: center;
     gap: var(--spacing-md);
     padding: var(--spacing-md);
@@ -1499,44 +1500,52 @@ select:focus {
     box-shadow: none;
 }
 
-.track-time,
-.track-position {
+.track-time {
     font-family: var(--font-mono);
     font-size: 0.85rem;
-    text-align: center;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.track-time {
-    color: var(--text-primary);
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 
 .track-time .time-value {
-    min-width: 120px;
-    max-width: 200px;
-    word-break: break-all;
-    overflow-wrap: break-word;
+    min-width: 80px;
+    max-width: 100px;
     text-align: right;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
 }
 
 .track-time .time-format-select {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
-    padding: 2px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     cursor: pointer;
+    flex-shrink: 0;
+    min-width: 50px;
 }
 
 .track-position {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
     font-weight: bold;
     color: var(--gold);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    min-width: 60px;
 }
 
 /* ========================================
