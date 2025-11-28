@@ -1777,10 +1777,10 @@ class LanguageArena {
         const maxTime = Math.max(...this.results.map(r => r.time));
         const minTime = Math.min(...this.results.map(r => r.time));
         
-        // Create SVG line graph (rectangular aspect ratio)
-        const width = 750;
-        const height = 420;
-        const padding = { top: 50, right: 80, bottom: 80, left: 80 };
+        // Create SVG line graph (rectangular aspect ratio, larger for better visibility)
+        const width = 900;
+        const height = 500;
+        const padding = { top: 60, right: 100, bottom: 100, left: 100 };
         const chartWidth = width - padding.left - padding.right;
         const chartHeight = height - padding.top - padding.bottom;
         
@@ -1799,17 +1799,29 @@ class LanguageArena {
             <rect x="${padding.left}" y="${padding.top}" width="${chartWidth}" height="${chartHeight}" 
                   fill="var(--bg-tertiary)" rx="8" opacity="0.3"/>`;
         
-        // Grid lines with Y-axis values
-        for (let i = 0; i <= 5; i++) {
-            const y = padding.top + (chartHeight / 5) * i;
+        // Grid lines with Y-axis values (more detailed - 10 divisions)
+        const gridDivisions = 10;
+        for (let i = 0; i <= gridDivisions; i++) {
+            const y = padding.top + (chartHeight / gridDivisions) * i;
             svg += `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" 
-                     stroke="var(--border-color)" stroke-width="1" opacity="0.3"/>`;
+                     stroke="var(--border-color)" stroke-width="1" opacity="0.2"/>`;
             
-            // Y-axis scale values (time values)
-            const timeValue = maxTime - ((maxTime - minTime) / 5) * i;
-            const formattedTime = timeValue < 1000 ? `${timeValue.toFixed(1)}ms` : `${(timeValue / 1000).toFixed(2)}s`;
-            svg += `<text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" 
-                     fill="var(--text-secondary)" font-size="10">${formattedTime}</text>`;
+            // Y-axis scale values (time values) - show every 2nd division for clarity
+            if (i % 2 === 0 || i === 0 || i === gridDivisions) {
+                const timeValue = maxTime - ((maxTime - minTime) / gridDivisions) * i;
+                let formattedTime;
+                if (timeValue < 1) {
+                    formattedTime = `${(timeValue * 1000).toFixed(1)}μs`;
+                } else if (timeValue < 1000) {
+                    formattedTime = `${timeValue.toFixed(1)}ms`;
+                } else if (timeValue < 60000) {
+                    formattedTime = `${(timeValue / 1000).toFixed(2)}s`;
+                } else {
+                    formattedTime = `${(timeValue / 60000).toFixed(1)}m`;
+                }
+                svg += `<text x="${padding.left - 15}" y="${y + 5}" text-anchor="end" 
+                         fill="var(--text-primary)" font-size="11" font-weight="500">${formattedTime}</text>`;
+            }
         }
         
         // Calculate points for line graph
@@ -1843,25 +1855,25 @@ class LanguageArena {
                      stroke="var(--bg-primary)" stroke-width="2"/>`;
             
             // Language symbol below (X-axis value)
-            svg += `<text x="${point.x}" y="${padding.top + chartHeight + 20}" 
-                     text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="600">${point.info.symbol}</text>`;
+            svg += `<text x="${point.x}" y="${padding.top + chartHeight + 25}" 
+                     text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="600">${point.info.symbol}</text>`;
             
             // Language name below symbol (X-axis label)
-            svg += `<text x="${point.x}" y="${padding.top + chartHeight + 35}" 
-                     text-anchor="middle" fill="var(--text-muted)" font-size="9">${point.info.name}</text>`;
+            svg += `<text x="${point.x}" y="${padding.top + chartHeight + 42}" 
+                     text-anchor="middle" fill="var(--text-secondary)" font-size="11">${point.info.name}</text>`;
             
-            // Time value above point (Y-axis value at point)
-            svg += `<text x="${point.x}" y="${point.y - 10}" 
-                     text-anchor="middle" fill="var(--text-secondary)" font-size="9">${point.result.displayTime}</text>`;
+            // Time value above point (Y-axis value at point) - larger and more visible
+            svg += `<text x="${point.x}" y="${point.y - 12}" 
+                     text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="600">${point.result.displayTime}</text>`;
         });
         
-        // Y-axis label
-        svg += `<text x="25" y="${height/2}" text-anchor="middle" fill="var(--text-secondary)" 
-                 font-size="12" transform="rotate(-90, 25, ${height/2})">Execution Time</text>`;
+        // Y-axis label (larger and more visible)
+        svg += `<text x="35" y="${height/2}" text-anchor="middle" fill="var(--text-primary)" 
+                 font-size="14" font-weight="600" transform="rotate(-90, 35, ${height/2})">Execution Time</text>`;
         
-        // X-axis label
-        svg += `<text x="${width/2}" y="${height - 20}" text-anchor="middle" 
-                 fill="var(--text-secondary)" font-size="12">Languages (sorted by performance)</text>`;
+        // X-axis label (larger and more visible)
+        svg += `<text x="${width/2}" y="${height - 25}" text-anchor="middle" 
+                 fill="var(--text-primary)" font-size="14" font-weight="600">Languages (sorted by performance)</text>`;
         
         svg += `</svg>`;
         
