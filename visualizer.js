@@ -773,21 +773,26 @@ class LanguageArena {
     }
 
     setupTimeFormatListeners() {
-        // Set up listeners for time format dropdowns
-        // This will be called after tracks are rendered
-        setTimeout(() => {
-            this.selectedLanguages.forEach(lang => {
-                const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
-                if (formatSelect) {
-                    formatSelect.addEventListener('change', (e) => {
-                        const timeValueEl = document.querySelector(`#time-${lang} .time-value`);
-                        if (timeValueEl && this.rawTimes[lang] > 0) {
-                            timeValueEl.textContent = formatTimeValue(this.rawTimes[lang], e.target.value);
-                        }
-                    });
+        // Set up listeners for time format dropdowns with cleanup
+        this.selectedLanguages.forEach(lang => {
+            const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
+            if (formatSelect) {
+                // Remove old listener if exists
+                if (formatSelect._changeHandler) {
+                    formatSelect.removeEventListener('change', formatSelect._changeHandler);
                 }
-            });
-        }, 100);
+                
+                // Create and store new handler
+                formatSelect._changeHandler = (e) => {
+                    const timeValueEl = document.querySelector(`#time-${lang} .time-value`);
+                    if (timeValueEl && this.rawTimes[lang] > 0) {
+                        timeValueEl.textContent = formatTimeValue(this.rawTimes[lang], e.target.value);
+                    }
+                };
+                
+                formatSelect.addEventListener('change', formatSelect._changeHandler);
+            }
+        });
     }
 
     updateSelectedLanguages() {
