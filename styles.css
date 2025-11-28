@@ -1466,13 +1466,13 @@ select:focus {
     position: absolute;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: var(--primary);
+    border-radius: 0;
+    background: transparent;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
     transition: left 0.05s linear, transform 0.1s ease, box-shadow 0.2s ease;
     z-index: 10;
     left: 0;
@@ -1480,8 +1480,8 @@ select:focus {
 }
 
 .track-runner .runner-icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     display: inline-block;
     object-fit: contain;
 }
@@ -1495,8 +1495,8 @@ select:focus {
 }
 
 .track-runner:hover {
-    transform: translateX(0) scale(1.15);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 3px 8px rgba(0, 0, 0, 0.4);
+    transform: translateX(0) scale(1.1);
+    box-shadow: none;
 }
 
 .track-time,
