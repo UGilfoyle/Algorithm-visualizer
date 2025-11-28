@@ -85,11 +85,46 @@ module.exports = async (req, res) => {
                 return res.status(400).json({ error: validation.error });
             }
 
-            const deviceType = device?.type && typeof device.type === 'string' && device.type.length <= 50 ? device.type : null;
-            const deviceOS = device?.os && typeof device.os === 'string' && device.os.length <= 100 ? device.os : null;
-            const deviceBrowser = device?.browser && typeof device.browser === 'string' && device.browser.length <= 100 ? device.browser : null;
-            const country = location?.country && typeof location.country === 'string' && location.country.length <= 100 ? location.country : null;
-            const city = location?.city && typeof location.city === 'string' && location.city.length <= 100 ? location.city : null;
+            let deviceType = null;
+            let deviceOS = null;
+            let deviceBrowser = null;
+            let country = null;
+            let city = null;
+
+            if (visitor_id) {
+                try {
+                    const visitorResult = await pool.query(
+                        'SELECT device_type, device_os, device_browser, country, city FROM visitors WHERE visitor_id = $1',
+                        [visitor_id]
+                    );
+
+                    if (visitorResult.rows.length > 0) {
+                        const visitor = visitorResult.rows[0];
+                        deviceType = visitor.device_type;
+                        deviceOS = visitor.device_os;
+                        deviceBrowser = visitor.device_browser;
+                        country = visitor.country;
+                        city = visitor.city;
+                    }
+                } catch (e) {
+                }
+            }
+
+            if (!deviceType && device?.type && typeof device.type === 'string' && device.type.length <= 50) {
+                deviceType = device.type;
+            }
+            if (!deviceOS && device?.os && typeof device.os === 'string' && device.os.length <= 100) {
+                deviceOS = device.os;
+            }
+            if (!deviceBrowser && device?.browser && typeof device.browser === 'string' && device.browser.length <= 100) {
+                deviceBrowser = device.browser;
+            }
+            if (!country && location?.country && typeof location.country === 'string' && location.country.length <= 100) {
+                country = location.country;
+            }
+            if (!city && location?.city && typeof location.city === 'string' && location.city.length <= 100) {
+                city = location.city;
+            }
 
             await pool.query(
                 `INSERT INTO feedback (visitor_id, rating, comment, device_type, device_os, device_browser, country, city)
@@ -99,7 +134,6 @@ module.exports = async (req, res) => {
 
             return res.status(200).json({ success: true, message: 'Feedback submitted successfully' });
         } catch (error) {
-            console.error('Feedback submission error:', error);
             return res.status(500).json({ error: 'Failed to submit feedback' });
         }
     }
