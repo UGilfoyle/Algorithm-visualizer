@@ -115,10 +115,19 @@ const LANGUAGE_SPEED = {
     elixir: 5.0      // BEAM VM, moderate speed
 };
 
-// Language icon paths
+// Language icon paths - cached for performance
+let _cachedLanguageIcons = null;
+let _cachedTheme = null;
+
 function getLanguageIcons() {
-    const isDarkMode = document.documentElement.getAttribute('data-theme') !== 'light';
-    return {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    // Return cached version if theme hasn't changed
+    if (_cachedLanguageIcons && _cachedTheme === currentTheme) {
+        return _cachedLanguageIcons;
+    }
+    
+    const isDarkMode = currentTheme !== 'light';
+    _cachedLanguageIcons = {
         java: 'icons/java.svg',
         python: 'icons/python.svg',
         deno: 'icons/deno.png',
@@ -136,49 +145,64 @@ function getLanguageIcons() {
         go: 'icons/go.svg',
         c: 'icons/cplusplus.svg' // Use C++ icon for C
     };
+    _cachedTheme = currentTheme;
+    return _cachedLanguageIcons;
 }
 
-const LANGUAGE_ICONS = getLanguageIcons();
+// Cache language info
+let _cachedLanguageInfo = null;
 
 function getLanguageInfo() {
     const icons = getLanguageIcons();
-    return {
-        javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', icon: icons.javascript },
-        python: { name: 'Python', symbol: 'PY', color: '#3776ab', icon: icons.python },
-        java: { name: 'Java', symbol: 'JV', color: '#007396', icon: icons.java },
-        cpp: { name: 'C++', symbol: 'C++', color: '#00599c', icon: icons.cpp },
-        csharp: { name: 'C#', symbol: 'C#', color: '#239120', icon: icons.csharp },
-        go: { name: 'Go', symbol: 'GO', color: '#00add8', icon: icons.go },
-        rust: { name: 'Rust', symbol: 'RS', color: '#dea584', icon: icons.rust },
-        ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', icon: icons.ruby },
-        php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', icon: icons.php },
-        elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', icon: icons.elixir },
-        node: { name: 'Node.js', symbol: 'ND', color: '#339933', icon: icons.node },
-        deno: { name: 'Deno', symbol: 'DN', color: '#000000', icon: icons.deno },
-        kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', icon: icons.kotlin },
-        swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', icon: icons.swift },
-        typescript: { name: 'TypeScript', symbol: 'TS', color: '#3178c6', icon: icons.typescript },
-        c: { name: 'C', symbol: 'C', color: '#a8b9cc', icon: icons.c }
-    };
+    // Only rebuild if icons changed
+    if (!_cachedLanguageInfo || _cachedLanguageInfo.rust.icon !== icons.rust) {
+        _cachedLanguageInfo = {
+            javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', icon: icons.javascript },
+            python: { name: 'Python', symbol: 'PY', color: '#3776ab', icon: icons.python },
+            java: { name: 'Java', symbol: 'JV', color: '#007396', icon: icons.java },
+            cpp: { name: 'C++', symbol: 'C++', color: '#00599c', icon: icons.cpp },
+            csharp: { name: 'C#', symbol: 'C#', color: '#239120', icon: icons.csharp },
+            go: { name: 'Go', symbol: 'GO', color: '#00add8', icon: icons.go },
+            rust: { name: 'Rust', symbol: 'RS', color: '#dea584', icon: icons.rust },
+            ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', icon: icons.ruby },
+            php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', icon: icons.php },
+            elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', icon: icons.elixir },
+            node: { name: 'Node.js', symbol: 'ND', color: '#339933', icon: icons.node },
+            deno: { name: 'Deno', symbol: 'DN', color: '#000000', icon: icons.deno },
+            kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', icon: icons.kotlin },
+            swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', icon: icons.swift },
+            typescript: { name: 'TypeScript', symbol: 'TS', color: '#3178c6', icon: icons.typescript },
+            c: { name: 'C', symbol: 'C', color: '#a8b9cc', icon: icons.c }
+        };
+    }
+    return _cachedLanguageInfo;
 }
 
+// Initialize cached values
+const LANGUAGE_ICONS = getLanguageIcons();
 const LANGUAGE_INFO = getLanguageInfo();
 
-// Function to update Rust icons when theme changes
+// Function to update Rust icons when theme changes - optimized
 function updateRustIcons() {
+    // Clear cache to force rebuild
+    _cachedLanguageInfo = null;
     const icons = getLanguageIcons();
     const rustIcon = icons.rust;
     
-    // Update all Rust icon images
-    document.querySelectorAll('img[alt*="Rust" i], img[alt*="rust" i], img[src*="rust"]').forEach(img => {
-        if (img.src.includes('rust')) {
-            img.src = rustIcon;
-        }
+    // Batch DOM updates using requestAnimationFrame
+    requestAnimationFrame(() => {
+        // Use more specific selector for better performance
+        const rustImages = document.querySelectorAll('img[src*="rust"]');
+        rustImages.forEach(img => {
+            if (img.src.includes('rust')) {
+                img.src = rustIcon;
+            }
+        });
     });
     
-    // Update LANGUAGE_INFO
-    if (LANGUAGE_INFO.rust) {
-        LANGUAGE_INFO.rust.icon = rustIcon;
+    // Update cached LANGUAGE_INFO
+    if (_cachedLanguageInfo && _cachedLanguageInfo.rust) {
+        _cachedLanguageInfo.rust.icon = rustIcon;
     }
 }
 
@@ -944,10 +968,14 @@ class LanguageArena {
             }
         });
         
+        // Batch DOM updates
         container.innerHTML = '';
+        
+        // Get cached language info for better performance
+        const langInfo = getLanguageInfo();
 
         this.selectedLanguages.forEach(lang => {
-            const info = LANGUAGE_INFO[lang];
+            const info = langInfo[lang];
             if (!info) return;
 
             const track = document.createElement('div');
