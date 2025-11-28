@@ -304,6 +304,8 @@ class App {
                     container.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
                     this.currentLanguage = tab.dataset.lang;
+                    // Reset visualization when language changes
+                    this.resetVisualization();
                     this.loadAlgorithmInfo();
                 });
             });
@@ -390,6 +392,64 @@ class App {
     updateElementText(id, text) {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
+    }
+
+    resetVisualization() {
+        // Reset visualization state when language changes
+        const section = this.currentSection;
+        
+        switch (section) {
+            case 'sorting':
+                if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
+                    sortingVisualizer.stop();
+                    sortingVisualizer.render(); // Reset visual state
+                    sortingVisualizer.resetStats();
+                    if (sortingVisualizer.updateButtonStates) {
+                        sortingVisualizer.updateButtonStates();
+                    }
+                }
+                break;
+            case 'searching':
+                if (typeof searchingVisualizer !== 'undefined' && searchingVisualizer) {
+                    searchingVisualizer.stop();
+                    searchingVisualizer.render(); // Reset visual state
+                    searchingVisualizer.resetStats();
+                }
+                break;
+            case 'pathfinding':
+                if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
+                    pathfindingVisualizer.stop();
+                    pathfindingVisualizer.clearPath(); // Reset visual state
+                }
+                break;
+            case 'trees':
+                if (typeof treeVisualizer !== 'undefined' && treeVisualizer) {
+                    treeVisualizer.stop();
+                }
+                break;
+            case 'graphs':
+                if (typeof graphVisualizer !== 'undefined' && graphVisualizer) {
+                    graphVisualizer.stop();
+                    graphVisualizer.render(); // Reset visual state
+                }
+                break;
+            case 'dp':
+                if (typeof dpVisualizer !== 'undefined' && dpVisualizer) {
+                    dpVisualizer.stop();
+                }
+                break;
+            case 'strings':
+                if (typeof stringVisualizer !== 'undefined' && stringVisualizer) {
+                    stringVisualizer.stop();
+                    stringVisualizer.render(); // Reset visual state
+                }
+                break;
+            case 'math':
+                if (typeof mathVisualizer !== 'undefined' && mathVisualizer) {
+                    mathVisualizer.stop();
+                }
+                break;
+        }
     }
 }
 

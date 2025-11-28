@@ -197,17 +197,21 @@ class SortingVisualizer {
         this.size = 30;
         this.speed = 50;
         this.isRunning = false;
+        this.isPaused = false;
         this.shouldStop = false;
         this.comparisons = 0;
         this.swaps = 0;
         this.currentAlgorithm = 'bubbleSort';
         this.container = document.getElementById('sortingBars');
+        this.startTime = null;
+        this.pausedTime = 0; // Accumulated paused time
         this.init();
     }
 
     init() {
         this.generateArray();
         this.bindEvents();
+        this.updateButtonStates(); // Initialize button states
     }
 
     bindEvents() {
@@ -215,6 +219,7 @@ class SortingVisualizer {
         const speedSlider = document.getElementById('sortSpeed');
         const shuffleBtn = document.getElementById('shuffleArray');
         const startBtn = document.getElementById('startSort');
+        const pauseResumeBtn = document.getElementById('pauseResumeSort');
         const stopBtn = document.getElementById('stopSort');
 
         if (sizeSlider) {
@@ -233,7 +238,82 @@ class SortingVisualizer {
 
         if (shuffleBtn) shuffleBtn.addEventListener('click', () => this.generateArray());
         if (startBtn) startBtn.addEventListener('click', () => this.start());
+        if (pauseResumeBtn) pauseResumeBtn.addEventListener('click', () => this.togglePauseResume());
         if (stopBtn) stopBtn.addEventListener('click', () => this.stop());
+    }
+
+    updateButtonStates() {
+        const startBtn = document.getElementById('startSort');
+        const pauseResumeBtn = document.getElementById('pauseResumeSort');
+        const stopBtn = document.getElementById('stopSort');
+        
+        if (this.isRunning) {
+            if (startBtn) {
+                startBtn.style.visibility = 'hidden';
+                startBtn.style.position = 'absolute';
+                startBtn.style.opacity = '0';
+                startBtn.style.pointerEvents = 'none';
+            }
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'visible';
+                pauseResumeBtn.style.position = 'static';
+                pauseResumeBtn.style.opacity = '1';
+                pauseResumeBtn.style.pointerEvents = 'auto';
+                pauseResumeBtn.textContent = this.isPaused ? '▶ Resume' : '⏸ Pause';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'visible';
+                stopBtn.style.position = 'static';
+                stopBtn.style.opacity = '1';
+                stopBtn.style.pointerEvents = 'auto';
+            }
+        } else {
+            if (startBtn) {
+                startBtn.style.visibility = 'visible';
+                startBtn.style.position = 'static';
+                startBtn.style.opacity = '1';
+                startBtn.style.pointerEvents = 'auto';
+            }
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'hidden';
+                pauseResumeBtn.style.position = 'absolute';
+                pauseResumeBtn.style.opacity = '0';
+                pauseResumeBtn.style.pointerEvents = 'none';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'hidden';
+                stopBtn.style.position = 'absolute';
+                stopBtn.style.opacity = '0';
+                stopBtn.style.pointerEvents = 'none';
+            }
+        }
+    }
+
+    togglePauseResume() {
+        if (this.isPaused) {
+            this.resume();
+        } else {
+            this.pause();
+        }
+    }
+
+    pause() {
+        if (!this.isRunning || this.isPaused) return;
+        this.isPaused = true;
+        // Save pause time to account for elapsed time
+        if (this.startTime) {
+            this.pausedTime += performance.now() - this.startTime;
+        }
+        this.updateButtonStates();
+    }
+
+    resume() {
+        if (!this.isPaused || !this.isRunning) return;
+        this.isPaused = false;
+        // Restart timing (pausedTime already accumulated in pause())
+        this.startTime = performance.now();
+        this.updateButtonStates();
+        // The algorithm will continue naturally from the delay() function
     }
 
     generateArray() {
@@ -241,6 +321,7 @@ class SortingVisualizer {
         this.array = Array.from({ length: this.size }, () => Math.floor(Math.random() * 100) + 1);
         this.render();
         this.resetStats();
+        this.updateButtonStates();
     }
 
     render(comparing = [], swapping = [], sorted = []) {
@@ -277,17 +358,33 @@ class SortingVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        this.isPaused = false;
+        this.pausedTime = 0;
+        // Reset visual state when stopped
+        this.render(); // Clear any highlighting/comparing/swapping states
+        this.updateButtonStates();
     }
 
     async start() {
-        if (this.isRunning) return;
+        if (this.isRunning && !this.isPaused) return;
+        
+        // If resuming from pause, just resume
+        if (this.isPaused) {
+            this.resume();
+            return;
+        }
+        
+        // Starting fresh
         this.isRunning = true;
+        this.isPaused = false;
         this.shouldStop = false;
+        this.pausedTime = 0;
         this.resetStats();
+        this.updateButtonStates();
 
         if (typeof audioEngine !== 'undefined') audioEngine.playBattleStart();
 
-        const startTime = performance.now();
+        this.startTime = performance.now();
 
         switch (this.currentAlgorithm) {
             case 'bubbleSort': await this.bubbleSort(); break;
@@ -309,9 +406,9 @@ class SortingVisualizer {
             default: await this.bubbleSort();
         }
 
-        if (!this.shouldStop) {
+        if (!this.shouldStop && !this.isPaused) {
             const endTime = performance.now();
-            const elapsed = endTime - startTime;
+            const elapsed = endTime - this.startTime + this.pausedTime;
             rawTimeValues.sortTime = elapsed;
             const formatSelect = document.getElementById('sortTimeFormat');
             const format = formatSelect ? formatSelect.value : 'ms';
@@ -320,7 +417,11 @@ class SortingVisualizer {
             if (typeof audioEngine !== 'undefined') audioEngine.playComplete();
         }
 
-        this.isRunning = false;
+        if (!this.isPaused) {
+            this.isRunning = false;
+            this.pausedTime = 0;
+            this.updateButtonStates();
+        }
     }
 
     getDelay() {
@@ -328,6 +429,11 @@ class SortingVisualizer {
     }
 
     async delay() {
+        if (this.shouldStop) return;
+        // Wait for resume if paused
+        while (this.isPaused && !this.shouldStop) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
         if (this.shouldStop) return;
         return new Promise(resolve => setTimeout(resolve, this.getDelay()));
     }
@@ -911,6 +1017,8 @@ class PathfindingVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        // Reset visual state when stopped
+        this.clearPath();
     }
 
     getDelay() {
@@ -1056,20 +1164,27 @@ class LanguageArena {
                     const timeValueEl = document.querySelector(`#time-${lang} .time-value`);
                     if (timeValueEl && this.rawTimes[lang] > 0) {
                         let format = e.target.value;
+                        const time = this.rawTimes[lang];
+                        
+                        // Auto-format: if >= 2000ms, use seconds
+                        if (time >= 2000 && time < 60000) {
+                            format = 's';
+                            e.target.value = format;
+                        }
                         // Auto-format large values even if user selects 'ms'
-                        if (format === 'ms' && this.rawTimes[lang] >= 60000) {
-                            format = getBestTimeFormat(this.rawTimes[lang]);
+                        else if (format === 'ms' && time >= 60000) {
+                            format = getBestTimeFormat(time);
                             e.target.value = format;
                         }
                         // Always use best format for very large values regardless of selection
-                        if (this.rawTimes[lang] >= 86400000) {
+                        if (time >= 86400000) {
                             format = 'd';
                             e.target.value = format;
-                        } else if (this.rawTimes[lang] >= 3600000) {
+                        } else if (time >= 3600000) {
                             format = 'h';
                             e.target.value = format;
                         }
-                        timeValueEl.textContent = formatTimeValue(this.rawTimes[lang], format);
+                        timeValueEl.textContent = formatTimeValue(time, format);
                     }
                 };
                 
@@ -1204,7 +1319,7 @@ class LanguageArena {
             const trackEl = document.getElementById(`track-${lang}`);
 
             if (runnerEl) {
-                runnerEl.style.left = '0%';
+                runnerEl.style.left = '0px'; // Start at left edge (0px, not 0%)
                 runnerEl.style.transform = 'translateX(0)';
             }
             if (timeValueEl) timeValueEl.textContent = '-';
@@ -1234,11 +1349,15 @@ class LanguageArena {
         });
 
         const minTime = Math.min(...Object.values(times));
-        const animationDuration = 3000;
+        const maxTime = Math.max(...Object.values(times));
+        
+        // Calculate animation duration based on actual execution times
+        // Map execution time to animation duration for better alignment
+        const baseAnimationDuration = this.calculateAnimationDurationFromTime(minTime, maxTime);
 
         // Start all runners
         const promises = this.selectedLanguages.map(lang => {
-            return this.runRacer(lang, times[lang], minTime, animationDuration);
+            return this.runRacer(lang, times[lang], minTime, baseAnimationDuration, maxTime);
         });
 
         await Promise.all(promises);
@@ -1265,6 +1384,43 @@ class LanguageArena {
         }
 
         this.isRacing = false;
+    }
+
+    calculateAnimationDurationFromTime(minTime, maxTime) {
+        // Calculate animation duration based on actual execution times
+        // Align animation speed with language execution speed
+        
+        // Convert times from milliseconds to seconds for easier calculation
+        const minTimeSeconds = minTime / 1000;
+        const maxTimeSeconds = maxTime / 1000;
+        
+        // Map execution time to animation duration
+        // For very fast times (< 0.01s = 10ms): 2-3 seconds animation
+        // For fast times (0.01-0.1s = 10-100ms): 3-5 seconds animation
+        // For medium times (0.1-1s = 100ms-1s): 5-10 seconds animation
+        // For slow times (1-10s): 10-20 seconds animation
+        // For very slow times (> 10s): 20-60 seconds animation
+        
+        if (minTimeSeconds < 0.01) {
+            // Very fast (< 10ms): 2-3 seconds
+            return 2500; // 2.5 seconds
+        } else if (minTimeSeconds < 0.1) {
+            // Fast (10-100ms): 3-5 seconds, scale with time
+            const ratio = (minTimeSeconds - 0.01) / (0.1 - 0.01);
+            return Math.round(3000 + (5000 - 3000) * ratio);
+        } else if (minTimeSeconds < 1) {
+            // Medium (100ms-1s): 5-10 seconds, scale with time
+            const ratio = (minTimeSeconds - 0.1) / (1 - 0.1);
+            return Math.round(5000 + (10000 - 5000) * ratio);
+        } else if (minTimeSeconds < 10) {
+            // Slow (1-10s): 10-20 seconds, scale with time
+            const ratio = (minTimeSeconds - 1) / (10 - 1);
+            return Math.round(10000 + (20000 - 10000) * ratio);
+        } else {
+            // Very slow (> 10s): 20-60 seconds, scale with time
+            const ratio = Math.min(1, (minTimeSeconds - 10) / 50); // Cap at 60s for times up to 60s
+            return Math.round(20000 + (60000 - 20000) * ratio);
+        }
     }
 
     getBaseTime() {
@@ -1340,7 +1496,7 @@ class LanguageArena {
         }
     }
 
-    async runRacer(lang, time, minTime, duration) {
+    async runRacer(lang, time, minTime, baseDuration, maxTime) {
         const runnerEl = document.getElementById(`runner-${lang}`);
         const timeEl = document.getElementById(`time-${lang}`);
         const trackEl = document.getElementById(`track-${lang}`);
@@ -1348,12 +1504,25 @@ class LanguageArena {
 
         if (!runnerEl || !trackBarEl) return;
 
-        const racerDuration = (time / minTime) * (duration * 0.8);
+        // Calculate racer duration based on relative performance
+        // Fastest language uses full baseDuration, slower ones scale proportionally
+        // But ensure all finish within the calculated window
+        const timeRatio = time / maxTime; // Ratio compared to slowest
+        const racerDuration = baseDuration * timeRatio;
+        
         const info = getLanguageInfo()[lang];
-        const trackWidth = trackBarEl.offsetWidth;
+        // Get the actual usable width of the track (accounting for any padding)
+        const trackRect = trackBarEl.getBoundingClientRect();
+        const trackWidth = trackRect.width;
         const ballSize = 40; // Size of the ball
-        const maxPosition = trackWidth - ballSize;
+        // Calculate max position so ball goes edge-to-edge
+        // Ball starts at left edge (0) and ends at right edge (trackWidth - ballSize)
+        // This ensures the ball's right edge touches the track's right edge
+        const maxPosition = Math.max(0, trackWidth - ballSize);
 
+        // Ensure ball starts at left edge
+        runnerEl.style.left = '0px';
+        
         return new Promise(resolve => {
             const startTime = performance.now();
             let lastTickTime = 0;
@@ -1367,31 +1536,37 @@ class LanguageArena {
                 const elapsed = performance.now() - startTime;
                 const progress = Math.min(elapsed / racerDuration, 1);
 
-                // Calculate position: move back and forth across the track
-                // Create smooth back-and-forth motion with forward progress
-                // Use sine wave for oscillation - more cycles for smoother motion
-                const cycles = 4; // Number of back-and-forth cycles
-                const oscillation = Math.sin(progress * Math.PI * cycles * 2);
+                // Calculate position: smooth, slow progression from left edge to right edge
+                // Use easing function for natural, engaging movement
+                // Ease-in-out cubic for smooth acceleration and deceleration
+                const easeInOutCubic = (t) => {
+                    return t < 0.5 
+                        ? 4 * t * t * t 
+                        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                };
                 
-                // Map oscillation from [-1, 1] to [0, 1] for position calculation
-                const normalizedOscillation = (oscillation + 1) / 2; // 0 to 1
+                // Apply easing to progress for smooth, slow movement
+                const easedProgress = easeInOutCubic(progress);
                 
-                // Create back-and-forth motion: oscillate across full width
-                // Forward progress determines overall completion, oscillation creates back-and-forth
-                const forwardProgress = progress;
-                const oscillatingProgress = normalizedOscillation;
+                // Add very subtle oscillation for visual interest (minimal back-and-forth)
+                // Only 1-2 gentle cycles throughout the entire duration for engagement
+                const cycles = Math.max(1, Math.min(2, Math.floor(racerDuration / 8000)));
+                const subtleOscillation = Math.sin(progress * Math.PI * cycles) * 0.02; // Very subtle (2% max)
                 
-                // Combine: oscillate across full width while making forward progress
-                // The oscillation creates the back-and-forth, forward progress ensures completion
-                const finalProgress = forwardProgress * 0.65 + oscillatingProgress * 0.35;
+                // Combine: almost pure forward progress with minimal oscillation
+                // 98% forward progress, 2% subtle oscillation for visual interest
+                const finalProgress = Math.max(0, Math.min(1, easedProgress + subtleOscillation));
                 
-                // Calculate actual position - ensure it stays within bounds
-                const position = Math.max(0, Math.min(maxPosition, finalProgress * maxPosition));
+                // Calculate actual position - move slowly and smoothly from 0 (left edge) to maxPosition (right edge)
+                // The ball will take the full duration to travel edge-to-edge
+                let position = finalProgress * maxPosition;
+                // Ensure we stay within bounds
+                position = Math.max(0, Math.min(maxPosition, position));
                 runnerEl.style.left = `${position}px`;
                 runnerEl.style.transform = `translateX(0)`;
 
-                // Play tick sound periodically
-                if (elapsed - lastTickTime > 200 && typeof audioEngine !== 'undefined') {
+                // Play tick sound periodically (more frequent for longer race)
+                if (elapsed - lastTickTime > 150 && typeof audioEngine !== 'undefined') {
                     audioEngine.playRaceTick(progress * 10);
                     lastTickTime = elapsed;
                 }
@@ -1409,14 +1584,21 @@ class LanguageArena {
                     
                     // Auto-select best format and update dropdown for large values
                     const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
-                    const bestFormat = getBestTimeFormat(time);
+                    let bestFormat = getBestTimeFormat(time);
                     
-                    if (formatSelect && time >= 60000) {
-                        formatSelect.value = bestFormat;
+                    // If time is >= 2000ms (2 seconds), use seconds format
+                    if (time >= 2000 && time < 60000) {
+                        bestFormat = 's';
                     }
                     
-                    // Use best format for display if value is large, otherwise use dropdown value
-                    const format = (time >= 60000) ? bestFormat : (formatSelect ? formatSelect.value : 'ms');
+                    if (formatSelect) {
+                        if (time >= 2000) {
+                            formatSelect.value = bestFormat;
+                        }
+                    }
+                    
+                    // Use best format for display if value is >= 2000ms, otherwise use dropdown value
+                    const format = (time >= 2000) ? bestFormat : (formatSelect ? formatSelect.value : 'ms');
                     const displayTime = formatTimeValue(time, format);
                     
                     const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
@@ -1451,7 +1633,29 @@ class LanguageArena {
         const resultsEl = document.getElementById('arenaResults');
         if (!resultsEl || this.results.length < 3) return;
 
+        // Always populate results first
+        this.populateResults();
+
+        // Check if we should show complexity graph (2 times per session)
+        const graphShownKey = 'complexityGraphShown';
+        let graphShownCount = parseInt(sessionStorage.getItem(graphShownKey) || '0');
+        
+        if (graphShownCount < 2) {
+            // Show the complexity graph first, then results after it closes
+            this.showComplexityGraph();
+            graphShownCount++;
+            sessionStorage.setItem(graphShownKey, graphShownCount.toString());
+            // Results will be shown after graph closes (in hideComplexityGraph)
+            return;
+        }
+
+        // Show results directly if graph already shown 2 times
         resultsEl.style.display = 'block';
+    }
+
+    populateResults() {
+        const resultsEl = document.getElementById('arenaResults');
+        if (!resultsEl || this.results.length < 3) return;
 
         const first = this.results[0];
         const second = this.results[1];
@@ -1491,12 +1695,142 @@ class LanguageArena {
         }
     }
 
+    showComplexityGraph() {
+        const modal = document.getElementById('complexityGraphModal');
+        const container = document.getElementById('complexityGraphContainer');
+        if (!modal || !container) return;
+
+        // Get algorithm complexity info
+        const algoKey = this.algorithm;
+        const algo = this.getAlgorithmComplexity(algoKey);
+        
+        // Render graph
+        container.innerHTML = this.renderComplexityGraph(algo);
+        
+        // Show modal
+        modal.style.display = 'flex';
+        
+        // Auto-close after 5 seconds and return to results
+        setTimeout(() => {
+            this.hideComplexityGraph();
+        }, 5000);
+        
+        // Close button handler
+        const closeBtn = document.getElementById('closeComplexityGraph');
+        if (closeBtn) {
+            closeBtn.onclick = () => this.hideComplexityGraph();
+        }
+    }
+
+    hideComplexityGraph() {
+        const modal = document.getElementById('complexityGraphModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        // Show results after graph closes
+        const resultsEl = document.getElementById('arenaResults');
+        if (resultsEl && this.results.length >= 3) {
+            resultsEl.style.display = 'block';
+        }
+    }
+
+    getAlgorithmComplexity(algorithm) {
+        // Map algorithms to their time and space complexity
+        const complexities = {
+            'fibonacci': { time: 'O(n)', space: 'O(1)', name: 'Fibonacci' },
+            'factorial': { time: 'O(n)', space: 'O(1)', name: 'Factorial' },
+            'loop': { time: 'O(n)', space: 'O(1)', name: 'Loop' },
+            'arraySum': { time: 'O(n)', space: 'O(1)', name: 'Array Sum' },
+            'stringConcat': { time: 'O(n)', space: 'O(n)', name: 'String Concat' },
+            'sorting': { time: 'O(n log n)', space: 'O(log n)', name: 'Quick Sort' },
+            'mergeSort': { time: 'O(n log n)', space: 'O(n)', name: 'Merge Sort' },
+            'heapSort': { time: 'O(n log n)', space: 'O(1)', name: 'Heap Sort' },
+            'nestedLoop': { time: 'O(n²)', space: 'O(1)', name: 'Nested Loop' },
+            'bubbleSort': { time: 'O(n²)', space: 'O(1)', name: 'Bubble Sort' },
+            'selectionSort': { time: 'O(n²)', space: 'O(1)', name: 'Selection Sort' },
+            'matrix': { time: 'O(n³)', space: 'O(n²)', name: 'Matrix Mult' },
+            'primes': { time: 'O(n log log n)', space: 'O(n)', name: 'Sieve' },
+            'binarySearch': { time: 'O(log n)', space: 'O(1)', name: 'Binary Search' },
+            'recursiveFibonacci': { time: 'O(2^n)', space: 'O(n)', name: 'Recursive Fib' },
+            'permutations': { time: 'O(n!)', space: 'O(n)', name: 'Permutations' },
+            'graphBFS': { time: 'O(V+E)', space: 'O(V)', name: 'Graph BFS' },
+            'graphDFS': { time: 'O(V+E)', space: 'O(V)', name: 'Graph DFS' },
+            'dijkstra': { time: 'O(V²)', space: 'O(V)', name: "Dijkstra's" },
+            'stringSearch': { time: 'O(n+m)', space: 'O(m)', name: 'String Search' },
+            'stringHash': { time: 'O(n)', space: 'O(1)', name: 'String Hash' }
+        };
+        
+        return complexities[algorithm] || { time: 'O(n)', space: 'O(1)', name: 'Algorithm' };
+    }
+
+    renderComplexityGraph(algo) {
+        const langInfo = getLanguageInfo();
+        const fastest = this.results[0].time;
+        
+        // Create SVG graph
+        const width = 600;
+        const height = 400;
+        const padding = 60;
+        const chartWidth = width - padding * 2;
+        const chartHeight = height - padding * 2;
+        
+        let svg = `<svg width="${width}" height="${height}" style="background: var(--bg-card); border-radius: var(--radius-lg);">
+            <defs>
+                <linearGradient id="timeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#d4a574;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#8b6914;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="spaceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <text x="${width/2}" y="30" text-anchor="middle" fill="var(--text-primary)" font-size="18" font-weight="bold">${algo.name} - Performance Analysis</text>
+            <text x="${width/2}" y="50" text-anchor="middle" fill="var(--text-secondary)" font-size="12">Time: ${algo.time} | Space: ${algo.space}</text>
+        `;
+        
+        // Draw bars for each language
+        const maxTime = Math.max(...this.results.map(r => r.time));
+        const barWidth = chartWidth / (this.results.length * 2 + 1);
+        const maxBarHeight = chartHeight * 0.8;
+        
+        this.results.forEach((result, idx) => {
+            const info = langInfo[result.lang];
+            if (!info) return;
+            
+            const x = padding + (idx * 2 + 1) * barWidth;
+            const timeHeight = (result.time / maxTime) * maxBarHeight;
+            const spaceHeight = (result.time / maxTime) * maxBarHeight * 0.7; // Space is relative
+            
+            // Time complexity bar
+            svg += `<rect x="${x}" y="${padding + maxBarHeight - timeHeight}" 
+                     width="${barWidth * 0.8}" height="${timeHeight}" 
+                     fill="url(#timeGradient)" opacity="0.8" />
+                     <text x="${x + barWidth * 0.4}" y="${padding + maxBarHeight + 15}" 
+                     text-anchor="middle" fill="var(--text-primary)" font-size="10">${info.symbol}</text>
+                     <text x="${x + barWidth * 0.4}" y="${padding + maxBarHeight - timeHeight - 5}" 
+                     text-anchor="middle" fill="var(--text-primary)" font-size="9">${result.displayTime}</text>`;
+        });
+        
+        // Y-axis label
+        svg += `<text x="20" y="${height/2}" text-anchor="middle" fill="var(--text-secondary)" font-size="12" transform="rotate(-90, 20, ${height/2})">Execution Time</text>`;
+        
+        // Legend
+        svg += `<rect x="${width - 150}" y="${height - 80}" width="15" height="15" fill="url(#timeGradient)" />
+                <text x="${width - 130}" y="${height - 68}" fill="var(--text-primary)" font-size="11">Time Complexity</text>`;
+        
+        svg += `</svg>`;
+        
+        return svg;
+    }
+
     reset() {
         this.stop();
         this.results = [];
         this.rawTimes = {};
         const resultsEl = document.getElementById('arenaResults');
         if (resultsEl) resultsEl.style.display = 'none';
+        this.hideComplexityGraph();
         this.renderTracks();
     }
 }
@@ -1520,6 +1854,8 @@ class SearchingVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        // Reset visual state when stopped
+        this.render(); // Clear any highlighting states
     }
 
     bindEvents() {
@@ -1692,6 +2028,8 @@ class TreeVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        // Reset visual state when stopped
+        this.render(); // Clear any highlighting states
     }
 
     bindEvents() {
@@ -1889,6 +2227,8 @@ class GraphVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        // Reset visual state when stopped
+        this.render(); // Clear any highlighting states
     }
 
     bindEvents() {
@@ -2081,6 +2421,13 @@ class DPVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        // Reset visual state when stopped - clear active states
+        if (this.container) {
+            const cells = this.container.querySelectorAll('.dp-cell');
+            cells.forEach(cell => {
+                cell.classList.remove('active', 'computed');
+            });
+        }
     }
 
     bindEvents() {
@@ -2181,6 +2528,8 @@ class StringVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        // Reset visual state when stopped
+        this.render(); // Clear any highlighting states
     }
 
     bindEvents() {
@@ -2283,6 +2632,10 @@ class MathVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
+        // Reset visual state when stopped
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
     }
 
     bindEvents() {
