@@ -1543,6 +1543,7 @@ class DPVisualizer {
         this.container = document.getElementById('dpTable');
         this.isRunning = false;
         this.shouldStop = false;
+        this.speed = 50;
         this.init();
     }
 
@@ -1558,7 +1559,14 @@ class DPVisualizer {
 
     bindEvents() {
         const startBtn = document.getElementById('startDP');
+        const speedSlider = document.getElementById('dpSpeed');
+        
         if (startBtn) startBtn.addEventListener('click', () => this.start());
+        if (speedSlider) {
+            speedSlider.addEventListener('input', (e) => {
+                this.speed = parseInt(e.target.value);
+            });
+        }
     }
 
     async start() {
@@ -1597,6 +1605,8 @@ class DPVisualizer {
             this.container.appendChild(cell);
         }
 
+        const delay = Math.max(50, 250 - (this.speed * 2));
+        
         for (let i = 0; i <= n && !this.shouldStop; i++) {
             if (i <= 1) {
                 dp[i] = i;
@@ -1609,7 +1619,7 @@ class DPVisualizer {
                 cell.textContent = dp[i];
                 cell.classList.add('active');
                 if (typeof audioEngine !== 'undefined') audioEngine.playTone(i * 10);
-                await new Promise(r => setTimeout(r, 200));
+                await new Promise(r => setTimeout(r, delay));
                 cell.classList.remove('active');
                 cell.classList.add('computed');
             }

@@ -83,7 +83,7 @@
                     <!-- Algorithms will be populated by JS -->
                 </div>
             </div>
-
+            
             <div class="visualization-split">
                 <div class="viz-panel">
                     <div class="panel-header">
@@ -94,7 +94,7 @@
                                 <input type="range" id="arraySize" min="10" max="100" value="30">
                                 <span id="arraySizeValue">30</span>
                             </div>
-                            <div class="control-group">
+                <div class="control-group">
                                 <label>Speed</label>
                                 <input type="range" id="sortSpeed" min="1" max="100" value="50">
                             </div>
@@ -120,7 +120,7 @@
                                 <option value="ms" selected>ms</option>
                                 <option value="s">sec</option>
                                 <option value="m">min</option>
-                            </select>
+                        </select>
                         </div>
                     </div>
                 </div>
@@ -282,37 +282,37 @@
                     <div class="panel-header">
                         <h3>Grid Visualization</h3>
                         <div class="controls-inline">
-                            <div class="control-group">
-                                <label>Speed</label>
-                                <input type="range" id="pathSpeed" min="1" max="100" value="50">
-                            </div>
-                            <select id="mazePattern">
-                                <option value="random">Random Walls</option>
-                                <option value="recursive">Recursive Division</option>
-                                <option value="spiral">Spiral</option>
-                                <option value="clear">Clear Grid</option>
-                            </select>
+                <div class="control-group">
+                    <label>Speed</label>
+                    <input type="range" id="pathSpeed" min="1" max="100" value="50">
+                </div>
+                        <select id="mazePattern">
+                            <option value="random">Random Walls</option>
+                            <option value="recursive">Recursive Division</option>
+                            <option value="spiral">Spiral</option>
+                            <option value="clear">Clear Grid</option>
+                        </select>
                             <button id="generateMaze" class="btn btn-secondary">🏗️ Maze</button>
                             <button id="startPath" class="btn btn-primary">▶ Find Path</button>
                             <button id="clearPath" class="btn btn-outline">🧹 Clear</button>
                         </div>
                     </div>
-                    <div class="grid-container" id="pathGrid"></div>
-                    <div class="legend">
-                        <div class="legend-item"><span class="legend-color start"></span>Start</div>
-                        <div class="legend-item"><span class="legend-color end"></span>End</div>
-                        <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
-                        <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
-                        <div class="legend-item"><span class="legend-color path"></span>Path</div>
-                    </div>
+                <div class="grid-container" id="pathGrid"></div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                    <div class="legend-item"><span class="legend-color end"></span>End</div>
+                    <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                    <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                    <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                </div>
                     <div class="stats-row">
                         <div class="stat-item">
                             <span class="stat-label">Nodes Visited:</span>
-                            <span class="stat-value" id="nodesVisited">0</span>
-                        </div>
+                    <span class="stat-value" id="nodesVisited">0</span>
+                </div>
                         <div class="stat-item">
                             <span class="stat-label">Path Length:</span>
-                            <span class="stat-value" id="pathLength">0</span>
+                    <span class="stat-value" id="pathLength">0</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Time:</span>
@@ -352,25 +352,25 @@
 
             <div class="algorithm-selector">
                 <div class="algorithm-grid" id="treeAlgorithms"></div>
-            </div>
+                </div>
 
             <div class="visualization-split">
                 <div class="viz-panel wide">
                     <div class="panel-header">
                         <h3>Tree Visualization</h3>
                         <div class="controls-inline">
-                            <div class="control-group">
-                                <label>Speed</label>
+                <div class="control-group">
+                    <label>Speed</label>
                                 <input type="range" id="treeSpeed" min="1" max="100" value="50">
-                            </div>
+                </div>
                             <input type="number" id="treeValue" placeholder="Value" min="1" max="999">
                             <button id="insertNode" class="btn btn-secondary">➕ Insert</button>
                             <button id="deleteNode" class="btn btn-secondary">➖ Delete</button>
                             <button id="searchNode" class="btn btn-secondary">🔍 Search</button>
                             <button id="traverseTree" class="btn btn-primary">▶ Traverse</button>
                             <button id="clearTree" class="btn btn-outline">🧹 Clear</button>
-                        </div>
-                    </div>
+                </div>
+            </div>
                     <div class="tree-container" id="treeCanvas">
                         <svg id="treeSvg"></svg>
                     </div>
@@ -386,7 +386,7 @@
                         <div class="stat-item">
                             <span class="stat-label">Traversal:</span>
                             <span class="stat-value" id="traversalOrder">-</span>
-                        </div>
+                </div>
                     </div>
                 </div>
 
@@ -462,7 +462,7 @@
                         <div class="stat-item">
                             <span class="stat-label">Speed:</span>
                             <span class="stat-value" id="graphSpeedStat">-</span>
-                        </div>
+                </div>
                     </div>
                 </div>
 
@@ -499,6 +499,10 @@
                     <div class="panel-header">
                         <h3>DP Table Visualization</h3>
                         <div class="controls-inline">
+                <div class="control-group">
+                                <label>Speed</label>
+                                <input type="range" id="dpSpeed" min="1" max="100" value="50">
+                            </div>
                             <input type="text" id="dpInput" placeholder="Enter input..." value="fibonacci: 10">
                             <button id="startDP" class="btn btn-primary">▶ Solve</button>
                             <button id="stepDP" class="btn btn-secondary">⏭ Step</button>
@@ -728,7 +732,7 @@
                     <span>Progress</span>
                     <span>Time</span>
                     <span>Position</span>
-                </div>
+                    </div>
                 <div class="race-tracks" id="raceTracks">
                     <!-- Race tracks will be generated dynamically -->
                 </div>
