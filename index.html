@@ -122,7 +122,12 @@
                             </div>
                             <button id="shuffleArray" class="btn btn-secondary">🔀 Shuffle</button>
                             <button id="startSort" class="btn btn-primary">▶ Visualize</button>
-                            <button id="stopSort" class="btn btn-outline">⏹ Stop</button>
+                            <button id="pauseResumeSort" class="btn btn-outline"
+                                style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏸
+                                Pause</button>
+                            <button id="stopSort" class="btn btn-outline"
+                                style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹
+                                Stop</button>
                         </div>
                     </div>
                     <div class="bars-container" id="sortingBars"></div>
@@ -942,6 +947,20 @@
                 </div>
                 <div class="speed-comparison" id="speedComparison">
                     <!-- Speed comparisons will be shown here -->
+                </div>
+            </div>
+
+            <!-- Complexity Graph Modal (Testing Feature) -->
+            <div class="complexity-graph-modal" id="complexityGraphModal" style="display: none;">
+                <div class="complexity-graph-content">
+                    <div class="testing-badge">🧪 Testing Feature</div>
+                    <h3>Language Performance Analysis</h3>
+                    <p class="testing-message">We are currently testing this feature. Your feedback helps us improve!
+                    </p>
+                    <div class="complexity-graph-container" id="complexityGraphContainer">
+                        <!-- Graph will be rendered here -->
+                    </div>
+                    <button class="btn btn-primary" id="closeComplexityGraph">Back to Results</button>
                 </div>
             </div>
 
