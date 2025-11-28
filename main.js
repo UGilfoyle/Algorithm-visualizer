@@ -1,16 +1,8 @@
-// ========================================
-// Main Application Controller
-// ========================================
-
-// Initialize language icons
 function initLanguageIcons() {
-    // Wait for LANGUAGE_ICONS to be available
     if (typeof LANGUAGE_ICONS === 'undefined') {
         setTimeout(() => initLanguageIcons(), 100);
         return;
     }
-    
-    // Map language names to icon paths
     const langMap = {
         'python': 'python',
         'java': 'java',
@@ -30,11 +22,9 @@ function initLanguageIcons() {
         'elixir': 'elixir'
     };
     
-    // Icon cache to avoid redundant processing
     const processedIcons = new WeakSet();
     
     function injectIcons() {
-        // Update all lang-logo elements with data-lang attribute
         document.querySelectorAll('.lang-logo[data-lang], span[data-lang]').forEach(el => {
             if (processedIcons.has(el)) return;
             
@@ -43,7 +33,6 @@ function initLanguageIcons() {
             
             const iconKey = langMap[lang];
             if (iconKey && LANGUAGE_ICONS[iconKey]) {
-                // Replace with img tag if not already an img
                 if (el.tagName !== 'IMG') {
                     const img = document.createElement('img');
                     img.src = LANGUAGE_ICONS[iconKey];

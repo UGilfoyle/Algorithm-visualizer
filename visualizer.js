@@ -1,21 +1,12 @@
-// ========================================
-// Algorithm Visualizer Engine - Valhalla Edition
-// With proper stop/reset functionality
-// ========================================
-
-// Global stop flag
 let globalStopFlag = false;
-
-// Global time formatter
-// Auto-select best format based on time value
 function getBestTimeFormat(ms) {
-    if (ms >= 86400000) { // >= 1 day
+    if (ms >= 86400000) {
         return 'd';
-    } else if (ms >= 3600000) { // >= 1 hour
+    } else if (ms >= 3600000) {
         return 'h';
-    } else if (ms >= 60000) { // >= 1 minute
+    } else if (ms >= 60000) {
         return 'm';
-    } else if (ms >= 1000) { // >= 1 second
+    } else if (ms >= 1000) {
         return 's';
     }
     return 'ms';
@@ -67,7 +58,6 @@ function formatTimeValue(ms, format = 'ms') {
     }
 }
 
-// Store raw time values for format switching
 let rawTimeValues = {
     sortTime: 0,
     pathTime: 0,
@@ -78,7 +68,6 @@ let rawTimeValues = {
     mathTime: 0
 };
 
-// Function to stop all visualizations
 function stopAllVisualizations() {
     globalStopFlag = true;
     if (sortingVisualizer) sortingVisualizer.stop();
@@ -94,11 +83,6 @@ function stopAllVisualizations() {
     setTimeout(() => { globalStopFlag = false; }, 100);
 }
 
-// Language performance multipliers (higher = slower execution time)
-// Based on real-world benchmarks for typical algorithms
-// Language performance multipliers based on real-world benchmarks
-// Lower multiplier = faster execution time
-// Based on average performance across multiple algorithm types
 const LANGUAGE_SPEED = {
     cpp: 1.0,        // Baseline (fastest) - Native compiled
     rust: 1.0,       // Similar to C++ - Native compiled, zero-cost abstractions
@@ -118,7 +102,6 @@ const LANGUAGE_SPEED = {
     ruby: 11.0       // Interpreted - Slower than Python
 };
 
-// Language icon paths - cached for performance
 let _cachedLanguageIcons = null;
 let _cachedTheme = null;
 
@@ -185,7 +168,6 @@ function getLanguageInfo() {
 const LANGUAGE_ICONS = getLanguageIcons();
 const LANGUAGE_INFO = getLanguageInfo();
 
-// Function to update Rust icons when theme changes - optimized
 function updateRustIcons() {
     // Clear cache to force rebuild
     _cachedLanguageInfo = null;
@@ -209,7 +191,6 @@ function updateRustIcons() {
     }
 }
 
-// ==================== SORTING VISUALIZER ====================
 class SortingVisualizer {
     constructor() {
         this.array = [];
@@ -729,7 +710,6 @@ class SortingVisualizer {
     }
 }
 
-// ==================== PATHFINDING VISUALIZER ====================
 class PathfindingVisualizer {
     constructor() {
         this.grid = [];
@@ -1042,7 +1022,6 @@ class PathfindingVisualizer {
     }
 }
 
-// ==================== LANGUAGE ARENA ====================
 class LanguageArena {
     constructor() {
         this.isRacing = false;
@@ -1246,7 +1225,6 @@ class LanguageArena {
             const speedMultiplier = LANGUAGE_SPEED[lang] || 10;
             
             // Calculate time: base time * language speed multiplier * variance
-            // Lower speed multiplier = faster = lower time
             times[lang] = baseTime * speedMultiplier * variance;
             
             // Ensure minimum time for very fast operations
@@ -1290,7 +1268,6 @@ class LanguageArena {
     }
 
     getBaseTime() {
-        // Base time calculations based on algorithm complexity
         // Times are in milliseconds, scaled by iterations
         const iter = this.iterations;
         
@@ -1346,15 +1323,13 @@ class LanguageArena {
                 for (let i = 2; i <= n; i++) fact *= i;
                 return fact * 0.1;
             
-            // Graph algorithms
             case 'graphBFS':
                 return iter * 0.0002; // BFS traversal
             case 'graphDFS':
                 return iter * 0.00015; // DFS traversal
             case 'dijkstra':
-                return iter * iter * 0.00002; // Dijkstra's algorithm
+                return iter * iter * 0.00002;
             
-            // String algorithms
             case 'stringSearch':
                 return iter * 0.00003; // String pattern matching
             case 'stringHash':
@@ -1436,7 +1411,6 @@ class LanguageArena {
                     const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
                     const bestFormat = getBestTimeFormat(time);
                     
-                    // Always auto-select best format for large values (>= 1 minute)
                     if (formatSelect && time >= 60000) {
                         formatSelect.value = bestFormat;
                     }
@@ -1527,7 +1501,6 @@ class LanguageArena {
     }
 }
 
-// ==================== SEARCHING VISUALIZER ====================
 class SearchingVisualizer {
     constructor() {
         this.array = [];
@@ -1701,7 +1674,6 @@ class SearchingVisualizer {
     }
 }
 
-// ==================== TREE VISUALIZER ====================
 class TreeVisualizer {
     constructor() {
         this.root = null;
@@ -1897,7 +1869,6 @@ class TreeVisualizer {
     }
 }
 
-// ==================== GRAPH VISUALIZER ====================
 class GraphVisualizer {
     constructor() {
         this.nodes = [];
@@ -2093,7 +2064,6 @@ class GraphVisualizer {
     }
 }
 
-// ==================== DP VISUALIZER ====================
 class DPVisualizer {
     constructor() {
         this.container = document.getElementById('dpTable');
