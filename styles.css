@@ -1703,9 +1703,30 @@ select:focus {
     height: auto;
 }
 
-#closeComplexityGraph {
-    width: 100%;
-    margin-top: var(--spacing-lg);
+.close-complexity-graph {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 35px;
+    height: 35px;
+    border: none;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 28px;
+    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.close-complexity-graph:hover {
+    background: var(--mist);
+    transform: scale(1.1);
+    color: var(--gold);
 }
 
 .speed-bar {

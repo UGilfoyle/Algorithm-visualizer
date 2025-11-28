@@ -1710,16 +1710,20 @@ class LanguageArena {
         // Show modal
         modal.style.display = 'flex';
         
-        // Auto-close after 5 seconds and return to results
-        setTimeout(() => {
-            this.hideComplexityGraph();
-        }, 5000);
-        
-        // Close button handler
-        const closeBtn = document.getElementById('closeComplexityGraph');
+        // Close button handler (X icon)
+        const closeBtn = document.getElementById('closeComplexityGraphX');
         if (closeBtn) {
-            closeBtn.onclick = () => this.hideComplexityGraph();
+            // Remove old handlers
+            closeBtn.onclick = null;
+            closeBtn.addEventListener('click', () => this.hideComplexityGraph());
         }
+        
+        // Also close on backdrop click
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                this.hideComplexityGraph();
+            }
+        };
     }
 
     hideComplexityGraph() {
@@ -1765,59 +1769,84 @@ class LanguageArena {
 
     renderComplexityGraph(algo) {
         const langInfo = getLanguageInfo();
-        const fastest = this.results[0].time;
+        const maxTime = Math.max(...this.results.map(r => r.time));
+        const minTime = Math.min(...this.results.map(r => r.time));
         
-        // Create SVG graph
-        const width = 600;
-        const height = 400;
-        const padding = 60;
-        const chartWidth = width - padding * 2;
-        const chartHeight = height - padding * 2;
+        // Create SVG line graph
+        const width = 700;
+        const height = 450;
+        const padding = { top: 50, right: 80, bottom: 80, left: 80 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
         
-        let svg = `<svg width="${width}" height="${height}" style="background: var(--bg-card); border-radius: var(--radius-lg);">
+        let svg = `<svg width="${width}" height="${height}" style="background: transparent;">
             <defs>
-                <linearGradient id="timeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style="stop-color:#d4a574;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#93c5fd;stop-opacity:1" />
                     <stop offset="100%" style="stop-color:#8b6914;stop-opacity:1" />
                 </linearGradient>
-                <linearGradient id="spaceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
-                </linearGradient>
             </defs>
-            <text x="${width/2}" y="30" text-anchor="middle" fill="var(--text-primary)" font-size="18" font-weight="bold">${algo.name} - Performance Analysis</text>
-            <text x="${width/2}" y="50" text-anchor="middle" fill="var(--text-secondary)" font-size="12">Time: ${algo.time} | Space: ${algo.space}</text>
-        `;
+            
+            <text x="${width/2}" y="25" text-anchor="middle" fill="var(--text-primary)" font-size="18" font-weight="bold">${algo.name} - Performance Analysis</text>
+            <text x="${width/2}" y="45" text-anchor="middle" fill="var(--text-secondary)" font-size="12">Time: ${algo.time} | Space: ${algo.space}</text>
+            
+            <rect x="${padding.left}" y="${padding.top}" width="${chartWidth}" height="${chartHeight}" 
+                  fill="var(--bg-tertiary)" rx="8" opacity="0.3"/>`;
         
-        // Draw bars for each language
-        const maxTime = Math.max(...this.results.map(r => r.time));
-        const barWidth = chartWidth / (this.results.length * 2 + 1);
-        const maxBarHeight = chartHeight * 0.8;
+        // Grid lines
+        for (let i = 0; i <= 5; i++) {
+            const y = padding.top + (chartHeight / 5) * i;
+            svg += `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" 
+                     stroke="var(--border-color)" stroke-width="1" opacity="0.3"/>`;
+        }
         
-        this.results.forEach((result, idx) => {
+        // Calculate points for line graph
+        const points = [];
+        const sortedResults = [...this.results].sort((a, b) => a.time - b.time);
+        
+        sortedResults.forEach((result, idx) => {
             const info = langInfo[result.lang];
             if (!info) return;
             
-            const x = padding + (idx * 2 + 1) * barWidth;
-            const timeHeight = (result.time / maxTime) * maxBarHeight;
-            const spaceHeight = (result.time / maxTime) * maxBarHeight * 0.7; // Space is relative
+            const x = padding.left + (sortedResults.length > 1 ? (chartWidth / (sortedResults.length - 1)) * idx : chartWidth / 2);
+            const y = padding.top + chartHeight - ((result.time - minTime) / (maxTime - minTime || 1)) * chartHeight;
+            points.push({ x, y, result, info });
+        });
+        
+        // Draw line
+        if (points.length > 1) {
+            let pathData = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                pathData += ` L ${points[i].x} ${points[i].y}`;
+            }
             
-            // Time complexity bar
-            svg += `<rect x="${x}" y="${padding + maxBarHeight - timeHeight}" 
-                     width="${barWidth * 0.8}" height="${timeHeight}" 
-                     fill="url(#timeGradient)" opacity="0.8" />
-                     <text x="${x + barWidth * 0.4}" y="${padding + maxBarHeight + 15}" 
-                     text-anchor="middle" fill="var(--text-primary)" font-size="10">${info.symbol}</text>
-                     <text x="${x + barWidth * 0.4}" y="${padding + maxBarHeight - timeHeight - 5}" 
-                     text-anchor="middle" fill="var(--text-primary)" font-size="9">${result.displayTime}</text>`;
+            svg += `<path d="${pathData}" fill="none" stroke="url(#lineGradient)" stroke-width="3" 
+                     stroke-linecap="round" stroke-linejoin="round"/>`;
+        }
+        
+        // Draw points and labels
+        points.forEach((point) => {
+            // Point circle
+            svg += `<circle cx="${point.x}" cy="${point.y}" r="6" fill="${point.info.color}" 
+                     stroke="var(--bg-primary)" stroke-width="2"/>`;
+            
+            // Language symbol below
+            svg += `<text x="${point.x}" y="${padding.top + chartHeight + 20}" 
+                     text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="600">${point.info.symbol}</text>`;
+            
+            // Time value above point
+            svg += `<text x="${point.x}" y="${point.y - 10}" 
+                     text-anchor="middle" fill="var(--text-secondary)" font-size="9">${point.result.displayTime}</text>`;
         });
         
         // Y-axis label
-        svg += `<text x="20" y="${height/2}" text-anchor="middle" fill="var(--text-secondary)" font-size="12" transform="rotate(-90, 20, ${height/2})">Execution Time</text>`;
+        svg += `<text x="25" y="${height/2}" text-anchor="middle" fill="var(--text-secondary)" 
+                 font-size="12" transform="rotate(-90, 25, ${height/2})">Execution Time</text>`;
         
-        // Legend
-        svg += `<rect x="${width - 150}" y="${height - 80}" width="15" height="15" fill="url(#timeGradient)" />
-                <text x="${width - 130}" y="${height - 68}" fill="var(--text-primary)" font-size="11">Time Complexity</text>`;
+        // X-axis label
+        svg += `<text x="${width/2}" y="${height - 20}" text-anchor="middle" 
+                 fill="var(--text-secondary)" font-size="12">Languages (sorted by performance)</text>`;
         
         svg += `</svg>`;
         
