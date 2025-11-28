@@ -79,10 +79,8 @@
                     if (geoData.countryName) locationData.country = geoData.countryName;
                     if (geoData.city) locationData.city = geoData.city;
                 } catch (e) {
-                    console.log('Reverse geocoding failed');
                 }
             } catch (e) {
-                console.log('Geolocation failed, trying IP-based');
             }
         }
 
@@ -151,7 +149,6 @@
             localStorage.setItem(DEVICE_INFO_KEY, JSON.stringify(deviceInfo));
             localStorage.setItem(LOCATION_INFO_KEY, JSON.stringify(locationInfo));
         } catch (e) {
-            console.log('Failed to save visitor data:', e);
         }
     }
 
@@ -179,7 +176,6 @@
 
             return await response.json();
         } catch (error) {
-            console.log('Database sync failed, using localStorage only:', error);
             return null;
         }
     }
@@ -203,7 +199,6 @@
 
             return await response.json();
         } catch (error) {
-            console.log('Failed to fetch stats from database:', error);
             return null;
         }
     }
