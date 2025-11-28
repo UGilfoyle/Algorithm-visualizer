@@ -1207,7 +1207,6 @@ class LanguageArena {
         const startBtn = document.getElementById('startRace');
         const resetBtn = document.getElementById('resetRace');
         const selectAllBtn = document.getElementById('selectAllLanguages');
-        const deselectAllBtn = document.getElementById('deselectAllLanguages');
         const iterSelect = document.getElementById('arenaIterations');
         const algoSelect = document.getElementById('arenaAlgorithm');
         const langCheckboxes = document.querySelectorAll('#languageSelection input');
@@ -1216,21 +1215,27 @@ class LanguageArena {
         if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
         
         if (selectAllBtn) {
+            const updateSelectAllButton = () => {
+                const allChecked = Array.from(langCheckboxes).every(cb => cb.checked);
+                selectAllBtn.textContent = allChecked ? 'Deselect All' : 'Select All';
+            };
+            
             selectAllBtn.addEventListener('click', () => {
-                langCheckboxes.forEach(cb => cb.checked = true);
+                const allChecked = Array.from(langCheckboxes).every(cb => cb.checked);
+                langCheckboxes.forEach(cb => cb.checked = !allChecked);
                 this.updateSelectedLanguages();
                 this.renderTracks();
                 this.setupTimeFormatListeners();
+                updateSelectAllButton();
             });
-        }
-        
-        if (deselectAllBtn) {
-            deselectAllBtn.addEventListener('click', () => {
-                langCheckboxes.forEach(cb => cb.checked = false);
-                this.updateSelectedLanguages();
-                this.renderTracks();
-                this.setupTimeFormatListeners();
+            
+            langCheckboxes.forEach(cb => {
+                cb.addEventListener('change', () => {
+                    updateSelectAllButton();
+                });
             });
+            
+            updateSelectAllButton();
         }
 
         if (iterSelect) {
