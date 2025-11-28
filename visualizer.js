@@ -70,20 +70,20 @@ const LANGUAGE_SPEED = {
 };
 
 const LANGUAGE_INFO = {
-    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e' },
-    python: { name: 'Python', symbol: 'PY', color: '#3776ab' },
-    java: { name: 'Java', symbol: 'JV', color: '#007396' },
-    cpp: { name: 'C++', symbol: 'C++', color: '#00599c' },
-    csharp: { name: 'C#', symbol: 'C#', color: '#239120' },
-    go: { name: 'Go', symbol: 'GO', color: '#00add8' },
-    rust: { name: 'Rust', symbol: 'RS', color: '#dea584' },
-    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d' },
-    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4' },
-    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e' },
-    node: { name: 'Node.js', symbol: 'ND', color: '#339933' },
-    deno: { name: 'Deno', symbol: 'DN', color: '#000000' },
-    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF' },
-    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343' }
+    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', logoClass: 'js-logo' },
+    python: { name: 'Python', symbol: 'PY', color: '#3776ab', logoClass: 'python-logo' },
+    java: { name: 'Java', symbol: 'JV', color: '#007396', logoClass: 'java-logo' },
+    cpp: { name: 'C++', symbol: 'C++', color: '#00599c', logoClass: 'cpp-logo' },
+    csharp: { name: 'C#', symbol: 'C#', color: '#239120', logoClass: 'csharp-logo' },
+    go: { name: 'Go', symbol: 'GO', color: '#00add8', logoClass: 'go-logo' },
+    rust: { name: 'Rust', symbol: 'RS', color: '#dea584', logoClass: 'rust-logo' },
+    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', logoClass: 'ruby-logo' },
+    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', logoClass: 'php-logo' },
+    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', logoClass: 'elixir-logo' },
+    node: { name: 'Node.js', symbol: 'ND', color: '#339933', logoClass: 'node-logo' },
+    deno: { name: 'Deno', symbol: 'DN', color: '#000000', logoClass: 'deno-logo' },
+    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', logoClass: 'kotlin-logo' },
+    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', logoClass: 'swift-logo' }
 };
 
 // ==================== SORTING VISUALIZER ====================
@@ -790,12 +790,12 @@ class LanguageArena {
             track.id = `track-${lang}`;
             track.innerHTML = `
                 <div class="track-lang">
-                    <span class="lang-symbol" style="color: ${info.color}">${info.symbol}</span>
+                    <span class="lang-logo ${info.logoClass || 'python-logo'}" style="background: ${info.color};"></span>
                     <span class="lang-name">${info.name}</span>
                 </div>
                 <div class="track-bar">
                     <div class="track-runner" id="runner-${lang}" style="background: ${info.color}; border-color: ${info.color}">
-                        <span class="runner-symbol">${info.symbol}</span>
+                        <span class="lang-logo ${info.logoClass || 'python-logo'} runner-logo"></span>
                     </div>
                 </div>
                 <div class="track-time" id="time-${lang}">

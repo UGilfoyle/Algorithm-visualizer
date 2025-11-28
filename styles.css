@@ -1042,6 +1042,63 @@ select:focus {
     pointer-events: none;
 }
 
+.js-logo {
+    background: #f7df1e;
+    border-radius: 3px;
+    position: relative;
+}
+
+.js-logo::before {
+    content: 'JS';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 7px;
+    font-weight: bold;
+    color: #000000;
+    line-height: 1;
+    font-family: Arial, sans-serif;
+}
+
+.php-logo {
+    background: linear-gradient(135deg, #777bb4 0%, #4f5b93 100%);
+    border-radius: 3px;
+    position: relative;
+}
+
+.php-logo::before {
+    content: 'PHP';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 6px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    font-family: Arial, sans-serif;
+}
+
+.elixir-logo {
+    background: linear-gradient(135deg, #6e4a7e 0%, #4e2d5c 100%);
+    border-radius: 3px;
+    position: relative;
+}
+
+.elixir-logo::before {
+    content: '~';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    font-family: Arial, sans-serif;
+}
+
 .code-container {
     position: relative;
     background: var(--bg-secondary);
@@ -1340,6 +1397,14 @@ select:focus {
     gap: var(--spacing-sm);
 }
 
+.track-lang .lang-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: inline-block;
+    flex-shrink: 0;
+}
+
 .track-lang .lang-symbol {
     width: 32px;
     height: 32px;
@@ -1386,6 +1451,12 @@ select:focus {
     z-index: 10;
     left: 0;
     transform: translateX(0);
+}
+
+.track-runner .runner-logo {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
 }
 
 .track-runner .runner-symbol {
