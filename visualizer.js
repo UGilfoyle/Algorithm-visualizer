@@ -1636,20 +1636,25 @@ class LanguageArena {
         // Always populate results first
         this.populateResults();
 
-        // Check if we should show complexity graph (2 times per session)
+        // Check if we should show complexity graph (5 times per session, unlimited on localhost)
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const graphShownKey = 'complexityGraphShown';
         let graphShownCount = parseInt(sessionStorage.getItem(graphShownKey) || '0');
         
-        if (graphShownCount < 2) {
+        // Show graph if: localhost (unlimited) OR less than 5 times
+        if (isLocalhost || graphShownCount < 5) {
             // Show the complexity graph first, then results after it closes
             this.showComplexityGraph();
-            graphShownCount++;
-            sessionStorage.setItem(graphShownKey, graphShownCount.toString());
+            // Only increment counter if not localhost
+            if (!isLocalhost) {
+                graphShownCount++;
+                sessionStorage.setItem(graphShownKey, graphShownCount.toString());
+            }
             // Results will be shown after graph closes (in hideComplexityGraph)
             return;
         }
 
-        // Show results directly if graph already shown 2 times
+        // Show results directly if graph already shown 5 times (and not localhost)
         resultsEl.style.display = 'block';
     }
 
