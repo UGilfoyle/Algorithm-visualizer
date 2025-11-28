@@ -219,8 +219,6 @@ class App {
                     if (typeof dpVisualizer !== 'undefined' && dpVisualizer) {
                         if (dpVisualizer.reset) {
                             dpVisualizer.reset();
-                        } else {
-                            dpVisualizer.showFibonacci(10);
                         }
                     }
                     break;

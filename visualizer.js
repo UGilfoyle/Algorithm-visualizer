@@ -2448,7 +2448,8 @@ class DPVisualizer {
 
     init() {
         this.bindEvents();
-        this.showFibonacci(10);
+        // Don't auto-start, just initialize empty state
+        this.reset();
     }
 
     stop() {
@@ -2466,7 +2467,7 @@ class DPVisualizer {
         this.maxN = 0;
         this.stepMode = false;
         
-        // Reset visual state
+        // Reset visual state - clear container, don't auto-start
         if (this.container) {
             this.container.innerHTML = '';
         }
@@ -2480,8 +2481,7 @@ class DPVisualizer {
         if (resEl) resEl.textContent = '-';
         if (timeEl) timeEl.textContent = '0ms';
         
-        // Show initial state
-        this.showFibonacci(10);
+        // Don't auto-start - wait for user to click Solve or Step
     }
 
     bindEvents() {
