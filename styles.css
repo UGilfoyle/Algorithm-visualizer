@@ -239,14 +239,83 @@ body {
     background: none;
     border: none;
     color: var(--text-primary);
-    font-size: 1.2rem;
     cursor: pointer;
     padding: 0.25rem;
     transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
 }
 
 .audio-toggle:hover {
     transform: scale(1.1);
+}
+
+.volume-icon {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Volume levels - show different waves based on volume */
+.volume-icon.volume-muted .wave {
+    opacity: 0 !important;
+}
+
+.volume-icon.volume-low .wave-1 {
+    opacity: 1;
+}
+
+.volume-icon.volume-low .wave-2,
+.volume-icon.volume-low .wave-3 {
+    opacity: 0;
+}
+
+.volume-icon.volume-medium .wave-1,
+.volume-icon.volume-medium .wave-2 {
+    opacity: 1;
+}
+
+.volume-icon.volume-medium .wave-3 {
+    opacity: 0;
+}
+
+.volume-icon.volume-high .wave-1,
+.volume-icon.volume-high .wave-2,
+.volume-icon.volume-high .wave-3 {
+    opacity: 1;
+}
+
+/* Animation for sound waves */
+.volume-icon.volume-low .wave-1,
+.volume-icon.volume-medium .wave-1,
+.volume-icon.volume-medium .wave-2,
+.volume-icon.volume-high .wave-1,
+.volume-icon.volume-high .wave-2,
+.volume-icon.volume-high .wave-3 {
+    animation: soundWave 1.5s ease-in-out infinite;
+}
+
+.volume-icon.volume-medium .wave-2,
+.volume-icon.volume-high .wave-2 {
+    animation-delay: 0.2s;
+}
+
+.volume-icon.volume-high .wave-3 {
+    animation-delay: 0.4s;
+}
+
+@keyframes soundWave {
+    0%, 100% {
+        opacity: 0.3;
+        transform: translateX(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(2px);
+    }
 }
 
 #volumeSlider {

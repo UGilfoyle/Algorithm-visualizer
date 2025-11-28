@@ -439,19 +439,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioToggle = document.getElementById('audioToggle');
     const volumeSlider = document.getElementById('volumeSlider');
 
+    function updateVolumeIcon(volume, isMuted) {
+        const volumeIcon = document.querySelector('.volume-icon');
+        if (!volumeIcon) return;
+        
+        // Remove all volume classes
+        volumeIcon.classList.remove('volume-muted', 'volume-low', 'volume-medium', 'volume-high');
+        
+        if (isMuted || volume === 0) {
+            volumeIcon.classList.add('volume-muted');
+        } else if (volume <= 33) {
+            volumeIcon.classList.add('volume-low');
+        } else if (volume <= 66) {
+            volumeIcon.classList.add('volume-medium');
+        } else {
+            volumeIcon.classList.add('volume-high');
+        }
+    }
+
     if (audioToggle) {
         audioToggle.addEventListener('click', () => {
             const isEnabled = audioEngine.toggle();
-            const audioOn = audioToggle.querySelector('.audio-on');
-            const audioOff = audioToggle.querySelector('.audio-off');
-            if (audioOn) audioOn.style.display = isEnabled ? 'inline' : 'none';
-            if (audioOff) audioOff.style.display = isEnabled ? 'none' : 'inline';
+            const volumeIcon = document.querySelector('.volume-icon');
+            const volumeValue = volumeSlider ? parseInt(volumeSlider.value) : 50;
+            
+            if (volumeIcon) {
+                updateVolumeIcon(volumeValue, !isEnabled);
+            }
         });
     }
 
     if (volumeSlider) {
+        // Initialize volume icon on load
+        const initialVolume = parseInt(volumeSlider.value);
+        updateVolumeIcon(initialVolume, !audioEngine.isEnabled);
+        
         volumeSlider.addEventListener('input', (e) => {
-            audioEngine.setVolume(e.target.value);
+            const volume = parseInt(e.target.value);
+            audioEngine.setVolume(volume);
+            updateVolumeIcon(volume, !audioEngine.isEnabled);
         });
     }
 });

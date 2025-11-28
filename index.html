@@ -48,8 +48,14 @@
         <!-- Audio Controls -->
         <div class="audio-controls" id="audioControls">
             <button class="audio-toggle" id="audioToggle" title="Toggle Sound">
-                <span class="audio-on">🔊</span>
-                <span class="audio-off" style="display:none">🔇</span>
+                <svg class="volume-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <!-- Speaker base -->
+                    <path d="M3 9v6h4l5 5V4L7 9H3z"/>
+                    <!-- Sound waves - will be animated based on volume -->
+                    <path class="wave wave-1" d="M14 3v18M17 6v12M20 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0"/>
+                    <path class="wave wave-2" d="M14 3v18M17 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0"/>
+                    <path class="wave wave-3" d="M14 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0"/>
+                </svg>
             </button>
             <input type="range" id="volumeSlider" min="0" max="100" value="50" title="Volume">
         </div>
@@ -99,7 +105,7 @@
                 <h1>Sorting Algorithms</h1>
                 <p>Visualize 15+ sorting algorithms with sound</p>
             </div>
-
+            
             <div class="algorithm-selector">
                 <div class="algorithm-grid" id="sortingAlgorithms">
                     <!-- Algorithms will be populated by JS -->
@@ -111,7 +117,7 @@
                     <div class="panel-header">
                         <h3>Visualization</h3>
                         <div class="controls-inline">
-                            <div class="control-group">
+                <div class="control-group">
                                 <label>Size</label>
                                 <input type="range" id="arraySize" min="10" max="9999" value="30">
                                 <span id="arraySizeValue">30</span>
@@ -148,8 +154,8 @@
                                         <option value="insertionSort">Insertion Sort</option>
                                         <option value="selectionSort">Selection Sort</option>
                                         <option value="heapSort">Heap Sort</option>
-                                    </select>
-                                </div>
+                        </select>
+                    </div>
                                 <div class="compare-selector">
                                     <label>Language 1:</label>
                                     <select id="compareLang1" class="compare-select">
@@ -160,7 +166,7 @@
                                         <option value="go">Go</option>
                                         <option value="rust">Rust</option>
                                     </select>
-                                </div>
+                </div>
                                 <div class="compare-selector">
                                     <label>Algorithm 2:</label>
                                     <select id="compareAlgo2" class="compare-select">
@@ -351,12 +357,12 @@
                         <h3>Visualization</h3>
                         <div class="controls-inline" style="position: relative;">
                             <button id="searchInfoBtn" class="info-icon-btn" title="Show array info">i</button>
-                            <div class="control-group">
+                <div class="control-group">
                                 <label>Size</label>
                                 <input type="range" id="searchArraySize" min="10" max="9999" value="20">
                                 <span id="searchArraySizeValue">20</span>
-                            </div>
-                            <div class="control-group">
+                </div>
+                <div class="control-group">
                                 <label>Target</label>
                                 <input type="number" id="searchTarget" min="1" max="100" value="42">
                             </div>
@@ -585,24 +591,24 @@
                                 <label>Speed <span id="pathSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="pathSpeed" min="25" max="100" value="50">
                             </div>
-                            <select id="mazePattern">
-                                <option value="random">Random Walls</option>
-                                <option value="recursive">Recursive Division</option>
-                                <option value="spiral">Spiral</option>
-                                <option value="clear">Clear Grid</option>
-                            </select>
+                        <select id="mazePattern">
+                            <option value="random">Random Walls</option>
+                            <option value="recursive">Recursive Division</option>
+                            <option value="spiral">Spiral</option>
+                            <option value="clear">Clear Grid</option>
+                        </select>
                             <button id="generateMaze" class="btn btn-secondary">🏗️ Maze</button>
                             <button id="startPath" class="btn btn-primary">▶ Find Path</button>
                             <button id="clearPath" class="btn btn-outline">🧹 Clear</button>
                             <button id="togglePathCompare" class="btn btn-outline">⚔️ Compare</button>
-                        </div>
                     </div>
+                </div>
                     <div id="pathCompareControls" class="compare-controls" style="display: none;">
                         <div class="compare-selectors">
                             <div class="compare-selector">
                                 <label>Algorithm 1:</label>
                                 <select id="pathCompareAlgo1" class="compare-select"></select>
-                            </div>
+                </div>
                             <div class="compare-selector">
                                 <label>Language 1:</label>
                                 <select id="pathCompareLang1" class="compare-select">
@@ -618,7 +624,7 @@
                                     <option value="csharp">C#</option>
                                     <option value="kotlin">Kotlin</option>
                                 </select>
-                            </div>
+            </div>
                             <div class="compare-selector">
                                 <label>Algorithm 2:</label>
                                 <select id="pathCompareAlgo2" class="compare-select"></select>
@@ -652,18 +658,18 @@
                         <div class="compare-panel">
                             <h4 id="pathCompareAlgo1Name">Algorithm 1</h4>
                             <div class="grid-container compare-grid" id="pathGrid1"></div>
-                            <div class="legend">
-                                <div class="legend-item"><span class="legend-color start"></span>Start</div>
-                                <div class="legend-item"><span class="legend-color end"></span>End</div>
-                                <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
-                                <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
-                                <div class="legend-item"><span class="legend-color path"></span>Path</div>
-                            </div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                    <div class="legend-item"><span class="legend-color end"></span>End</div>
+                    <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                    <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                    <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                </div>
                             <div class="stats-row">
                                 <div class="stat-item">
                                     <span class="stat-label">Nodes Visited:</span>
                                     <span class="stat-value" id="nodesVisited1">0</span>
-                                </div>
+            </div>
                                 <div class="stat-item">
                                     <span class="stat-label">Path Length:</span>
                                     <span class="stat-value" id="pathLength1">0</span>
@@ -712,12 +718,12 @@
                         <div class="stats-row" id="pathRegularStatsRow">
                             <div class="stat-item">
                                 <span class="stat-label">Nodes Visited:</span>
-                                <span class="stat-value" id="nodesVisited">0</span>
-                            </div>
+                    <span class="stat-value" id="nodesVisited">0</span>
+                </div>
                             <div class="stat-item">
                                 <span class="stat-label">Path Length:</span>
-                                <span class="stat-value" id="pathLength">0</span>
-                            </div>
+                    <span class="stat-value" id="pathLength">0</span>
+                </div>
                             <div class="stat-item">
                                 <span class="stat-label">Time:</span>
                                 <span class="stat-value" id="pathTime">0ms</span>
@@ -775,10 +781,10 @@
                         <h3>Tree Visualization</h3>
                         <div class="controls-inline" style="position: relative;">
                             <button id="treeInfoBtn" class="info-icon-btn" title="Show tree info">i</button>
-                            <div class="control-group">
+                <div class="control-group">
                                 <label>Speed <span id="treeSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="treeSpeed" min="25" max="100" value="50">
-                            </div>
+                </div>
                             <input type="number" id="treeValue" placeholder="Value" min="1" max="999">
                             <button id="insertNode" class="btn btn-secondary">➕ Insert</button>
                             <button id="deleteNode" class="btn btn-secondary">➖ Delete</button>
@@ -962,10 +968,10 @@
                         <h3>Graph Visualization</h3>
                         <div class="controls-inline" style="position: relative;">
                             <button id="graphInfoBtn" class="info-icon-btn" title="Show graph info">i</button>
-                            <div class="control-group">
+                <div class="control-group">
                                 <label>Speed <span id="graphSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="graphSpeed" min="25" max="100" value="50">
-                            </div>
+                </div>
                             <select id="graphType">
                                 <option value="random">Random Graph</option>
                                 <option value="complete">Complete Graph</option>
@@ -1105,8 +1111,8 @@
                                 <span class="stat-value" id="graphSpeedStat">-</span>
                             </div>
                         </div>
-                    </div>
                 </div>
+            </div>
 
                 <div class="code-panel narrow">
                     <div class="panel-header">
@@ -1139,13 +1145,13 @@
                             <button class="lang-tab" data-lang="csharp"><img src="icons/csharp.svg" alt="csharp"
                                     class="lang-icon-img" />
                                 C#</button>
-                        </div>
                     </div>
+                </div>
                     <div class="code-container">
                         <pre><code id="graphCodeDisplay" class="language-javascript"></code></pre>
                     </div>
                 </div>
-            </div>
+                    </div>
         </section>
 
         <!-- Dynamic Programming Section -->
@@ -1153,11 +1159,11 @@
             <div class="section-header">
                 <h1>Dynamic Programming</h1>
                 <p>Understand 20+ DP problems visually</p>
-            </div>
+                </div>
 
             <div class="algorithm-selector">
                 <div class="algorithm-grid" id="dpAlgorithms"></div>
-            </div>
+                    </div>
 
             <div class="visualization-split">
                 <div class="viz-panel wide">
@@ -1168,19 +1174,19 @@
                             <div class="control-group">
                                 <label>Speed <span id="dpSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="dpSpeed" min="25" max="100" value="50">
-                            </div>
+                </div>
                             <input type="text" id="dpInput" placeholder="Enter input..." value="fibonacci: 10">
                             <button id="startDP" class="btn btn-primary">▶ Solve</button>
                             <button id="stepDP" class="btn btn-secondary">⏭ Step</button>
                             <button id="toggleDPCompare" class="btn btn-outline">⚔️ Compare</button>
-                        </div>
                     </div>
+                </div>
                     <div id="dpCompareControls" class="compare-controls" style="display: none;">
                         <div class="compare-selectors">
                             <div class="compare-selector">
                                 <label>Algorithm 1:</label>
                                 <select id="dpCompareAlgo1" class="compare-select"></select>
-                            </div>
+                    </div>
                             <div class="compare-selector">
                                 <label>Language 1:</label>
                                 <select id="dpCompareLang1" class="compare-select">
@@ -1419,10 +1425,10 @@
                     <div class="panel-header">
                         <h3>Maths Visualization</h3>
                         <div class="controls-inline">
-                            <div class="control-group">
+                <div class="control-group">
                                 <label>Speed <span id="mathSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="mathSpeed" min="25" max="100" value="50">
-                            </div>
+                </div>
                             <input type="number" id="mathInput1" placeholder="Number 1" value="48">
                             <input type="number" id="mathInput2" placeholder="Number 2" value="18">
                             <button id="startMath" class="btn btn-primary">▶ Calculate</button>
@@ -1449,8 +1455,8 @@
                                 <option value="d">day</option>
                             </select>
                         </div>
-                    </div>
                 </div>
+            </div>
 
                 <div class="code-panel narrow">
                     <div class="panel-header">
@@ -1468,13 +1474,13 @@
                             <button class="lang-tab" data-lang="deno"><img src="icons/deno.png" alt="deno"
                                     class="lang-icon-img" />
                                 Deno</button>
-                        </div>
+                    </div>
                     </div>
                     <div class="code-container">
                         <pre><code id="mathCodeDisplay" class="language-javascript"></code></pre>
-                    </div>
                 </div>
-            </div>
+                    </div>
+                    </div>
         </section>
 
         <!-- Programming War Arena Section -->
@@ -1482,7 +1488,7 @@
             <div class="section-header">
                 <h1>PROGRAMMING LANGUAGE ARENA</h1>
                 <p>Battle of the languages! See which one runs fastest</p>
-            </div>
+                </div>
 
             <div class="arena-controls">
                 <div class="control-group">
@@ -1524,7 +1530,7 @@
                             <option value="stringHash">String Hashing</option>
                         </optgroup>
                     </select>
-                </div>
+                    </div>
                 <div class="control-group">
                     <label>Iterations / Input Size</label>
                     <select id="arenaIterations">
@@ -1536,14 +1542,14 @@
                         <option value="100000000">100,000,000 (100M)</option>
                         <option value="1000000000">1,000,000,000 (1B)</option>
                     </select>
-                </div>
+                    </div>
                 <div class="control-group">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
                         <label>Select Languages to Race</label>
                         <button type="button" id="selectAllLanguages" class="btn btn-small btn-outline">Select
                             All</button>
-                    </div>
+                </div>
                     <div class="language-checkboxes" id="languageSelection">
                         <label class="lang-checkbox"><input type="checkbox" value="javascript"><img
                                 src="icons/javascript.svg" alt="JavaScript" class="lang-icon-img" loading="lazy" />
@@ -1579,14 +1585,14 @@
                         <label class="lang-checkbox"><input type="checkbox" value="bash"><img src="icons/bash.svg"
                                 alt="Bash" class="lang-icon-img" loading="lazy" /> Bash</label>
                     </div>
-                </div>
+                    </div>
                 <div class="btn-group">
                     <button id="startRace" class="btn btn-primary btn-large">
                         START RACE
                     </button>
                     <button id="resetRace" class="btn btn-outline">Reset</button>
                 </div>
-            </div>
+                    </div>
 
             <div class="race-arena">
                 <div class="race-track-header">
@@ -1594,11 +1600,11 @@
                     <span>Progress</span>
                     <span>Time</span>
                     <span>Position</span>
-                </div>
+                    </div>
                 <div class="race-tracks" id="raceTracks">
                     <!-- Race tracks will be generated dynamically -->
                 </div>
-            </div>
+                    </div>
 
             <div class="arena-results" id="arenaResults" style="display: none;">
                 <h3>RACE RESULTS</h3>
