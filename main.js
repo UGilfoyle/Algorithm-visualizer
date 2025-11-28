@@ -226,7 +226,7 @@ class App {
     
     onSectionChange(sectionId) {
         setTimeout(() => {
-            switch (sectionId) {
+        switch (sectionId) {
                 case 'sorting':
                     if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
                         sortingVisualizer.stop();
@@ -239,7 +239,7 @@ class App {
                         searchingVisualizer.generateArray();
                     }
                     break;
-                case 'pathfinding':
+            case 'pathfinding':
                     if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
                         pathfindingVisualizer.stop();
                         pathfindingVisualizer.shouldStop = true;
@@ -290,7 +290,7 @@ class App {
                             stringVisualizer.render();
                         }, 100);
                     }
-                    break;
+                break;
                 case 'math':
                     if (typeof mathVisualizer !== 'undefined' && mathVisualizer) {
                         if (mathVisualizer.stop) mathVisualizer.stop();
@@ -306,14 +306,14 @@ class App {
                             const mathTime = document.getElementById('mathTime');
                             if (mathTime) mathTime.textContent = '0ms';
                         }, 100);
-                    }
-                    break;
+                }
+                break;
                 case 'arena':
                     if (typeof languageArena !== 'undefined' && languageArena) {
                         languageArena.reset();
-                    }
-                    break;
-            }
+                }
+                break;
+        }
             this.loadAlgorithmInfo();
         }, 150);
     }
@@ -395,6 +395,36 @@ class App {
             });
 
             container.appendChild(btn);
+        });
+        
+        // Populate comparison algorithm dropdowns
+        this.populateComparisonDropdowns(category);
+    }
+    
+    populateComparisonDropdowns(category) {
+        if (!ALGORITHMS[category]) return;
+        
+        const dropdownIds = {
+            trees: ['treeCompareAlgo1', 'treeCompareAlgo2'],
+            graphs: ['graphCompareAlgo1', 'graphCompareAlgo2'],
+            dp: ['dpCompareAlgo1', 'dpCompareAlgo2']
+        };
+        
+        const ids = dropdownIds[category];
+        if (!ids) return;
+        
+        ids.forEach(id => {
+            const dropdown = document.getElementById(id);
+            if (!dropdown) return;
+            
+            dropdown.innerHTML = '';
+            Object.keys(ALGORITHMS[category]).forEach(key => {
+                const algo = ALGORITHMS[category][key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = algo.name;
+                dropdown.appendChild(option);
+            });
         });
     }
 

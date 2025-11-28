@@ -3184,6 +3184,9 @@ class TreeVisualizer {
         this.shouldStop = false;
         this.speed = 50;
         this.svg = document.getElementById('treeSvg');
+        this.isCompareMode = false;
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
         this.init();
     }
 
@@ -3199,9 +3202,22 @@ class TreeVisualizer {
         this.render(); // Clear any highlighting states
     }
 
+    reset() {
+        this.stop();
+        this.render();
+    }
+
     bindEvents() {
         const insertBtn = document.getElementById('insertNode');
         const speedSlider = document.getElementById('treeSpeed');
+        const infoBtn = document.getElementById('treeInfoBtn');
+        const toggleCompareBtn = document.getElementById('toggleTreeCompare');
+        const startCompareBtn = document.getElementById('startTreeCompare');
+        const pauseResumeCompareBtn = document.getElementById('pauseResumeTreeCompare');
+        const stopCompareBtn = document.getElementById('stopTreeCompare');
+        const compareControls = document.getElementById('treeCompareControls');
+        const compareContainer = document.getElementById('treeCompareContainer');
+        const regularViz = document.getElementById('treeRegularVisualization');
         
         if (speedSlider) {
             const multiplierEl = document.getElementById('treeSpeedMultiplier');
@@ -3222,6 +3238,100 @@ class TreeVisualizer {
         if (insertBtn) insertBtn.addEventListener('click', () => this.insert());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clear());
         if (traverseBtn) traverseBtn.addEventListener('click', () => this.traverse());
+        if (infoBtn) infoBtn.addEventListener('click', () => this.showTreeInfo());
+        
+        if (toggleCompareBtn) {
+            toggleCompareBtn.addEventListener('click', () => {
+                this.isCompareMode = !this.isCompareMode;
+                if (this.isCompareMode) {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'block';
+                    if (compareContainer) compareContainer.style.display = 'grid';
+                    if (regularViz) regularViz.style.display = 'none';
+                    toggleCompareBtn.textContent = '❌ Exit Compare';
+                    toggleCompareBtn.classList.add('active');
+                } else {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'none';
+                    if (compareContainer) compareContainer.style.display = 'none';
+                    if (regularViz) regularViz.style.display = 'block';
+                    toggleCompareBtn.textContent = '⚔️ Compare';
+                    toggleCompareBtn.classList.remove('active');
+                }
+            });
+        }
+        
+        if (startCompareBtn) {
+            startCompareBtn.addEventListener('click', () => this.startComparison());
+        }
+        
+        if (pauseResumeCompareBtn) {
+            pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
+        }
+        
+        if (stopCompareBtn) {
+            stopCompareBtn.addEventListener('click', () => this.stopComparison());
+        }
+        
+        // Close info modal handlers
+        const closeBtn = document.getElementById('treeInfoCloseBtn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                const modal = document.getElementById('treeInfoModal');
+                if (modal) modal.style.display = 'none';
+            };
+        }
+        
+        const modal = document.getElementById('treeInfoModal');
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+    }
+    
+    showTreeInfo() {
+        const nodeCount = this.countNodes(this.root);
+        const height = this.getHeight(this.root);
+        const modal = document.getElementById('treeInfoModal');
+        const content = document.getElementById('treeInfoContent');
+        
+        if (content) {
+            content.innerHTML = `
+                <div class="search-info-grid">
+                    <div class="search-info-item">
+                        <span class="search-info-label">Nodes:</span>
+                        <span class="search-info-value">${nodeCount}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Height:</span>
+                        <span class="search-info-value">${height}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Type:</span>
+                        <span class="search-info-value">Binary Search Tree</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (modal) modal.style.display = 'flex';
+    }
+    
+    startComparison() {
+        // Placeholder for comparison logic
+        console.log('Tree comparison started');
+    }
+    
+    togglePauseResumeCompare() {
+        this.isComparePaused = !this.isComparePaused;
+    }
+    
+    stopComparison() {
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
     }
 
     insertInitialNodes() {
@@ -3393,6 +3503,9 @@ class GraphVisualizer {
         this.speed = 50;
         this.startTime = null;
         this.svg = document.getElementById('graphSvg');
+        this.isCompareMode = false;
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
         this.init();
     }
 
@@ -3408,15 +3521,30 @@ class GraphVisualizer {
         this.render(); // Clear any highlighting states
     }
 
+    reset() {
+        this.stop();
+        this.render();
+    }
+
     bindEvents() {
         const generateBtn = document.getElementById('generateGraph');
         const startBtn = document.getElementById('startGraphAlgo');
         const clearBtn = document.getElementById('clearGraph');
         const speedSlider = document.getElementById('graphSpeed');
+        const infoBtn = document.getElementById('graphInfoBtn');
+        const toggleCompareBtn = document.getElementById('toggleGraphCompare');
+        const startCompareBtn = document.getElementById('startGraphCompare');
+        const pauseResumeCompareBtn = document.getElementById('pauseResumeGraphCompare');
+        const stopCompareBtn = document.getElementById('stopGraphCompare');
+        const compareControls = document.getElementById('graphCompareControls');
+        const compareContainer = document.getElementById('graphCompareContainer');
+        const regularViz = document.getElementById('graphRegularVisualization');
 
         if (generateBtn) generateBtn.addEventListener('click', () => this.generateGraph());
         if (startBtn) startBtn.addEventListener('click', () => this.runAlgorithm());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clear());
+        if (infoBtn) infoBtn.addEventListener('click', () => this.showGraphInfo());
+        
         if (speedSlider) {
             const multiplierEl = document.getElementById('graphSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
@@ -3430,6 +3558,99 @@ class GraphVisualizer {
                 multiplierEl.textContent = '1x';
             }
         }
+        
+        if (toggleCompareBtn) {
+            toggleCompareBtn.addEventListener('click', () => {
+                this.isCompareMode = !this.isCompareMode;
+                if (this.isCompareMode) {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'block';
+                    if (compareContainer) compareContainer.style.display = 'grid';
+                    if (regularViz) regularViz.style.display = 'none';
+                    toggleCompareBtn.textContent = '❌ Exit Compare';
+                    toggleCompareBtn.classList.add('active');
+                } else {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'none';
+                    if (compareContainer) compareContainer.style.display = 'none';
+                    if (regularViz) regularViz.style.display = 'block';
+                    toggleCompareBtn.textContent = '⚔️ Compare';
+                    toggleCompareBtn.classList.remove('active');
+                }
+            });
+        }
+        
+        if (startCompareBtn) {
+            startCompareBtn.addEventListener('click', () => this.startComparison());
+        }
+        
+        if (pauseResumeCompareBtn) {
+            pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
+        }
+        
+        if (stopCompareBtn) {
+            stopCompareBtn.addEventListener('click', () => this.stopComparison());
+        }
+        
+        // Close info modal handlers
+        const closeBtn = document.getElementById('graphInfoCloseBtn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                const modal = document.getElementById('graphInfoModal');
+                if (modal) modal.style.display = 'none';
+            };
+        }
+        
+        const modal = document.getElementById('graphInfoModal');
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+    }
+    
+    showGraphInfo() {
+        const vertices = this.nodes.length;
+        const edges = this.edges.length;
+        const modal = document.getElementById('graphInfoModal');
+        const content = document.getElementById('graphInfoContent');
+        
+        if (content) {
+            content.innerHTML = `
+                <div class="search-info-grid">
+                    <div class="search-info-item">
+                        <span class="search-info-label">Vertices:</span>
+                        <span class="search-info-value">${vertices}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Edges:</span>
+                        <span class="search-info-value">${edges}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Type:</span>
+                        <span class="search-info-value">Undirected Graph</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (modal) modal.style.display = 'flex';
+    }
+    
+    startComparison() {
+        // Placeholder for comparison logic
+        console.log('Graph comparison started');
+    }
+    
+    togglePauseResumeCompare() {
+        this.isComparePaused = !this.isComparePaused;
+    }
+    
+    stopComparison() {
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
     }
 
     generateGraph() {
@@ -3606,6 +3827,9 @@ class DPVisualizer {
         this.dpArray = [];
         this.maxN = 0;
         this.stepMode = false;
+        this.isCompareMode = false;
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
         this.init();
     }
 
@@ -3651,9 +3875,19 @@ class DPVisualizer {
         const startBtn = document.getElementById('startDP');
         const stepBtn = document.getElementById('stepDP');
         const speedSlider = document.getElementById('dpSpeed');
+        const infoBtn = document.getElementById('dpInfoBtn');
+        const toggleCompareBtn = document.getElementById('toggleDPCompare');
+        const startCompareBtn = document.getElementById('startDPCompare');
+        const pauseResumeCompareBtn = document.getElementById('pauseResumeDPCompare');
+        const stopCompareBtn = document.getElementById('stopDPCompare');
+        const compareControls = document.getElementById('dpCompareControls');
+        const compareContainer = document.getElementById('dpCompareContainer');
+        const regularViz = document.getElementById('dpRegularVisualization');
         
         if (startBtn) startBtn.addEventListener('click', () => this.start());
         if (stepBtn) stepBtn.addEventListener('click', () => this.step());
+        if (infoBtn) infoBtn.addEventListener('click', () => this.showDPInfo());
+        
         if (speedSlider) {
             const multiplierEl = document.getElementById('dpSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
@@ -3667,6 +3901,100 @@ class DPVisualizer {
                 multiplierEl.textContent = '1x';
             }
         }
+        
+        if (toggleCompareBtn) {
+            toggleCompareBtn.addEventListener('click', () => {
+                this.isCompareMode = !this.isCompareMode;
+                if (this.isCompareMode) {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'block';
+                    if (compareContainer) compareContainer.style.display = 'grid';
+                    if (regularViz) regularViz.style.display = 'none';
+                    toggleCompareBtn.textContent = '❌ Exit Compare';
+                    toggleCompareBtn.classList.add('active');
+                } else {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'none';
+                    if (compareContainer) compareContainer.style.display = 'none';
+                    if (regularViz) regularViz.style.display = 'block';
+                    toggleCompareBtn.textContent = '⚔️ Compare';
+                    toggleCompareBtn.classList.remove('active');
+                }
+            });
+        }
+        
+        if (startCompareBtn) {
+            startCompareBtn.addEventListener('click', () => this.startComparison());
+        }
+        
+        if (pauseResumeCompareBtn) {
+            pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
+        }
+        
+        if (stopCompareBtn) {
+            stopCompareBtn.addEventListener('click', () => this.stopComparison());
+        }
+        
+        // Close info modal handlers
+        const closeBtn = document.getElementById('dpInfoCloseBtn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                const modal = document.getElementById('dpInfoModal');
+                if (modal) modal.style.display = 'none';
+            };
+        }
+        
+        const modal = document.getElementById('dpInfoModal');
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+    }
+    
+    showDPInfo() {
+        const inputEl = document.getElementById('dpInput');
+        const input = inputEl?.value || 'fibonacci: 10';
+        const n = parseInt(input.split(':')[1]) || 10;
+        const modal = document.getElementById('dpInfoModal');
+        const content = document.getElementById('dpInfoContent');
+        
+        if (content) {
+            content.innerHTML = `
+                <div class="search-info-grid">
+                    <div class="search-info-item">
+                        <span class="search-info-label">Problem:</span>
+                        <span class="search-info-value">Fibonacci</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Input (n):</span>
+                        <span class="search-info-value">${n}</span>
+                    </div>
+                    <div class="search-info-item">
+                        <span class="search-info-label">Subproblems:</span>
+                        <span class="search-info-value">${n + 1}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (modal) modal.style.display = 'flex';
+    }
+    
+    startComparison() {
+        // Placeholder for comparison logic
+        console.log('DP comparison started');
+    }
+    
+    togglePauseResumeCompare() {
+        this.isComparePaused = !this.isComparePaused;
+    }
+    
+    stopComparison() {
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
     }
 
     step() {
