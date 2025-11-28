@@ -1004,6 +1004,7 @@ select:focus {
 .lang-icon.php { color: #777bb4; }
 .lang-icon.elixir { color: #6e4a7e; }
 .lang-icon.node { color: #339933; }
+.lang-icon.deno { color: #ffffff; }
 .lang-icon.kotlin { color: #7F52FF; }
 .lang-icon.swift { color: #FA7343; }
 
