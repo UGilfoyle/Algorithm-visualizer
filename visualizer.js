@@ -2994,3 +2994,4 @@ window.stopAllVisualizations = stopAllVisualizations;
 
 // Export updateRustIcons for theme changes
 window.updateRustIcons = updateRustIcons;
+window.updateDenoIcons = updateDenoIcons;
