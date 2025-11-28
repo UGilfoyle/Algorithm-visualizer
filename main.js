@@ -32,23 +32,36 @@ function initLanguageIcons() {
     
     function injectSVGs() {
         // Update all lang-logo elements with data-lang attribute
-        document.querySelectorAll('.lang-logo[data-lang], .lang-logo-svg[data-lang]').forEach(el => {
+        document.querySelectorAll('.lang-logo[data-lang], .lang-logo-svg[data-lang], span[data-lang]').forEach(el => {
             const lang = el.getAttribute('data-lang');
+            if (!lang) return;
+            
             const svgKey = langMap[lang];
             if (svgKey && LANGUAGE_SVGS[svgKey]) {
-                el.innerHTML = LANGUAGE_SVGS[svgKey];
-                el.className = 'lang-logo-svg';
+                // Only inject if empty or doesn't have SVG content
+                if (!el.innerHTML.trim() || !el.querySelector('svg')) {
+                    el.innerHTML = LANGUAGE_SVGS[svgKey];
+                    el.className = 'lang-logo-svg';
+                }
             }
         });
         
-        // Also check for elements that might be created dynamically
-        document.querySelectorAll('[data-lang]').forEach(el => {
-            if (el.classList.contains('lang-logo') || el.classList.contains('lang-logo-svg')) {
-                const lang = el.getAttribute('data-lang');
-                const svgKey = langMap[lang];
-                if (svgKey && LANGUAGE_SVGS[svgKey] && !el.innerHTML.trim()) {
-                    el.innerHTML = LANGUAGE_SVGS[svgKey];
-                    el.className = 'lang-logo-svg';
+        // Also check parent buttons with data-lang and find child spans
+        document.querySelectorAll('.lang-tab[data-lang]').forEach(button => {
+            const lang = button.getAttribute('data-lang');
+            const svgKey = langMap[lang];
+            if (svgKey && LANGUAGE_SVGS[svgKey]) {
+                let iconEl = button.querySelector('.lang-logo, .lang-logo-svg, span[data-lang]');
+                if (!iconEl) {
+                    // Create icon element if it doesn't exist
+                    iconEl = document.createElement('span');
+                    iconEl.className = 'lang-logo-svg';
+                    iconEl.setAttribute('data-lang', lang);
+                    button.insertBefore(iconEl, button.firstChild);
+                }
+                if (!iconEl.innerHTML.trim() || !iconEl.querySelector('svg')) {
+                    iconEl.innerHTML = LANGUAGE_SVGS[svgKey];
+                    iconEl.className = 'lang-logo-svg';
                 }
             }
         });
