@@ -1,308 +1,740 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algorithm Arena | Visual DSA Playground</title>
+    <title>Algorithm Universe | 100+ Algorithm Visualizations</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="background-effects">
         <div class="grid-overlay"></div>
-        <div class="glow-orb orb-1"></div>
-        <div class="glow-orb orb-2"></div>
-        <div class="glow-orb orb-3"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+        <span class="theme-icon" id="themeIcon">☀️</span>
+        <span class="theme-label" id="themeLabel">Light</span>
+    </button>
+
+    <!-- Audio Controls -->
+    <div class="audio-controls" id="audioControls">
+        <button class="audio-toggle" id="audioToggle" title="Toggle Sound">
+            <span class="audio-on">♪</span>
+            <span class="audio-off" style="display:none">×</span>
+        </button>
+        <input type="range" id="volumeSlider" min="0" max="100" value="50" title="Volume">
     </div>
 
     <header class="main-header">
         <div class="logo">
-            <span class="logo-icon">⚡</span>
-            <span class="logo-text">Algorithm Arena</span>
+            <span class="logo-icon">᛭</span>
+            <span class="logo-text">Algorithm Universe</span>
+            <span class="algo-count">50+ Algorithms</span>
         </div>
         <nav class="main-nav">
-            <button class="nav-btn active" data-section="pathfinding">
-                <span class="nav-icon">🗺️</span>
-                Pathfinding
-            </button>
-            <button class="nav-btn" data-section="sorting">
-                <span class="nav-icon">📊</span>
+            <button class="nav-btn active" data-section="sorting">
                 Sorting
             </button>
-            <button class="nav-btn" data-section="complexity">
-                <span class="nav-icon">📈</span>
-                Big O Race
+            <button class="nav-btn" data-section="searching">
+                Searching
+            </button>
+            <button class="nav-btn" data-section="pathfinding">
+                Pathfinding
+            </button>
+            <button class="nav-btn" data-section="trees">
+                Trees
+            </button>
+            <button class="nav-btn" data-section="graphs">
+                Graphs
+            </button>
+            <button class="nav-btn" data-section="dp">
+                Dynamic Programming
+            </button>
+            <button class="nav-btn" data-section="strings">
+                Strings
+            </button>
+            <button class="nav-btn" data-section="math">
+                Math
+            </button>
+            <button class="nav-btn" data-section="arena">
+                Language Arena
             </button>
         </nav>
     </header>
 
     <main class="main-content">
-        <!-- Pathfinding Section -->
-        <section id="pathfinding" class="section active">
-            <div class="section-header">
-                <h1>Pathfinding Visualizer</h1>
-                <p>Watch algorithms navigate through mazes in real-time</p>
-            </div>
-            
-            <div class="controls-panel">
-                <div class="control-group">
-                    <label>Algorithm</label>
-                    <div class="select-wrapper">
-                        <select id="pathAlgorithm">
-                            <option value="bfs">BFS (Breadth-First)</option>
-                            <option value="dfs">DFS (Depth-First)</option>
-                            <option value="dijkstra">Dijkstra's</option>
-                            <option value="astar">A* Search</option>
-                            <option value="greedy">Greedy Best-First</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label>Speed</label>
-                    <input type="range" id="pathSpeed" min="1" max="100" value="50">
-                </div>
-                <div class="control-group">
-                    <label>Maze Pattern</label>
-                    <div class="select-wrapper">
-                        <select id="mazePattern">
-                            <option value="random">Random Walls</option>
-                            <option value="recursive">Recursive Division</option>
-                            <option value="spiral">Spiral</option>
-                            <option value="clear">Clear Grid</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button id="generateMaze" class="btn btn-secondary">Generate Maze</button>
-                    <button id="startPath" class="btn btn-primary">
-                        <span class="btn-icon">▶</span>
-                        Visualize
-                    </button>
-                    <button id="clearPath" class="btn btn-outline">Clear Path</button>
-                </div>
-            </div>
-
-            <div class="visualization-container">
-                <div class="grid-container" id="pathGrid"></div>
-                <div class="legend">
-                    <div class="legend-item"><span class="legend-color start"></span>Start</div>
-                    <div class="legend-item"><span class="legend-color end"></span>End</div>
-                    <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
-                    <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
-                    <div class="legend-item"><span class="legend-color path"></span>Path</div>
-                </div>
-            </div>
-
-            <div class="stats-panel">
-                <div class="stat-card">
-                    <span class="stat-value" id="nodesVisited">0</span>
-                    <span class="stat-label">Nodes Visited</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="pathLength">0</span>
-                    <span class="stat-label">Path Length</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="timeTaken">0ms</span>
-                    <span class="stat-label">Time Taken</span>
-                </div>
-            </div>
-        </section>
-
         <!-- Sorting Section -->
-        <section id="sorting" class="section">
+        <section id="sorting" class="section active">
             <div class="section-header">
-                <h1>Sorting Showdown</h1>
-                <p>Race sorting algorithms against each other</p>
+                <h1>Sorting Algorithms</h1>
+                <p>Visualize 15+ sorting algorithms with sound</p>
             </div>
 
-            <div class="controls-panel">
-                <div class="control-group">
-                    <label>Array Size</label>
-                    <input type="range" id="arraySize" min="10" max="200" value="50">
-                    <span id="arraySizeValue">50</span>
-                </div>
-                <div class="control-group">
-                    <label>Speed</label>
-                    <input type="range" id="sortSpeed" min="1" max="100" value="50">
-                </div>
-                <div class="btn-group">
-                    <button id="shuffleArray" class="btn btn-secondary">Shuffle</button>
-                    <button id="startSort" class="btn btn-primary">
-                        <span class="btn-icon">▶</span>
-                        Race!
-                    </button>
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="sortingAlgorithms">
+                    <!-- Algorithms will be populated by JS -->
                 </div>
             </div>
 
-            <div class="sorting-race-container">
-                <div class="sort-lane" data-algorithm="bubble">
-                    <div class="lane-header">
-                        <span class="algo-name">Bubble Sort</span>
-                        <span class="algo-complexity">O(n²)</span>
-                        <span class="algo-time" id="bubbleTime">-</span>
+            <div class="visualization-split">
+                <div class="viz-panel">
+                    <div class="panel-header">
+                        <h3>Visualization</h3>
+                        <div class="controls-inline">
+                            <div class="control-group">
+                                <label>Size</label>
+                                <input type="range" id="arraySize" min="10" max="100" value="30">
+                                <span id="arraySizeValue">30</span>
+                            </div>
+                            <div class="control-group">
+                                <label>Speed</label>
+                                <input type="range" id="sortSpeed" min="1" max="100" value="50">
+                            </div>
+                            <button id="shuffleArray" class="btn btn-secondary">🔀 Shuffle</button>
+                            <button id="startSort" class="btn btn-primary">▶ Visualize</button>
+                            <button id="stopSort" class="btn btn-outline">⏹ Stop</button>
+                        </div>
                     </div>
-                    <div class="bars-container" id="bubbleBars"></div>
-                    <div class="progress-bar"><div class="progress-fill" id="bubbleProgress"></div></div>
+                    <div class="bars-container" id="sortingBars"></div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Comparisons:</span>
+                            <span class="stat-value" id="comparisons">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Swaps:</span>
+                            <span class="stat-value" id="swaps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Time:</span>
+                            <span class="stat-value" id="sortTime">0ms</span>
+                            <select id="sortTimeFormat" class="time-format-select">
+                                <option value="ms" selected>ms</option>
+                                <option value="s">sec</option>
+                                <option value="m">min</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="sort-lane" data-algorithm="selection">
-                    <div class="lane-header">
-                        <span class="algo-name">Selection Sort</span>
-                        <span class="algo-complexity">O(n²)</span>
-                        <span class="algo-time" id="selectionTime">-</span>
+
+                <div class="code-panel">
+                    <div class="panel-header">
+                        <h3>Code Implementation</h3>
+                        <div class="language-tabs" id="languageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JavaScript</button>
+                            <button class="lang-tab" data-lang="python">Python</button>
+                            <button class="lang-tab" data-lang="java">Java</button>
+                            <button class="lang-tab" data-lang="cpp">C++</button>
+                            <button class="lang-tab" data-lang="c">C</button>
+                            <button class="lang-tab" data-lang="go">Go</button>
+                            <button class="lang-tab" data-lang="rust">Rust</button>
+                            <button class="lang-tab" data-lang="typescript">TypeScript</button>
+                            <button class="lang-tab" data-lang="ruby">Ruby</button>
+                            <button class="lang-tab" data-lang="swift">Swift</button>
+                            <button class="lang-tab" data-lang="kotlin">Kotlin</button>
+                            <button class="lang-tab" data-lang="csharp">C#</button>
+                        </div>
                     </div>
-                    <div class="bars-container" id="selectionBars"></div>
-                    <div class="progress-bar"><div class="progress-fill" id="selectionProgress"></div></div>
-                </div>
-                <div class="sort-lane" data-algorithm="insertion">
-                    <div class="lane-header">
-                        <span class="algo-name">Insertion Sort</span>
-                        <span class="algo-complexity">O(n²)</span>
-                        <span class="algo-time" id="insertionTime">-</span>
+                    <div class="code-container">
+                        <pre><code id="codeDisplay" class="language-javascript"></code></pre>
+                        <button class="copy-btn" id="copyCode" title="Copy Code">📋</button>
                     </div>
-                    <div class="bars-container" id="insertionBars"></div>
-                    <div class="progress-bar"><div class="progress-fill" id="insertionProgress"></div></div>
-                </div>
-                <div class="sort-lane" data-algorithm="merge">
-                    <div class="lane-header">
-                        <span class="algo-name">Merge Sort</span>
-                        <span class="algo-complexity">O(n log n)</span>
-                        <span class="algo-time" id="mergeTime">-</span>
+                    <div class="algorithm-info" id="algorithmInfo">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Time Complexity (Best)</span>
+                                <span class="info-value" id="timeBest">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Time Complexity (Avg)</span>
+                                <span class="info-value" id="timeAvg">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Time Complexity (Worst)</span>
+                                <span class="info-value" id="timeWorst">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Space Complexity</span>
+                                <span class="info-value" id="spaceComplexity">-</span>
+                            </div>
+                            <div class="info-item full-width">
+                                <span class="info-label">Description</span>
+                                <p class="info-description" id="algoDescription">-</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bars-container" id="mergeBars"></div>
-                    <div class="progress-bar"><div class="progress-fill" id="mergeProgress"></div></div>
-                </div>
-                <div class="sort-lane" data-algorithm="quick">
-                    <div class="lane-header">
-                        <span class="algo-name">Quick Sort</span>
-                        <span class="algo-complexity">O(n log n)</span>
-                        <span class="algo-time" id="quickTime">-</span>
-                    </div>
-                    <div class="bars-container" id="quickBars"></div>
-                    <div class="progress-bar"><div class="progress-fill" id="quickProgress"></div></div>
-                </div>
-                <div class="sort-lane" data-algorithm="heap">
-                    <div class="lane-header">
-                        <span class="algo-name">Heap Sort</span>
-                        <span class="algo-complexity">O(n log n)</span>
-                        <span class="algo-time" id="heapTime">-</span>
-                    </div>
-                    <div class="bars-container" id="heapBars"></div>
-                    <div class="progress-bar"><div class="progress-fill" id="heapProgress"></div></div>
                 </div>
             </div>
         </section>
 
-        <!-- Complexity Section -->
-        <section id="complexity" class="section">
+        <!-- Searching Section -->
+        <section id="searching" class="section">
             <div class="section-header">
-                <h1>Big O Race Track</h1>
-                <p>Watch complexity classes compete as input size grows</p>
+                <h1>Searching Algorithms</h1>
+                <p>Find elements with 10+ search algorithms</p>
             </div>
 
-            <div class="controls-panel">
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="searchingAlgorithms"></div>
+            </div>
+
+            <div class="visualization-split">
+                <div class="viz-panel">
+                    <div class="panel-header">
+                        <h3>Visualization</h3>
+                        <div class="controls-inline">
+                            <div class="control-group">
+                                <label>Size</label>
+                                <input type="range" id="searchArraySize" min="10" max="50" value="20">
+                                <span id="searchArraySizeValue">20</span>
+                            </div>
+                            <div class="control-group">
+                                <label>Target</label>
+                                <input type="number" id="searchTarget" min="1" max="100" value="42">
+                            </div>
+                            <button id="generateSearchArray" class="btn btn-secondary">🔄 Generate</button>
+                            <button id="startSearch" class="btn btn-primary">▶ Search</button>
+                        </div>
+                    </div>
+                    <div class="search-container" id="searchBars"></div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Steps:</span>
+                            <span class="stat-value" id="searchSteps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Found at:</span>
+                            <span class="stat-value" id="foundAt">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-panel">
+                    <div class="panel-header">
+                        <h3>Code Implementation</h3>
+                        <div class="language-tabs" id="searchLanguageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JavaScript</button>
+                            <button class="lang-tab" data-lang="python">Python</button>
+                            <button class="lang-tab" data-lang="java">Java</button>
+                            <button class="lang-tab" data-lang="cpp">C++</button>
+                            <button class="lang-tab" data-lang="go">Go</button>
+                            <button class="lang-tab" data-lang="rust">Rust</button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="searchCodeDisplay" class="language-javascript"></code></pre>
+                    </div>
+                    <div class="algorithm-info" id="searchAlgorithmInfo">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Time Complexity (Best)</span>
+                                <span class="info-value" id="searchTimeBest">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Time Complexity (Worst)</span>
+                                <span class="info-value" id="searchTimeWorst">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Space Complexity</span>
+                                <span class="info-value" id="searchSpaceComplexity">-</span>
+                            </div>
+                            <div class="info-item full-width">
+                                <span class="info-label">Description</span>
+                                <p class="info-description" id="searchAlgoDescription">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pathfinding Section -->
+        <section id="pathfinding" class="section">
+            <div class="section-header">
+                <h1>Pathfinding Algorithms</h1>
+                <p>Navigate mazes with 8+ pathfinding algorithms</p>
+            </div>
+
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="pathfindingAlgorithms"></div>
+            </div>
+
+            <div class="visualization-split">
+                <div class="viz-panel wide">
+                    <div class="panel-header">
+                        <h3>Grid Visualization</h3>
+                        <div class="controls-inline">
+                            <div class="control-group">
+                                <label>Speed</label>
+                                <input type="range" id="pathSpeed" min="1" max="100" value="50">
+                            </div>
+                            <select id="mazePattern">
+                                <option value="random">Random Walls</option>
+                                <option value="recursive">Recursive Division</option>
+                                <option value="spiral">Spiral</option>
+                                <option value="clear">Clear Grid</option>
+                            </select>
+                            <button id="generateMaze" class="btn btn-secondary">🏗️ Maze</button>
+                            <button id="startPath" class="btn btn-primary">▶ Find Path</button>
+                            <button id="clearPath" class="btn btn-outline">🧹 Clear</button>
+                        </div>
+                    </div>
+                    <div class="grid-container" id="pathGrid"></div>
+                    <div class="legend">
+                        <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                        <div class="legend-item"><span class="legend-color end"></span>End</div>
+                        <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                        <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                        <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Nodes Visited:</span>
+                            <span class="stat-value" id="nodesVisited">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Path Length:</span>
+                            <span class="stat-value" id="pathLength">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Time:</span>
+                            <span class="stat-value" id="pathTime">0ms</span>
+                            <select id="pathTimeFormat" class="time-format-select">
+                                <option value="ms" selected>ms</option>
+                                <option value="s">sec</option>
+                                <option value="m">min</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-panel narrow">
+                    <div class="panel-header">
+                        <h3>Implementation</h3>
+                        <div class="language-tabs compact" id="pathLanguageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="python">Py</button>
+                            <button class="lang-tab" data-lang="cpp">C++</button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="pathCodeDisplay" class="language-javascript"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trees Section -->
+        <section id="trees" class="section">
+            <div class="section-header">
+                <h1>Tree Algorithms</h1>
+                <p>Explore 15+ tree data structure algorithms</p>
+            </div>
+
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="treeAlgorithms"></div>
+            </div>
+
+            <div class="visualization-split">
+                <div class="viz-panel wide">
+                    <div class="panel-header">
+                        <h3>Tree Visualization</h3>
+                        <div class="controls-inline">
+                            <input type="number" id="treeValue" placeholder="Value" min="1" max="999">
+                            <button id="insertNode" class="btn btn-secondary">➕ Insert</button>
+                            <button id="deleteNode" class="btn btn-secondary">➖ Delete</button>
+                            <button id="searchNode" class="btn btn-secondary">🔍 Search</button>
+                            <button id="traverseTree" class="btn btn-primary">▶ Traverse</button>
+                            <button id="clearTree" class="btn btn-outline">🧹 Clear</button>
+                        </div>
+                    </div>
+                    <div class="tree-container" id="treeCanvas">
+                        <svg id="treeSvg"></svg>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Nodes:</span>
+                            <span class="stat-value" id="treeNodes">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Height:</span>
+                            <span class="stat-value" id="treeHeight">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Traversal:</span>
+                            <span class="stat-value" id="traversalOrder">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-panel narrow">
+                    <div class="panel-header">
+                        <h3>Implementation</h3>
+                        <div class="language-tabs compact" id="treeLanguageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="python">Py</button>
+                            <button class="lang-tab" data-lang="java">Java</button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="treeCodeDisplay" class="language-javascript"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Graphs Section -->
+        <section id="graphs" class="section">
+            <div class="section-header">
+                <h1>Graph Algorithms</h1>
+                <p>Visualize 20+ graph algorithms</p>
+            </div>
+
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="graphAlgorithms"></div>
+            </div>
+
+            <div class="visualization-split">
+                <div class="viz-panel wide">
+                    <div class="panel-header">
+                        <h3>Graph Visualization</h3>
+                        <div class="controls-inline">
+                            <select id="graphType">
+                                <option value="random">Random Graph</option>
+                                <option value="complete">Complete Graph</option>
+                                <option value="bipartite">Bipartite</option>
+                                <option value="dag">DAG</option>
+                            </select>
+                            <input type="number" id="graphNodes" placeholder="Nodes" min="3" max="20" value="8">
+                            <button id="generateGraph" class="btn btn-secondary">🔄 Generate</button>
+                            <button id="startGraphAlgo" class="btn btn-primary">▶ Run</button>
+                            <button id="clearGraph" class="btn btn-outline">🧹 Clear</button>
+                        </div>
+                    </div>
+                    <div class="graph-container" id="graphCanvas">
+                        <svg id="graphSvg"></svg>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Vertices:</span>
+                            <span class="stat-value" id="graphVertices">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Edges:</span>
+                            <span class="stat-value" id="graphEdges">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Result:</span>
+                            <span class="stat-value" id="graphResult">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-panel narrow">
+                    <div class="panel-header">
+                        <h3>Implementation</h3>
+                        <div class="language-tabs compact" id="graphLanguageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="python">Py</button>
+                            <button class="lang-tab" data-lang="cpp">C++</button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="graphCodeDisplay" class="language-javascript"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Programming Section -->
+        <section id="dp" class="section">
+            <div class="section-header">
+                <h1>Dynamic Programming</h1>
+                <p>Understand 20+ DP problems visually</p>
+            </div>
+
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="dpAlgorithms"></div>
+            </div>
+
+            <div class="visualization-split">
+                <div class="viz-panel wide">
+                    <div class="panel-header">
+                        <h3>DP Table Visualization</h3>
+                        <div class="controls-inline">
+                            <input type="text" id="dpInput" placeholder="Enter input..." value="fibonacci: 10">
+                            <button id="startDP" class="btn btn-primary">▶ Solve</button>
+                            <button id="stepDP" class="btn btn-secondary">⏭ Step</button>
+                        </div>
+                    </div>
+                    <div class="dp-container" id="dpTable"></div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Subproblems:</span>
+                            <span class="stat-value" id="dpSubproblems">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Result:</span>
+                            <span class="stat-value" id="dpResult">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-panel narrow">
+                    <div class="panel-header">
+                        <h3>Implementation</h3>
+                        <div class="language-tabs compact" id="dpLanguageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="python">Py</button>
+                            <button class="lang-tab" data-lang="cpp">C++</button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="dpCodeDisplay" class="language-javascript"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- String Algorithms Section -->
+        <section id="strings" class="section">
+            <div class="section-header">
+                <h1>String Algorithms</h1>
+                <p>Pattern matching and string manipulation</p>
+            </div>
+
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="stringAlgorithms"></div>
+            </div>
+
+            <div class="visualization-split">
+                <div class="viz-panel wide">
+                    <div class="panel-header">
+                        <h3>String Visualization</h3>
+                        <div class="controls-inline">
+                            <input type="text" id="stringText" placeholder="Text" value="ABABDABACDABABCABAB">
+                            <input type="text" id="stringPattern" placeholder="Pattern" value="ABABCABAB">
+                            <button id="startString" class="btn btn-primary">▶ Search</button>
+                        </div>
+                    </div>
+                    <div class="string-container" id="stringVisualization"></div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Comparisons:</span>
+                            <span class="stat-value" id="stringComparisons">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Matches Found:</span>
+                            <span class="stat-value" id="stringMatches">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-panel narrow">
+                    <div class="panel-header">
+                        <h3>Implementation</h3>
+                        <div class="language-tabs compact" id="stringLanguageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="python">Py</button>
+                            <button class="lang-tab" data-lang="java">Java</button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="stringCodeDisplay" class="language-javascript"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mathematical Algorithms Section -->
+        <section id="math" class="section">
+            <div class="section-header">
+                <h1>Mathematical Algorithms</h1>
+                <p>Number theory and mathematical computations</p>
+            </div>
+
+            <div class="algorithm-selector">
+                <div class="algorithm-grid" id="mathAlgorithms"></div>
+            </div>
+
+            <div class="visualization-split">
+                <div class="viz-panel wide">
+                    <div class="panel-header">
+                        <h3>Math Visualization</h3>
+                        <div class="controls-inline">
+                            <input type="number" id="mathInput1" placeholder="Number 1" value="48">
+                            <input type="number" id="mathInput2" placeholder="Number 2" value="18">
+                            <button id="startMath" class="btn btn-primary">▶ Calculate</button>
+                        </div>
+                    </div>
+                    <div class="math-container" id="mathVisualization"></div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Steps:</span>
+                            <span class="stat-value" id="mathSteps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Result:</span>
+                            <span class="stat-value" id="mathResult">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-panel narrow">
+                    <div class="panel-header">
+                        <h3>Implementation</h3>
+                        <div class="language-tabs compact" id="mathLanguageTabs">
+                            <button class="lang-tab active" data-lang="javascript">JS</button>
+                            <button class="lang-tab" data-lang="python">Py</button>
+                            <button class="lang-tab" data-lang="cpp">C++</button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="mathCodeDisplay" class="language-javascript"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Programming War Arena Section -->
+        <section id="arena" class="section">
+            <div class="section-header">
+                <h1>PROGRAMMING LANGUAGE ARENA</h1>
+                <p>Battle of the languages! See which one runs fastest</p>
+            </div>
+
+            <div class="arena-controls">
                 <div class="control-group">
-                    <label>Input Size (n)</label>
-                    <input type="range" id="inputSize" min="1" max="100" value="10">
-                    <span id="inputSizeValue">10</span>
+                    <label>Select Algorithm</label>
+                    <select id="arenaAlgorithm">
+                        <option value="fibonacci">Fibonacci</option>
+                        <option value="primes">Prime Numbers (Sieve)</option>
+                        <option value="sorting">Sorting (Quick Sort)</option>
+                        <option value="factorial">Factorial</option>
+                        <option value="matrix">Matrix Multiplication</option>
+                        <option value="loop">Loop Iterations</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Iterations / Input Size</label>
+                    <select id="arenaIterations">
+                        <option value="1000">1,000 (1K)</option>
+                        <option value="10000" selected>10,000 (10K)</option>
+                        <option value="100000">100,000 (100K)</option>
+                        <option value="1000000">1,000,000 (1M)</option>
+                        <option value="10000000">10,000,000 (10M)</option>
+                        <option value="100000000">100,000,000 (100M)</option>
+                        <option value="1000000000">1,000,000,000 (1B)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Select Languages to Race</label>
+                    <div class="language-checkboxes" id="languageSelection">
+                        <label class="lang-checkbox"><input type="checkbox" value="javascript" checked><span
+                                class="lang-icon js">JS</span> JavaScript</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="python" checked><span
+                                class="lang-icon py">PY</span> Python</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="java" checked><span
+                                class="lang-icon java">JV</span> Java</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="cpp" checked><span
+                                class="lang-icon cpp">C++</span> C++</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="go" checked><span
+                                class="lang-icon go">GO</span> Go</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="rust" checked><span
+                                class="lang-icon rust">RS</span> Rust</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="csharp"><span
+                                class="lang-icon cs">C#</span> C#</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="ruby"><span
+                                class="lang-icon ruby">RB</span> Ruby</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="php"><span
+                                class="lang-icon php">PHP</span> PHP</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="elixir"><span
+                                class="lang-icon elixir">EX</span> Elixir</label>
+                        <label class="lang-checkbox"><input type="checkbox" value="node"><span
+                                class="lang-icon node">ND</span> Node.js</label>
+                    </div>
                 </div>
                 <div class="btn-group">
-                    <button id="startRace" class="btn btn-primary">
-                        <span class="btn-icon">🏁</span>
-                        Start Race
+                    <button id="startRace" class="btn btn-primary btn-large">
+                        START RACE
                     </button>
-                    <button id="autoRace" class="btn btn-secondary">
-                        <span class="btn-icon">🔄</span>
-                        Auto Grow
-                    </button>
+                    <button id="resetRace" class="btn btn-outline">Reset</button>
                 </div>
             </div>
 
-            <div class="race-track-container">
-                <div class="race-lane" data-complexity="1">
-                    <div class="lane-info">
-                        <span class="complexity-label">O(1)</span>
-                        <span class="complexity-name">Constant</span>
-                    </div>
-                    <div class="track">
-                        <div class="racer" id="racer-1">🚀</div>
-                        <div class="distance-marker"></div>
-                    </div>
-                    <span class="operations" id="ops-1">1</span>
+            <div class="race-arena">
+                <div class="race-track-header">
+                    <span>Language</span>
+                    <span>Progress</span>
+                    <span>Time</span>
+                    <span>Position</span>
                 </div>
-                <div class="race-lane" data-complexity="logn">
-                    <div class="lane-info">
-                        <span class="complexity-label">O(log n)</span>
-                        <span class="complexity-name">Logarithmic</span>
-                    </div>
-                    <div class="track">
-                        <div class="racer" id="racer-logn">🏎️</div>
-                        <div class="distance-marker"></div>
-                    </div>
-                    <span class="operations" id="ops-logn">1</span>
-                </div>
-                <div class="race-lane" data-complexity="n">
-                    <div class="lane-info">
-                        <span class="complexity-label">O(n)</span>
-                        <span class="complexity-name">Linear</span>
-                    </div>
-                    <div class="track">
-                        <div class="racer" id="racer-n">🚗</div>
-                        <div class="distance-marker"></div>
-                    </div>
-                    <span class="operations" id="ops-n">10</span>
-                </div>
-                <div class="race-lane" data-complexity="nlogn">
-                    <div class="lane-info">
-                        <span class="complexity-label">O(n log n)</span>
-                        <span class="complexity-name">Linearithmic</span>
-                    </div>
-                    <div class="track">
-                        <div class="racer" id="racer-nlogn">🚐</div>
-                        <div class="distance-marker"></div>
-                    </div>
-                    <span class="operations" id="ops-nlogn">10</span>
-                </div>
-                <div class="race-lane" data-complexity="n2">
-                    <div class="lane-info">
-                        <span class="complexity-label">O(n²)</span>
-                        <span class="complexity-name">Quadratic</span>
-                    </div>
-                    <div class="track">
-                        <div class="racer" id="racer-n2">🚌</div>
-                        <div class="distance-marker"></div>
-                    </div>
-                    <span class="operations" id="ops-n2">100</span>
-                </div>
-                <div class="race-lane" data-complexity="2n">
-                    <div class="lane-info">
-                        <span class="complexity-label">O(2ⁿ)</span>
-                        <span class="complexity-name">Exponential</span>
-                    </div>
-                    <div class="track">
-                        <div class="racer" id="racer-2n">🐢</div>
-                        <div class="distance-marker"></div>
-                    </div>
-                    <span class="operations" id="ops-2n">1024</span>
+                <div class="race-tracks" id="raceTracks">
+                    <!-- Race tracks will be generated dynamically -->
                 </div>
             </div>
 
-            <div class="complexity-chart">
-                <canvas id="complexityGraph"></canvas>
+            <div class="arena-results" id="arenaResults" style="display: none;">
+                <h3>RACE RESULTS</h3>
+                <div class="podium">
+                    <div class="podium-place second" id="secondPlace">
+                        <span class="medal">II</span>
+                        <span class="lang-name">-</span>
+                        <span class="time">-</span>
+                    </div>
+                    <div class="podium-place first" id="firstPlace">
+                        <span class="medal">I</span>
+                        <span class="lang-name">-</span>
+                        <span class="time">-</span>
+                    </div>
+                    <div class="podium-place third" id="thirdPlace">
+                        <span class="medal">III</span>
+                        <span class="lang-name">-</span>
+                        <span class="time">-</span>
+                    </div>
+                </div>
+                <div class="speed-comparison" id="speedComparison">
+                    <!-- Speed comparisons will be shown here -->
+                </div>
+            </div>
+
+            <div class="arena-info">
+                <div class="info-card">
+                    <h4>How It Works</h4>
+                    <p>We simulate execution times based on real-world benchmarks for each language. Results are scaled
+                        to show relative performance differences.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Speed Factors</h4>
+                    <ul>
+                        <li><strong>C/C++/Rust:</strong> Native compiled - fastest</li>
+                        <li><strong>Go/Java:</strong> JIT compiled - very fast</li>
+                        <li><strong>JavaScript/Node:</strong> JIT (V8) - surprisingly fast</li>
+                        <li><strong>PHP/Elixir:</strong> Server-side - moderate speed</li>
+                        <li><strong>Python/Ruby:</strong> Interpreted - slower but flexible</li>
+                    </ul>
+                </div>
             </div>
         </section>
     </main>
 
     <footer class="main-footer">
-        <p>Built with ❤️ for learning algorithms | Drag walls in pathfinder!</p>
+        <p>ALGORITHM UNIVERSE | 50+ Algorithms | 12 Programming Languages | Interactive Sound</p>
     </footer>
 
-    <script src="pathfinding.js"></script>
-    <script src="sorting.js"></script>
-    <script src="complexity.js"></script>
+    <script src="audio.js"></script>
+    <script src="algorithms.js"></script>
+    <script src="visualizer.js"></script>
     <script src="main.js"></script>
 </body>
-</html>
 
+</html>
