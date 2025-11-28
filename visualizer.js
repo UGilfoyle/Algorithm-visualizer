@@ -2559,6 +2559,12 @@ class SearchingVisualizer {
         this.shouldStop = false;
         this.currentAlgorithm = 'binarySearch';
         this.container = document.getElementById('searchBars');
+        this.isCompareMode = false;
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
+        this.compareViz1 = null;
+        this.compareViz2 = null;
+        this.speed = 50;
         this.init();
     }
 
@@ -2574,11 +2580,23 @@ class SearchingVisualizer {
         this.render(); // Clear any highlighting states
     }
 
+    reset() {
+        this.stop();
+        this.render();
+        this.resetStats();
+    }
+
     bindEvents() {
         const sizeSlider = document.getElementById('searchArraySize');
         const targetInput = document.getElementById('searchTarget');
         const generateBtn = document.getElementById('generateSearchArray');
         const startBtn = document.getElementById('startSearch');
+        const toggleCompareBtn = document.getElementById('toggleSearchCompare');
+        const startCompareBtn = document.getElementById('startSearchCompare');
+        const pauseResumeCompareBtn = document.getElementById('pauseResumeSearchCompare');
+        const stopCompareBtn = document.getElementById('stopSearchCompare');
+        const compareControls = document.getElementById('searchCompareControls');
+        const compareContainer = document.getElementById('searchCompareContainer');
 
         if (sizeSlider) {
             sizeSlider.addEventListener('input', (e) => {
@@ -2595,6 +2613,41 @@ class SearchingVisualizer {
 
         if (generateBtn) generateBtn.addEventListener('click', () => this.generateArray());
         if (startBtn) startBtn.addEventListener('click', () => this.start());
+
+        if (toggleCompareBtn) {
+            toggleCompareBtn.addEventListener('click', () => {
+                this.isCompareMode = !this.isCompareMode;
+                const regularViz = document.getElementById('searchRegularVisualization');
+                
+                if (this.isCompareMode) {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'block';
+                    if (compareContainer) compareContainer.style.display = 'grid';
+                    if (regularViz) regularViz.style.display = 'none';
+                    toggleCompareBtn.textContent = '❌ Exit Compare';
+                    toggleCompareBtn.classList.add('active');
+                } else {
+                    this.stopComparison();
+                    if (compareControls) compareControls.style.display = 'none';
+                    if (compareContainer) compareContainer.style.display = 'none';
+                    if (regularViz) regularViz.style.display = 'block';
+                    toggleCompareBtn.textContent = '⚔️ Compare';
+                    toggleCompareBtn.classList.remove('active');
+                }
+            });
+        }
+
+        if (startCompareBtn) {
+            startCompareBtn.addEventListener('click', () => this.startComparison());
+        }
+
+        if (pauseResumeCompareBtn) {
+            pauseResumeCompareBtn.addEventListener('click', () => this.togglePauseResumeCompare());
+        }
+
+        if (stopCompareBtn) {
+            stopCompareBtn.addEventListener('click', () => this.stopComparison());
+        }
     }
 
     generateArray() {
@@ -2728,6 +2781,283 @@ class SearchingVisualizer {
 
     setAlgorithm(algo) {
         this.currentAlgorithm = algo;
+    }
+
+    getAlgorithmName(algoKey) {
+        const names = {
+            linearSearch: 'Linear Search',
+            binarySearch: 'Binary Search',
+            jumpSearch: 'Jump Search',
+            interpolationSearch: 'Interpolation Search',
+            exponentialSearch: 'Exponential Search',
+            ternarySearch: 'Ternary Search'
+        };
+        return names[algoKey] || algoKey;
+    }
+
+    async startComparison() {
+        if (this.isCompareRunning) return;
+        
+        const algo1 = document.getElementById('searchCompareAlgo1')?.value || 'linearSearch';
+        const algo2 = document.getElementById('searchCompareAlgo2')?.value || 'binarySearch';
+        const lang1 = document.getElementById('searchCompareLang1')?.value || 'python';
+        const lang2 = document.getElementById('searchCompareLang2')?.value || 'java';
+
+        // Update algorithm names
+        const name1El = document.getElementById('searchCompareAlgo1Name');
+        const name2El = document.getElementById('searchCompareAlgo2Name');
+        if (name1El) name1El.textContent = `${this.getAlgorithmName(algo1)} (${lang1})`;
+        if (name2El) name2El.textContent = `${this.getAlgorithmName(algo2)} (${lang2})`;
+
+        // Generate common array and target
+        const sizeEl = document.getElementById('searchArraySize');
+        const targetEl = document.getElementById('searchTarget');
+        const size = parseInt(sizeEl?.value || 20);
+        const target = parseInt(targetEl?.value || 42);
+        
+        const commonArray = Array.from({ length: size }, (_, i) => (i + 1) * 5).sort((a, b) => a - b);
+        
+        // Reset stats
+        document.getElementById('searchSteps1').textContent = '0';
+        document.getElementById('searchSteps2').textContent = '0';
+        document.getElementById('foundAt1').textContent = '-';
+        document.getElementById('foundAt2').textContent = '-';
+        document.getElementById('searchTime1').textContent = '0ms';
+        document.getElementById('searchTime2').textContent = '0ms';
+
+        // Reset panels
+        const panel1 = document.querySelector('#searchBars1').closest('.compare-panel');
+        const panel2 = document.querySelector('#searchBars2').closest('.compare-panel');
+        if (panel1) panel1.style.borderColor = 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = 'var(--border-color)';
+
+        this.isCompareRunning = true;
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
+
+        // Run both algorithms in parallel
+        const [result1, result2] = await Promise.all([
+            this.runAlgorithmForComparison(algo1, lang1, [...commonArray], document.getElementById('searchBars1'), 1, target),
+            this.runAlgorithmForComparison(algo2, lang2, [...commonArray], document.getElementById('searchBars2'), 2, target)
+        ]);
+
+        if (!this.isComparePaused && this.isCompareRunning) {
+            this.displayComparisonResults(result1, result2);
+        }
+
+        this.isCompareRunning = false;
+        this.updateCompareButtonStates();
+    }
+
+    async runAlgorithmForComparison(algoKey, langKey, array, container, panelNum, target) {
+        const steps = { count: 0 };
+        const startTime = performance.now();
+        let foundIndex = -1;
+        
+        const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
+        
+        const tempViz = {
+            array: array,
+            container: container,
+            target: target,
+            steps: steps,
+            shouldStop: false,
+            isPaused: false,
+            speed: this.speed,
+            langSpeed: langSpeed,
+            getDelay: () => {
+                const baseDelay = Math.max(200, 500);
+                const multiplier = this.speed / 50;
+                const langMultiplier = 1 / langSpeed;
+                return Math.max(50, (baseDelay / multiplier) * langMultiplier);
+            },
+            delay: async function() {
+                while (this.isPaused && !this.shouldStop) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                if (this.shouldStop) return;
+                return new Promise(resolve => setTimeout(resolve, this.getDelay()));
+            },
+            updateStat: (id, value) => {
+                if (id === 'steps') {
+                    const el = document.getElementById(`searchSteps${panelNum}`);
+                    if (el) el.textContent = value;
+                } else if (id === 'found') {
+                    const el = document.getElementById(`foundAt${panelNum}`);
+                    if (el) el.textContent = value;
+                }
+            },
+            render: (current = -1, found = -1, checked = []) => {
+                if (!container) return;
+                container.innerHTML = '';
+
+                array.forEach((val, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'search-item';
+                    item.textContent = val;
+
+                    if (idx === found) item.classList.add('found');
+                    else if (idx === current) item.classList.add('current');
+                    else if (checked.includes(idx)) item.classList.add('checked');
+
+                    container.appendChild(item);
+                });
+            }
+        };
+
+        if (panelNum === 1) this.compareViz1 = tempViz;
+        else this.compareViz2 = tempViz;
+
+        // Run the algorithm
+        switch (algoKey) {
+            case 'linearSearch':
+                foundIndex = await this.linearSearchForComparison(tempViz);
+                break;
+            case 'binarySearch':
+                foundIndex = await this.binarySearchForComparison(tempViz);
+                break;
+            default:
+                foundIndex = await this.linearSearchForComparison(tempViz);
+        }
+
+        const endTime = performance.now();
+        const elapsed = endTime - startTime;
+        
+        const timeEl = document.getElementById(`searchTime${panelNum}`);
+        if (timeEl) {
+            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
+            timeEl.textContent = formatTimeValue(elapsed, format);
+        }
+
+        return {
+            time: elapsed,
+            steps: steps.count,
+            found: foundIndex,
+            algorithm: algoKey
+        };
+    }
+
+    async linearSearchForComparison(viz) {
+        const checked = [];
+        for (let i = 0; i < viz.array.length && !viz.shouldStop; i++) {
+            checked.push(i);
+            viz.steps.count++;
+            viz.updateStat('steps', viz.steps.count);
+            viz.render(i, -1, checked);
+            await viz.delay();
+
+            if (viz.array[i] === viz.target) {
+                viz.render(-1, i, checked);
+                viz.updateStat('found', `Index ${i}`);
+                return i;
+            }
+        }
+
+        if (!viz.shouldStop) {
+            viz.updateStat('found', 'Not Found');
+        }
+        return -1;
+    }
+
+    async binarySearchForComparison(viz) {
+        let left = 0, right = viz.array.length - 1;
+        const checked = [];
+
+        while (left <= right && !viz.shouldStop) {
+            const mid = Math.floor((left + right) / 2);
+            viz.steps.count++;
+            checked.push(mid);
+            viz.updateStat('steps', viz.steps.count);
+            viz.render(mid, -1, checked);
+            await viz.delay();
+
+            if (viz.array[mid] === viz.target) {
+                viz.render(-1, mid, checked);
+                viz.updateStat('found', `Index ${mid}`);
+                return mid;
+            }
+
+            if (viz.array[mid] < viz.target) left = mid + 1;
+            else right = mid - 1;
+        }
+
+        if (!viz.shouldStop) {
+            viz.updateStat('found', 'Not Found');
+        }
+        return -1;
+    }
+
+    displayComparisonResults(result1, result2) {
+        const winner = result1.time < result2.time ? 1 : 2;
+        const panel1 = document.querySelector('#searchBars1').closest('.compare-panel');
+        const panel2 = document.querySelector('#searchBars2').closest('.compare-panel');
+        
+        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+    }
+
+    togglePauseResumeCompare() {
+        if (this.isComparePaused) {
+            this.resumeComparison();
+        } else {
+            this.pauseComparison();
+        }
+    }
+
+    pauseComparison() {
+        this.isComparePaused = true;
+        if (this.compareViz1) this.compareViz1.isPaused = true;
+        if (this.compareViz2) this.compareViz2.isPaused = true;
+        this.updateCompareButtonStates();
+    }
+
+    resumeComparison() {
+        this.isComparePaused = false;
+        if (this.compareViz1) this.compareViz1.isPaused = false;
+        if (this.compareViz2) this.compareViz2.isPaused = false;
+        this.updateCompareButtonStates();
+    }
+
+    stopComparison() {
+        this.isCompareRunning = false;
+        this.isComparePaused = false;
+        if (this.compareViz1) this.compareViz1.shouldStop = true;
+        if (this.compareViz2) this.compareViz2.shouldStop = true;
+        this.updateCompareButtonStates();
+    }
+
+    updateCompareButtonStates() {
+        const pauseResumeBtn = document.getElementById('pauseResumeSearchCompare');
+        const stopBtn = document.getElementById('stopSearchCompare');
+        
+        if (this.isCompareRunning) {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'visible';
+                pauseResumeBtn.style.position = 'static';
+                pauseResumeBtn.style.opacity = '1';
+                pauseResumeBtn.style.pointerEvents = 'auto';
+                pauseResumeBtn.textContent = this.isComparePaused ? '▶ Resume' : '⏸ Pause';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'visible';
+                stopBtn.style.position = 'static';
+                stopBtn.style.opacity = '1';
+                stopBtn.style.pointerEvents = 'auto';
+            }
+        } else {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'hidden';
+                pauseResumeBtn.style.position = 'absolute';
+                pauseResumeBtn.style.opacity = '0';
+                pauseResumeBtn.style.pointerEvents = 'none';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'hidden';
+                stopBtn.style.position = 'absolute';
+                stopBtn.style.opacity = '0';
+                stopBtn.style.pointerEvents = 'none';
+            }
+        }
     }
 }
 

@@ -361,28 +361,134 @@
                             </div>
                             <button id="generateSearchArray" class="btn btn-secondary">🔄 Generate</button>
                             <button id="startSearch" class="btn btn-primary">▶ Search</button>
+                            <button id="toggleSearchCompare" class="btn btn-outline">⚔️ Compare</button>
                         </div>
                     </div>
-                    <div class="search-container" id="searchBars"></div>
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <span class="stat-label">Steps:</span>
-                            <span class="stat-value" id="searchSteps">0</span>
+                    <div id="searchCompareControls" class="compare-controls" style="display: none;">
+                        <div class="compare-selectors">
+                            <div class="compare-selector">
+                                <label>Algorithm 1:</label>
+                                <select id="searchCompareAlgo1" class="compare-select">
+                                    <option value="linearSearch">Linear Search</option>
+                                    <option value="binarySearch">Binary Search</option>
+                                    <option value="jumpSearch">Jump Search</option>
+                                    <option value="interpolationSearch">Interpolation Search</option>
+                                    <option value="exponentialSearch">Exponential Search</option>
+                                    <option value="ternarySearch">Ternary Search</option>
+                                </select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 1:</label>
+                                <select id="searchCompareLang1" class="compare-select">
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Algorithm 2:</label>
+                                <select id="searchCompareAlgo2" class="compare-select">
+                                    <option value="binarySearch">Binary Search</option>
+                                    <option value="linearSearch">Linear Search</option>
+                                    <option value="jumpSearch">Jump Search</option>
+                                    <option value="interpolationSearch">Interpolation Search</option>
+                                    <option value="exponentialSearch">Exponential Search</option>
+                                    <option value="ternarySearch">Ternary Search</option>
+                                </select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 2:</label>
+                                <select id="searchCompareLang2" class="compare-select">
+                                    <option value="java">Java</option>
+                                    <option value="python">Python</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-actions">
+                                <button id="startSearchCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                                <button id="pauseResumeSearchCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏸ Pause</button>
+                                <button id="stopSearchCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹ Stop</button>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Found at:</span>
-                            <span class="stat-value" id="foundAt">-</span>
+                    </div>
+                    <div id="searchCompareContainer" class="compare-container" style="display: none;">
+                        <div class="compare-panel">
+                            <h4 id="searchCompareAlgo1Name">Algorithm 1</h4>
+                            <div class="search-container compare-bars" id="searchBars1"></div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Steps:</span>
+                                    <span class="stat-value" id="searchSteps1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Found at:</span>
+                                    <span class="stat-value" id="foundAt1">-</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="searchTime1">0ms</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Time:</span>
-                            <span class="stat-value" id="searchTime">0ms</span>
-                            <select id="searchTimeFormat" class="time-format-select">
-                                <option value="ms" selected>ms</option>
-                                <option value="s">sec</option>
-                                <option value="m">min</option>
-                                <option value="h">hrs</option>
-                                <option value="d">day</option>
+                        <div class="compare-panel">
+                            <h4 id="searchCompareAlgo2Name">Algorithm 2</h4>
+                            <div class="search-container compare-bars" id="searchBars2"></div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Steps:</span>
+                                    <span class="stat-value" id="searchSteps2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Found at:</span>
+                                    <span class="stat-value" id="foundAt2">-</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="searchTime2">0ms</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="searchRegularVisualization">
+                        <div class="search-container" id="searchBars"></div>
+                        <div class="stats-row" id="searchRegularStatsRow">
+                            <div class="stat-item">
+                                <span class="stat-label">Steps:</span>
+                                <span class="stat-value" id="searchSteps">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Found at:</span>
+                                <span class="stat-value" id="foundAt">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Time:</span>
+                                <span class="stat-value" id="searchTime">0ms</span>
+                                <select id="searchTimeFormat" class="time-format-select">
+                                    <option value="ms" selected>ms</option>
+                                    <option value="s">sec</option>
+                                    <option value="m">min</option>
+                                    <option value="h">hrs</option>
+                                    <option value="d">day</option>
                         </select>
+                            </div>
                         </div>
                     </div>
                 </div>
