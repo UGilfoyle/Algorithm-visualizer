@@ -3689,18 +3689,270 @@ class TreeVisualizer {
         if (modal) modal.style.display = 'flex';
     }
     
-    startComparison() {
-        // Placeholder for comparison logic
-        console.log('Tree comparison started');
+    async startComparison() {
+        if (this.isCompareRunning) return;
+        
+        const algo1 = document.getElementById('treeCompareAlgo1')?.value || 'inorderTraversal';
+        const algo2 = document.getElementById('treeCompareAlgo2')?.value || 'preorderTraversal';
+        const lang1 = document.getElementById('treeCompareLang1')?.value || 'python';
+        const lang2 = document.getElementById('treeCompareLang2')?.value || 'java';
+        
+        // Update algorithm names
+        const name1El = document.getElementById('treeCompareAlgo1Name');
+        const name2El = document.getElementById('treeCompareAlgo2Name');
+        if (name1El) name1El.textContent = `${algo1} (${lang1})`;
+        if (name2El) name2El.textContent = `${algo2} (${lang2})`;
+        
+        // Clone the current tree for both comparisons
+        const tree1 = this.cloneTree(this.root);
+        const tree2 = this.cloneTree(this.root);
+        
+        // Initialize comparison SVGs
+        this.initComparisonTree(1, tree1);
+        this.initComparisonTree(2, tree2);
+        
+        // Reset stats
+        document.getElementById('treeNodes1').textContent = '0';
+        document.getElementById('treeNodes2').textContent = '0';
+        document.getElementById('treeHeight1').textContent = '0';
+        document.getElementById('treeHeight2').textContent = '0';
+        document.getElementById('treeTime1').textContent = '0ms';
+        document.getElementById('treeTime2').textContent = '0ms';
+        
+        // Reset panels
+        const panel1 = document.querySelector('#treeSvg1').closest('.compare-panel');
+        const panel2 = document.querySelector('#treeSvg2').closest('.compare-panel');
+        if (panel1) panel1.style.borderColor = 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = 'var(--border-color)';
+        
+        this.isCompareRunning = true;
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
+        
+        // Run both algorithms in parallel
+        const [result1, result2] = await Promise.all([
+            this.runAlgorithmForComparison(algo1, lang1, tree1, 1),
+            this.runAlgorithmForComparison(algo2, lang2, tree2, 2)
+        ]);
+        
+        if (!this.isComparePaused && this.isCompareRunning) {
+            this.displayComparisonResults(result1, result2);
+        }
+        
+        this.isCompareRunning = false;
+        this.updateCompareButtonStates();
+    }
+    
+    cloneTree(node) {
+        if (!node) return null;
+        return {
+            value: node.value,
+            left: this.cloneTree(node.left),
+            right: this.cloneTree(node.right)
+        };
+    }
+    
+    initComparisonTree(panelNum, root) {
+        const svg = document.getElementById(`treeSvg${panelNum}`);
+        if (!svg) return;
+        
+        svg.innerHTML = '';
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '300');
+        svg.setAttribute('viewBox', '0 0 800 300');
+        
+        if (!root) return;
+        
+        const nodeCount = this.countNodes(root);
+        const height = this.getHeight(root);
+        
+        document.getElementById(`treeNodes${panelNum}`).textContent = nodeCount;
+        document.getElementById(`treeHeight${panelNum}`).textContent = height;
+        
+        this.drawNodeForComparison(svg, root, 400, 40, 160, 0);
+    }
+    
+    drawNodeForComparison(svg, node, x, y, offset, depth) {
+        if (!node) return;
+        
+        if (node.left) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', y);
+            line.setAttribute('x2', x - offset);
+            line.setAttribute('y2', y + 60);
+            line.setAttribute('stroke', 'var(--ice-blue, #93c5fd)');
+            line.setAttribute('stroke-width', '2');
+            svg.appendChild(line);
+            this.drawNodeForComparison(svg, node.left, x - offset, y + 60, offset / 2, depth + 1);
+        }
+        
+        if (node.right) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', y);
+            line.setAttribute('x2', x + offset);
+            line.setAttribute('y2', y + 60);
+            line.setAttribute('stroke', 'var(--ice-blue, #93c5fd)');
+            line.setAttribute('stroke-width', '2');
+            svg.appendChild(line);
+            this.drawNodeForComparison(svg, node.right, x + offset, y + 60, offset / 2, depth + 1);
+        }
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', 20);
+        circle.setAttribute('fill', 'var(--bg-tertiary, #151a22)');
+        circle.setAttribute('stroke', 'var(--gold, #d4a574)');
+        circle.setAttribute('stroke-width', '2');
+        svg.appendChild(circle);
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', y + 5);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('fill', 'var(--text-primary, #e2e8f0)');
+        text.setAttribute('font-family', 'Fira Code, monospace');
+        text.setAttribute('font-size', '11');
+        text.textContent = node.value;
+        svg.appendChild(text);
+    }
+    
+    async runAlgorithmForComparison(algoKey, langKey, root, panelNum) {
+        const startTime = performance.now();
+        const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
+        const baseDelay = this.getDelay();
+        const delay = Math.max(1, baseDelay / langSpeed);
+        
+        // Run traversal algorithm
+        const result = [];
+        await this.traverseForComparison(root, algoKey, result, delay, panelNum);
+        
+        const endTime = performance.now();
+        const elapsed = endTime - startTime;
+        
+        const timeEl = document.getElementById(`treeTime${panelNum}`);
+        if (timeEl) {
+            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
+            timeEl.textContent = formatTimeValue(elapsed, format);
+        }
+        
+        return {
+            time: elapsed,
+            nodes: result.length
+        };
+    }
+    
+    async traverseForComparison(node, algoKey, result, delay, panelNum) {
+        if (!node || !this.isCompareRunning || this.isComparePaused) return;
+        
+        const svg = document.getElementById(`treeSvg${panelNum}`);
+        if (!svg) return;
+        
+        // Highlight current node
+        const circles = svg.querySelectorAll('circle');
+        const texts = svg.querySelectorAll('text');
+        circles.forEach((c, i) => {
+            const text = texts[i];
+            if (text && parseInt(text.textContent) === node.value) {
+                c.setAttribute('fill', '#d4a574');
+                setTimeout(() => {
+                    c.setAttribute('fill', 'var(--bg-tertiary, #151a22)');
+                }, delay);
+            }
+        });
+        
+        await new Promise(r => setTimeout(r, delay));
+        
+        switch (algoKey) {
+            case 'inorderTraversal':
+                await this.traverseForComparison(node.left, algoKey, result, delay, panelNum);
+                if (!this.isComparePaused && this.isCompareRunning) result.push(node.value);
+                await this.traverseForComparison(node.right, algoKey, result, delay, panelNum);
+                break;
+            case 'preorderTraversal':
+                if (!this.isComparePaused && this.isCompareRunning) result.push(node.value);
+                await this.traverseForComparison(node.left, algoKey, result, delay, panelNum);
+                await this.traverseForComparison(node.right, algoKey, result, delay, panelNum);
+                break;
+            case 'postorderTraversal':
+                await this.traverseForComparison(node.left, algoKey, result, delay, panelNum);
+                await this.traverseForComparison(node.right, algoKey, result, delay, panelNum);
+                if (!this.isComparePaused && this.isCompareRunning) result.push(node.value);
+                break;
+            default:
+                await this.traverseForComparison(node.left, algoKey, result, delay, panelNum);
+                if (!this.isComparePaused && this.isCompareRunning) result.push(node.value);
+                await this.traverseForComparison(node.right, algoKey, result, delay, panelNum);
+        }
+    }
+    
+    displayComparisonResults(result1, result2) {
+        const winner = result1.time < result2.time ? 1 : 2;
+        const panel1 = document.querySelector('#treeSvg1').closest('.compare-panel');
+        const panel2 = document.querySelector('#treeSvg2').closest('.compare-panel');
+        
+        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
     }
     
     togglePauseResumeCompare() {
-        this.isComparePaused = !this.isComparePaused;
+        if (this.isComparePaused) {
+            this.resumeComparison();
+        } else {
+            this.pauseComparison();
+        }
+    }
+    
+    pauseComparison() {
+        this.isComparePaused = true;
+        this.updateCompareButtonStates();
+    }
+    
+    resumeComparison() {
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
     }
     
     stopComparison() {
         this.isCompareRunning = false;
         this.isComparePaused = false;
+        this.updateCompareButtonStates();
+    }
+    
+    updateCompareButtonStates() {
+        const pauseResumeBtn = document.getElementById('pauseResumeTreeCompare');
+        const stopBtn = document.getElementById('stopTreeCompare');
+        
+        if (this.isCompareRunning) {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'visible';
+                pauseResumeBtn.style.position = 'static';
+                pauseResumeBtn.style.opacity = '1';
+                pauseResumeBtn.style.pointerEvents = 'auto';
+                pauseResumeBtn.textContent = this.isComparePaused ? '▶ Resume' : '⏸ Pause';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'visible';
+                stopBtn.style.position = 'static';
+                stopBtn.style.opacity = '1';
+                stopBtn.style.pointerEvents = 'auto';
+            }
+        } else {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'hidden';
+                pauseResumeBtn.style.position = 'absolute';
+                pauseResumeBtn.style.opacity = '0';
+                pauseResumeBtn.style.pointerEvents = 'none';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'hidden';
+                stopBtn.style.position = 'absolute';
+                stopBtn.style.opacity = '0';
+                stopBtn.style.pointerEvents = 'none';
+            }
+        }
     }
 
     insertInitialNodes() {
@@ -4008,18 +4260,234 @@ class GraphVisualizer {
         if (modal) modal.style.display = 'flex';
     }
     
-    startComparison() {
-        // Placeholder for comparison logic
-        console.log('Graph comparison started');
+    async startComparison() {
+        if (this.isCompareRunning) return;
+        
+        const algo1 = document.getElementById('graphCompareAlgo1')?.value || 'bfs';
+        const algo2 = document.getElementById('graphCompareAlgo2')?.value || 'dfs';
+        const lang1 = document.getElementById('graphCompareLang1')?.value || 'python';
+        const lang2 = document.getElementById('graphCompareLang2')?.value || 'java';
+        
+        // Update algorithm names
+        const name1El = document.getElementById('graphCompareAlgo1Name');
+        const name2El = document.getElementById('graphCompareAlgo2Name');
+        if (name1El) name1El.textContent = `${algo1.toUpperCase()} (${lang1})`;
+        if (name2El) name2El.textContent = `${algo2.toUpperCase()} (${lang2})`;
+        
+        // Clone the current graph for both comparisons
+        const nodes1 = JSON.parse(JSON.stringify(this.nodes));
+        const nodes2 = JSON.parse(JSON.stringify(this.nodes));
+        const edges1 = JSON.parse(JSON.stringify(this.edges));
+        const edges2 = JSON.parse(JSON.stringify(this.edges));
+        
+        // Initialize comparison graphs
+        this.initComparisonGraph(1, nodes1, edges1);
+        this.initComparisonGraph(2, nodes2, edges2);
+        
+        // Reset stats
+        document.getElementById('graphVertices1').textContent = nodes1.length;
+        document.getElementById('graphVertices2').textContent = nodes2.length;
+        document.getElementById('graphEdges1').textContent = edges1.length;
+        document.getElementById('graphEdges2').textContent = edges2.length;
+        document.getElementById('graphTime1').textContent = '0ms';
+        document.getElementById('graphTime2').textContent = '0ms';
+        
+        // Reset panels
+        const panel1 = document.querySelector('#graphSvg1').closest('.compare-panel');
+        const panel2 = document.querySelector('#graphSvg2').closest('.compare-panel');
+        if (panel1) panel1.style.borderColor = 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = 'var(--border-color)';
+        
+        this.isCompareRunning = true;
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
+        
+        // Run both algorithms in parallel
+        const [result1, result2] = await Promise.all([
+            this.runAlgorithmForComparison(algo1, lang1, nodes1, edges1, 1),
+            this.runAlgorithmForComparison(algo2, lang2, nodes2, edges2, 2)
+        ]);
+        
+        if (!this.isComparePaused && this.isCompareRunning) {
+            this.displayComparisonResults(result1, result2);
+        }
+        
+        this.isCompareRunning = false;
+        this.updateCompareButtonStates();
+    }
+    
+    initComparisonGraph(panelNum, nodes, edges) {
+        const svg = document.getElementById(`graphSvg${panelNum}`);
+        if (!svg) return;
+        
+        svg.innerHTML = '';
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '300');
+        svg.setAttribute('viewBox', '0 0 600 300');
+        
+        // Draw edges
+        edges.forEach(edge => {
+            const from = nodes[edge.from];
+            const to = nodes[edge.to];
+            if (!from || !to) return;
+            
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', from.x);
+            line.setAttribute('y1', from.y);
+            line.setAttribute('x2', to.x);
+            line.setAttribute('y2', to.y);
+            line.setAttribute('stroke', 'var(--ice-blue, #93c5fd)');
+            line.setAttribute('stroke-width', '2');
+            svg.appendChild(line);
+        });
+        
+        // Draw nodes
+        nodes.forEach(node => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', node.x);
+            circle.setAttribute('cy', node.y);
+            circle.setAttribute('r', 20);
+            circle.setAttribute('fill', 'var(--bg-tertiary, #151a22)');
+            circle.setAttribute('stroke', 'var(--gold, #d4a574)');
+            circle.setAttribute('stroke-width', '2');
+            svg.appendChild(circle);
+            
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', node.x);
+            text.setAttribute('y', node.y + 5);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('fill', 'var(--text-primary, #e2e8f0)');
+            text.setAttribute('font-family', 'Fira Code, monospace');
+            text.setAttribute('font-size', '11');
+            text.textContent = node.id;
+            svg.appendChild(text);
+        });
+    }
+    
+    async runAlgorithmForComparison(algoKey, langKey, nodes, edges, panelNum) {
+        const startTime = performance.now();
+        const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
+        const baseDelay = Math.max(10, 510 - (this.speed * 5));
+        const multiplier = this.speed / 50;
+        const delay = Math.max(1, (baseDelay / multiplier) / langSpeed);
+        
+        const visited = new Set();
+        const result = [];
+        
+        // Run BFS for comparison
+        const queue = [0];
+        visited.add(0);
+        
+        while (queue.length > 0 && this.isCompareRunning && !this.isComparePaused) {
+            const current = queue.shift();
+            result.push(current);
+            
+            // Highlight node
+            const svg = document.getElementById(`graphSvg${panelNum}`);
+            if (svg) {
+                const circles = svg.querySelectorAll('circle');
+                if (circles[current]) {
+                    circles[current].setAttribute('fill', '#d4a574');
+                }
+            }
+            
+            await new Promise(r => setTimeout(r, delay));
+            
+            // Explore neighbors
+            for (const edge of edges) {
+                if (!this.isCompareRunning || this.isComparePaused) break;
+                
+                let neighbor = null;
+                if (edge.from === current && !visited.has(edge.to)) neighbor = edge.to;
+                if (edge.to === current && !visited.has(edge.from)) neighbor = edge.from;
+                
+                if (neighbor !== null) {
+                    visited.add(neighbor);
+                    queue.push(neighbor);
+                }
+            }
+        }
+        
+        const endTime = performance.now();
+        const elapsed = endTime - startTime;
+        
+        const timeEl = document.getElementById(`graphTime${panelNum}`);
+        if (timeEl) {
+            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
+            timeEl.textContent = formatTimeValue(elapsed, format);
+        }
+        
+        return {
+            time: elapsed,
+            vertices: result.length
+        };
+    }
+    
+    displayComparisonResults(result1, result2) {
+        const winner = result1.time < result2.time ? 1 : 2;
+        const panel1 = document.querySelector('#graphSvg1').closest('.compare-panel');
+        const panel2 = document.querySelector('#graphSvg2').closest('.compare-panel');
+        
+        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
     }
     
     togglePauseResumeCompare() {
-        this.isComparePaused = !this.isComparePaused;
+        if (this.isComparePaused) {
+            this.resumeComparison();
+        } else {
+            this.pauseComparison();
+        }
+    }
+    
+    pauseComparison() {
+        this.isComparePaused = true;
+        this.updateCompareButtonStates();
+    }
+    
+    resumeComparison() {
+        this.isComparePaused = false;
+        this.updateCompareButtonStates();
     }
     
     stopComparison() {
         this.isCompareRunning = false;
         this.isComparePaused = false;
+        this.updateCompareButtonStates();
+    }
+    
+    updateCompareButtonStates() {
+        const pauseResumeBtn = document.getElementById('pauseResumeGraphCompare');
+        const stopBtn = document.getElementById('stopGraphCompare');
+        
+        if (this.isCompareRunning) {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'visible';
+                pauseResumeBtn.style.position = 'static';
+                pauseResumeBtn.style.opacity = '1';
+                pauseResumeBtn.style.pointerEvents = 'auto';
+                pauseResumeBtn.textContent = this.isComparePaused ? '▶ Resume' : '⏸ Pause';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'visible';
+                stopBtn.style.position = 'static';
+                stopBtn.style.opacity = '1';
+                stopBtn.style.pointerEvents = 'auto';
+            }
+        } else {
+            if (pauseResumeBtn) {
+                pauseResumeBtn.style.visibility = 'hidden';
+                pauseResumeBtn.style.position = 'absolute';
+                pauseResumeBtn.style.opacity = '0';
+                pauseResumeBtn.style.pointerEvents = 'none';
+            }
+            if (stopBtn) {
+                stopBtn.style.visibility = 'hidden';
+                stopBtn.style.position = 'absolute';
+                stopBtn.style.opacity = '0';
+                stopBtn.style.pointerEvents = 'none';
+            }
+        }
     }
 
     generateGraph() {
