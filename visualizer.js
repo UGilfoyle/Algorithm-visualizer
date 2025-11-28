@@ -1218,10 +1218,11 @@ class LanguageArena {
         const second = this.results[1];
         const third = this.results[2];
 
+        const langInfo = getLanguageInfo();
         const updatePodium = (place, result) => {
             const nameEl = document.querySelector(`#${place} .lang-name`);
             const timeEl = document.querySelector(`#${place} .time`);
-            if (nameEl) nameEl.textContent = LANGUAGE_INFO[result.lang]?.name || result.lang;
+            if (nameEl) nameEl.textContent = langInfo[result.lang]?.name || result.lang;
             if (timeEl) timeEl.textContent = result.displayTime;
         };
 
@@ -1233,9 +1234,10 @@ class LanguageArena {
         if (compEl) {
             compEl.innerHTML = '<h4>Speed Comparison</h4>';
 
+            const langInfo = getLanguageInfo();
             const fastest = this.results[0].time;
             this.results.forEach(result => {
-                const info = LANGUAGE_INFO[result.lang];
+                const info = langInfo[result.lang];
                 if (!info) return;
                 const ratio = (result.time / fastest).toFixed(2);
                 const bar = document.createElement('div');
