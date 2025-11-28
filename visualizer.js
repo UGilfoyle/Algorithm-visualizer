@@ -1793,8 +1793,8 @@ class LanguageArena {
                 </linearGradient>
             </defs>
             
-            <text x="${width/2}" y="25" text-anchor="middle" fill="var(--text-primary)" font-size="18" font-weight="bold">${algo.name} - Performance Analysis</text>
-            <text x="${width/2}" y="45" text-anchor="middle" fill="var(--text-secondary)" font-size="12">Time: ${algo.time} | Space: ${algo.space}</text>
+            <text x="${width/2}" y="30" text-anchor="middle" fill="var(--text-primary)" font-size="22" font-weight="bold">${algo.name} - Performance Analysis</text>
+            <text x="${width/2}" y="52" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Time: ${algo.time} | Space: ${algo.space}</text>
             
             <rect x="${padding.left}" y="${padding.top}" width="${chartWidth}" height="${chartHeight}" 
                   fill="var(--bg-tertiary)" rx="8" opacity="0.3"/>`;
