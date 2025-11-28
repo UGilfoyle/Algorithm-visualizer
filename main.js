@@ -297,15 +297,13 @@ function initTheme() {
     
     function updateThemeUI(currentTheme) {
         if (themeIcon && themeLabel) {
-            // Show what theme you'll switch TO, not the current theme
+            // Show the CURRENT theme
             if (currentTheme === 'light') {
-                // Currently light, so button shows "Dark" (what you'll switch to)
-                themeIcon.textContent = '🌙';
-                themeLabel.textContent = 'Dark';
-            } else {
-                // Currently dark, so button shows "Light" (what you'll switch to)
                 themeIcon.textContent = '☀️';
                 themeLabel.textContent = 'Light';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeLabel.textContent = 'Dark';
             }
         }
     }
