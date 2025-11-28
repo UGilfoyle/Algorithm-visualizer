@@ -1295,6 +1295,9 @@ select:focus {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     min-height: 150px;
+    max-height: 400px;
+    overflow-y: auto;
+    max-width: 100%;
 }
 
 .dp-cell {
@@ -1331,7 +1334,8 @@ select:focus {
 /* ========================================
    String Visualization
    ======================================== */
-.string-visualization {
+.string-visualization,
+.string-container {
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
@@ -1339,6 +1343,22 @@ select:focus {
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
+    max-height: 400px;
+    overflow-y: auto;
+    max-width: 100%;
+}
+
+.math-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    max-height: 400px;
+    overflow-y: auto;
+    max-width: 100%;
 }
 
 .string-char {

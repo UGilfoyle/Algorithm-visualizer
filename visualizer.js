@@ -1061,10 +1061,19 @@ class SearchingVisualizer {
         this.shouldStop = false;
         this.resetStats();
 
+        const startTime = performance.now();
+
         if (this.currentAlgorithm === 'binarySearch') {
             await this.binarySearch();
         } else {
             await this.linearSearch();
+        }
+
+        if (!this.shouldStop) {
+            const endTime = performance.now();
+            const elapsed = endTime - startTime;
+            const timeEl = document.getElementById('searchTime');
+            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
         }
 
         this.isRunning = false;
@@ -1543,11 +1552,20 @@ class DPVisualizer {
         this.isRunning = true;
         this.shouldStop = false;
 
+        const startTime = performance.now();
+
         const inputEl = document.getElementById('dpInput');
         if (!inputEl) return;
         const value = inputEl.value;
         const n = parseInt(value.split(':')[1]) || 10;
         await this.showFibonacci(n);
+
+        if (!this.shouldStop) {
+            const endTime = performance.now();
+            const elapsed = endTime - startTime;
+            const timeEl = document.getElementById('dpTime');
+            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+        }
 
         this.isRunning = false;
     }
@@ -1711,12 +1729,21 @@ class MathVisualizer {
         this.isRunning = true;
         this.shouldStop = false;
 
+        const startTime = performance.now();
+
         const input1El = document.getElementById('mathInput1');
         const input2El = document.getElementById('mathInput2');
         const a = parseInt(input1El?.value || 48);
         const b = parseInt(input2El?.value || 18);
 
         await this.gcd(a, b);
+
+        if (!this.shouldStop) {
+            const endTime = performance.now();
+            const elapsed = endTime - startTime;
+            const timeEl = document.getElementById('mathTime');
+            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+        }
 
         this.isRunning = false;
     }
