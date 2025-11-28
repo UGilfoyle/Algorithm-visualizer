@@ -860,6 +860,14 @@
     <script src="algorithms.js"></script>
     <script src="visualizer.js"></script>
     <script src="main.js"></script>
+    <script>
+        // Initialize icons after all scripts load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initLanguageIcons === 'function') {
+                setTimeout(() => initLanguageIcons(), 200);
+            }
+        });
+    </script>
 </body>
 
 </html>

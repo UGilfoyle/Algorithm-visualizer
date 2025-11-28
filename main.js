@@ -20,11 +20,12 @@ class App {
     }
     
     init() {
-        initLanguageIcons();
         this.setupNavigation();
         this.setupAlgorithmSelectors();
         this.setupLanguageTabs();
         this.loadAlgorithmInfo();
+        // Initialize icons after a short delay to ensure LANGUAGE_SVGS is loaded
+        setTimeout(() => initLanguageIcons(), 100);
     }
     
     setupNavigation() {
