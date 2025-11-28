@@ -868,6 +868,7 @@ class LanguageArena {
             case 'factorial': return this.iterations * 0.0001;
             case 'matrix': return this.iterations * 0.05;
             case 'loop': return this.iterations * 0.00001;
+            case 'nestedLoop': return this.iterations * this.iterations * 0.000001;
             default: return this.iterations * 0.001;
         }
     }
@@ -901,18 +902,24 @@ class LanguageArena {
 
                 // Calculate position: move back and forth across the track
                 // Create smooth back-and-forth motion with forward progress
-                // Use sine wave for oscillation, but ensure forward movement
-                const cycles = 3; // Number of back-and-forth cycles
+                // Use sine wave for oscillation - more cycles for smoother motion
+                const cycles = 4; // Number of back-and-forth cycles
                 const oscillation = Math.sin(progress * Math.PI * cycles * 2);
+                
+                // Map oscillation from [-1, 1] to [0, 1] for position calculation
                 const normalizedOscillation = (oscillation + 1) / 2; // 0 to 1
                 
-                // Combine: 70% forward progress, 30% oscillation
+                // Create back-and-forth motion: oscillate across full width
+                // Forward progress determines overall completion, oscillation creates back-and-forth
                 const forwardProgress = progress;
                 const oscillatingProgress = normalizedOscillation;
-                const finalProgress = forwardProgress * 0.7 + oscillatingProgress * 0.3;
                 
-                // Calculate actual position
-                const position = finalProgress * maxPosition;
+                // Combine: oscillate across full width while making forward progress
+                // The oscillation creates the back-and-forth, forward progress ensures completion
+                const finalProgress = forwardProgress * 0.65 + oscillatingProgress * 0.35;
+                
+                // Calculate actual position - ensure it stays within bounds
+                const position = Math.max(0, Math.min(maxPosition, finalProgress * maxPosition));
                 runnerEl.style.left = `${position}px`;
                 runnerEl.style.transform = `translateX(0)`;
 

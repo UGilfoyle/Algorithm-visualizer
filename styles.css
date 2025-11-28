@@ -1083,10 +1083,10 @@ select:focus {
 .track-bar {
     position: relative;
     height: 50px;
-    background: var(--bg-tertiary);
+    background: transparent;
     border-radius: var(--radius-md);
     overflow: visible;
-    border: 1px solid var(--border-color);
+    border: none;
     display: flex;
     align-items: center;
 }
@@ -1097,12 +1097,12 @@ select:focus {
     height: 40px;
     border-radius: 50%;
     background: var(--primary);
-    border: 3px solid var(--primary);
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    transition: left 0.05s linear, transform 0.1s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: left 0.05s linear, transform 0.1s ease, box-shadow 0.2s ease;
     z-index: 10;
     left: 0;
     transform: translateX(0);
@@ -1117,8 +1117,8 @@ select:focus {
 }
 
 .track-runner:hover {
-    transform: translateX(0) scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transform: translateX(0) scale(1.15);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .track-time,
