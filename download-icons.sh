@@ -26,7 +26,7 @@ echo "Downloading icons into $OUT_DIR ..."
 
 download_icon "java.svg" "https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg"
 download_icon "python.svg" "https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
-download_icon "deno.png" "https://deno.land/logo.png"
+download_icon "deno.png" "https://assets.streamlinehq.com/image/private/w_300,h_300,ar_1/f_auto/v1/icons/logos/deno-6tji8geiz6a1p5p3p7fq62.png/deno-qt98uf7celo0rpoe9qhvp.png?_a=DATAg1AAZAA0"
 download_icon "nodejs.svg" "https://raw.githubusercontent.com/devicons/devicon/master/icons/nodejs/nodejs-original.svg"
 download_icon "typescript.svg" "https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg"
 download_icon "php.svg" "https://raw.githubusercontent.com/devicons/devicon/master/icons/php/php-original.svg"
