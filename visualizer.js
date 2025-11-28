@@ -709,6 +709,25 @@ class LanguageArena {
         this.updateSelectedLanguages();
         this.bindEvents();
         this.renderTracks();
+        this.setupTimeFormatListeners();
+    }
+
+    setupTimeFormatListeners() {
+        // Set up listeners for time format dropdowns
+        // This will be called after tracks are rendered
+        setTimeout(() => {
+            this.selectedLanguages.forEach(lang => {
+                const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
+                if (formatSelect) {
+                    formatSelect.addEventListener('change', (e) => {
+                        const timeValueEl = document.querySelector(`#time-${lang} .time-value`);
+                        if (timeValueEl && this.rawTimes[lang] > 0) {
+                            timeValueEl.textContent = formatTimeValue(this.rawTimes[lang], e.target.value);
+                        }
+                    });
+                }
+            });
+        }, 100);
     }
 
     updateSelectedLanguages() {
@@ -744,6 +763,7 @@ class LanguageArena {
             cb.addEventListener('change', () => {
                 this.updateSelectedLanguages();
                 this.renderTracks();
+                this.setupTimeFormatListeners();
             });
         });
     }
@@ -778,11 +798,21 @@ class LanguageArena {
                         <span class="runner-symbol">${info.symbol}</span>
                     </div>
                 </div>
-                <div class="track-time" id="time-${lang}">-</div>
+                <div class="track-time" id="time-${lang}">
+                    <span class="time-value">-</span>
+                    <select class="time-format-select" id="arenaTimeFormat-${lang}">
+                        <option value="ms" selected>ms</option>
+                        <option value="s">sec</option>
+                        <option value="m">min</option>
+                    </select>
+                </div>
                 <div class="track-position" id="position-${lang}">-</div>
             `;
             container.appendChild(track);
         });
+        
+        // Set up time format listeners after tracks are rendered
+        this.setupTimeFormatListeners();
     }
 
     async startRace() {
@@ -803,6 +833,7 @@ class LanguageArena {
         this.selectedLanguages.forEach(lang => {
             const runnerEl = document.getElementById(`runner-${lang}`);
             const timeEl = document.getElementById(`time-${lang}`);
+            const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
             const posEl = document.getElementById(`position-${lang}`);
             const trackEl = document.getElementById(`track-${lang}`);
 
@@ -810,9 +841,10 @@ class LanguageArena {
                 runnerEl.style.left = '0%';
                 runnerEl.style.transform = 'translateX(0)';
             }
-            if (timeEl) timeEl.textContent = '-';
+            if (timeValueEl) timeValueEl.textContent = '-';
             if (posEl) posEl.textContent = '-';
             if (trackEl) trackEl.classList.remove('winner', 'finished');
+            this.rawTimes[lang] = 0;
         });
 
         if (typeof audioEngine !== 'undefined') audioEngine.playBattleStart();
@@ -936,8 +968,18 @@ class LanguageArena {
                     // Ensure ball reaches the end
                     runnerEl.style.left = `${maxPosition}px`;
                     if (trackEl) trackEl.classList.add('finished');
-                    const displayTime = this.formatTime(time);
-                    if (timeEl) timeEl.textContent = displayTime;
+                    
+                    // Store raw time value
+                    this.rawTimes[lang] = time;
+                    
+                    // Get format from dropdown
+                    const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
+                    const format = formatSelect ? formatSelect.value : 'ms';
+                    const displayTime = formatTimeValue(time, format);
+                    
+                    const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
+                    if (timeValueEl) timeValueEl.textContent = displayTime;
+                    
                     this.results.push({ lang, time, displayTime });
                     if (typeof audioEngine !== 'undefined') audioEngine.playSuccess();
                     resolve();
