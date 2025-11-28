@@ -1474,12 +1474,16 @@ class GraphVisualizer {
             const steps = result.length;
             const speed = steps > 0 ? (steps / (elapsed / 1000)).toFixed(1) : '0';
 
+            rawTimeValues.graphTime = elapsed;
+            const formatSelect = document.getElementById('graphTimeFormat');
+            const format = formatSelect ? formatSelect.value : 'ms';
+            
             const resultEl = document.getElementById('graphResult');
             const timeEl = document.getElementById('graphTime');
             const speedEl = document.getElementById('graphSpeedStat');
 
             if (resultEl) resultEl.textContent = result.join(' → ');
-            if (timeEl) timeEl.textContent = `${elapsed.toFixed(0)}ms`;
+            if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
             if (speedEl) speedEl.textContent = `${speed} ops/s`;
 
             if (typeof audioEngine !== 'undefined') audioEngine.playComplete();
