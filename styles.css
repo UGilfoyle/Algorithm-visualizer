@@ -1514,8 +1514,8 @@ select:focus {
 }
 
 .track-time .time-value {
-    min-width: 80px;
-    max-width: 100px;
+    min-width: 90px;
+    max-width: 120px;
     text-align: right;
     font-size: 0.85rem;
     white-space: nowrap;

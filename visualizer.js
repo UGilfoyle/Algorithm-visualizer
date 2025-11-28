@@ -15,6 +15,25 @@ function formatTimeValue(ms, format = 'ms') {
             const minutes = Math.floor(ms / 60000);
             const seconds = ((ms % 60000) / 1000).toFixed(1);
             return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+        case 'h':
+            const hours = Math.floor(ms / 3600000);
+            const remainingMs = ms % 3600000;
+            const mins = Math.floor(remainingMs / 60000);
+            const secs = ((remainingMs % 60000) / 1000).toFixed(1);
+            if (hours > 0) {
+                return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+            }
+            return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        case 'd':
+            const days = Math.floor(ms / 86400000);
+            const remainingMsAfterDays = ms % 86400000;
+            const hrs = Math.floor(remainingMsAfterDays / 3600000);
+            const remainingMsAfterHours = remainingMsAfterDays % 3600000;
+            const minsAfterHours = Math.floor(remainingMsAfterHours / 60000);
+            if (days > 0) {
+                return hrs > 0 ? `${days}d ${hrs}h` : `${days}d`;
+            }
+            return hrs > 0 ? `${hrs}h ${minsAfterHours}m` : `${minsAfterHours}m`;
         case 'ms':
         default:
             return `${Math.round(ms)}ms`;
@@ -881,6 +900,8 @@ class LanguageArena {
                         <option value="ms" selected>ms</option>
                         <option value="s">sec</option>
                         <option value="m">min</option>
+                        <option value="h">hrs</option>
+                        <option value="d">day</option>
                     </select>
                 </div>
                 <div class="track-position" id="position-${lang}">-</div>
