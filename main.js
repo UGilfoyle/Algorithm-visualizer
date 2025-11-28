@@ -225,58 +225,95 @@ class App {
     }
     
     onSectionChange(sectionId) {
-        // Short delay to ensure stop completes
         setTimeout(() => {
-        switch (sectionId) {
+            switch (sectionId) {
                 case 'sorting':
                     if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
+                        sortingVisualizer.stop();
                         sortingVisualizer.generateArray();
                     }
                     break;
                 case 'searching':
                     if (typeof searchingVisualizer !== 'undefined' && searchingVisualizer) {
+                        searchingVisualizer.stop();
                         searchingVisualizer.generateArray();
                     }
                     break;
-            case 'pathfinding':
+                case 'pathfinding':
                     if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
-                        pathfindingVisualizer.initGrid();
+                        pathfindingVisualizer.stop();
+                        pathfindingVisualizer.shouldStop = true;
+                        pathfindingVisualizer.isRunning = false;
+                        setTimeout(() => {
+                            pathfindingVisualizer.initGrid();
+                        }, 100);
                     }
                     break;
                 case 'trees':
                     if (typeof treeVisualizer !== 'undefined' && treeVisualizer) {
-                        treeVisualizer.clear();
-                        treeVisualizer.insertInitialNodes();
+                        treeVisualizer.stop();
+                        treeVisualizer.shouldStop = true;
+                        treeVisualizer.isRunning = false;
+                        setTimeout(() => {
+                            treeVisualizer.clear();
+                            treeVisualizer.insertInitialNodes();
+                        }, 100);
                     }
                     break;
                 case 'graphs':
                     if (typeof graphVisualizer !== 'undefined' && graphVisualizer) {
-                        graphVisualizer.generateGraph();
+                        graphVisualizer.stop();
+                        graphVisualizer.shouldStop = true;
+                        graphVisualizer.isRunning = false;
+                        setTimeout(() => {
+                            graphVisualizer.clear();
+                            graphVisualizer.generateGraph();
+                        }, 100);
                     }
                     break;
                 case 'dp':
                     if (typeof dpVisualizer !== 'undefined' && dpVisualizer) {
-                        if (dpVisualizer.reset) {
-                            dpVisualizer.reset();
-                        }
+                        if (dpVisualizer.stop) dpVisualizer.stop();
+                        dpVisualizer.shouldStop = true;
+                        dpVisualizer.isRunning = false;
+                        setTimeout(() => {
+                            if (dpVisualizer.reset) dpVisualizer.reset();
+                        }, 100);
                     }
                     break;
                 case 'strings':
                     if (typeof stringVisualizer !== 'undefined' && stringVisualizer) {
-                        stringVisualizer.render();
+                        stringVisualizer.stop();
+                        stringVisualizer.shouldStop = true;
+                        stringVisualizer.isRunning = false;
+                        setTimeout(() => {
+                            stringVisualizer.render();
+                        }, 100);
                     }
-                break;
+                    break;
                 case 'math':
                     if (typeof mathVisualizer !== 'undefined' && mathVisualizer) {
-                        // Math visualizer ready
-                }
-                break;
+                        if (mathVisualizer.stop) mathVisualizer.stop();
+                        mathVisualizer.shouldStop = true;
+                        mathVisualizer.isRunning = false;
+                        setTimeout(() => {
+                            const mathViz = document.getElementById('mathVisualization');
+                            if (mathViz) mathViz.innerHTML = '';
+                            const mathResult = document.getElementById('mathResult');
+                            if (mathResult) mathResult.textContent = '-';
+                            const mathSteps = document.getElementById('mathSteps');
+                            if (mathSteps) mathSteps.textContent = '0';
+                            const mathTime = document.getElementById('mathTime');
+                            if (mathTime) mathTime.textContent = '0ms';
+                        }, 100);
+                    }
+                    break;
                 case 'arena':
                     if (typeof languageArena !== 'undefined' && languageArena) {
                         languageArena.reset();
-                }
-                break;
-        }
+                    }
+                    break;
+            }
             this.loadAlgorithmInfo();
         }, 150);
     }
@@ -316,12 +353,44 @@ class App {
                 this.currentAlgorithm[category] = key;
                 this.loadAlgorithmInfo();
 
+                // Reset visualization when algorithm changes
                 if (category === 'sorting' && sortingVisualizer) {
+                    sortingVisualizer.stop();
                     sortingVisualizer.setAlgorithm(key);
+                    sortingVisualizer.generateArray();
+                    sortingVisualizer.resetStats();
                 } else if (category === 'searching' && searchingVisualizer) {
+                    searchingVisualizer.stop();
                     searchingVisualizer.setAlgorithm(key);
+                    searchingVisualizer.generateArray();
+                    searchingVisualizer.resetStats();
+                } else if (category === 'graphs' && graphVisualizer) {
+                    graphVisualizer.stop();
+                    graphVisualizer.generateGraph();
                 } else if (category === 'graphs' && pathfindingVisualizer) {
+                    pathfindingVisualizer.stop();
                     pathfindingVisualizer.setAlgorithm(key);
+                    pathfindingVisualizer.initGrid();
+                } else if (category === 'trees' && treeVisualizer) {
+                    treeVisualizer.stop();
+                    treeVisualizer.clear();
+                    treeVisualizer.insertInitialNodes();
+                } else if (category === 'dp' && dpVisualizer) {
+                    if (dpVisualizer.stop) dpVisualizer.stop();
+                    if (dpVisualizer.reset) dpVisualizer.reset();
+                } else if (category === 'strings' && stringVisualizer) {
+                    stringVisualizer.stop();
+                    stringVisualizer.render();
+                } else if (category === 'math' && mathVisualizer) {
+                    if (mathVisualizer.stop) mathVisualizer.stop();
+                    const mathViz = document.getElementById('mathVisualization');
+                    if (mathViz) mathViz.innerHTML = '';
+                    const mathResult = document.getElementById('mathResult');
+                    if (mathResult) mathResult.textContent = '-';
+                    const mathSteps = document.getElementById('mathSteps');
+                    if (mathSteps) mathSteps.textContent = '0';
+                    const mathTime = document.getElementById('mathTime');
+                    if (mathTime) mathTime.textContent = '0ms';
                 }
             });
 
@@ -488,7 +557,7 @@ class App {
                     stringVisualizer.render(); // Reset visual state
                 }
                 break;
-            case 'math':
+            case 'maths':
                 if (typeof mathVisualizer !== 'undefined' && mathVisualizer) {
                     mathVisualizer.stop();
                 }

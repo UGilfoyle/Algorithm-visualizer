@@ -1784,6 +1784,590 @@ def a_star(start, goal, heuristic, neighbors):
                 heapq.heappush(open_set, (f_score, neighbor))
     return None`
             }
+        },
+        bellmanFord: {
+            name: "Bellman-Ford Algorithm",
+            category: "graphs",
+            complexity: { best: "O(VE)", avg: "O(VE)", worst: "O(VE)", space: "O(V)" },
+            description: "Finds shortest paths from source, handles negative weights.",
+            code: {
+                node: `function bellmanFord(graph, start) {
+    const dist = {};
+    const prev = {};
+    for (const node in graph) {
+        dist[node] = Infinity;
+        prev[node] = null;
+    }
+    dist[start] = 0;
+    
+    for (let i = 0; i < Object.keys(graph).length - 1; i++) {
+        for (const u in graph) {
+            for (const [v, weight] of graph[u] || []) {
+                if (dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                    prev[v] = u;
+                }
+            }
+        }
+    }
+    return { dist, prev };
+}`,
+                python: `def bellman_ford(graph, start):
+    dist = {node: float('inf') for node in graph}
+    prev = {node: None for node in graph}
+    dist[start] = 0
+    
+    for _ in range(len(graph) - 1):
+        for u in graph:
+            for v, weight in graph.get(u, []):
+                if dist[u] + weight < dist[v]:
+                    dist[v] = dist[u] + weight
+                    prev[v] = u
+    return dist, prev`,
+                java: `public Map<Integer, Integer> bellmanFord(Map<Integer, List<int[]>> graph, int start) {
+    Map<Integer, Integer> dist = new HashMap<>();
+    for (int node : graph.keySet()) dist.put(node, Integer.MAX_VALUE);
+    dist.put(start, 0);
+    
+    for (int i = 0; i < graph.size() - 1; i++) {
+        for (int u : graph.keySet()) {
+            for (int[] edge : graph.getOrDefault(u, List.of())) {
+                int v = edge[0], weight = edge[1];
+                if (dist.get(u) != Integer.MAX_VALUE && dist.get(u) + weight < dist.get(v)) {
+                    dist.put(v, dist.get(u) + weight);
+                }
+            }
+        }
+    }
+    return dist;
+}`,
+                cpp: `#include <vector>
+#include <map>
+#include <climits>
+
+std::map<int, int> bellmanFord(std::map<int, std::vector<std::pair<int, int>>>& graph, int start) {
+    std::map<int, int> dist;
+    for (auto& node : graph) dist[node.first] = INT_MAX;
+    dist[start] = 0;
+    
+    for (int i = 0; i < graph.size() - 1; i++) {
+        for (auto& [u, edges] : graph) {
+            for (auto& [v, weight] : edges) {
+                if (dist[u] != INT_MAX && dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                }
+            }
+        }
+    }
+    return dist;
+}`,
+                csharp: `using System.Collections.Generic;
+
+public Dictionary<int, int> BellmanFord(Dictionary<int, List<(int, int)>> graph, int start) {
+    var dist = new Dictionary<int, int>();
+    foreach (var node in graph.Keys) dist[node] = int.MaxValue;
+    dist[start] = 0;
+    
+    for (int i = 0; i < graph.Count - 1; i++) {
+        foreach (var u in graph.Keys) {
+            foreach (var (v, weight) in graph[u]) {
+                if (dist[u] != int.MaxValue && dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                }
+            }
+        }
+    }
+    return dist;
+}`,
+                go: `func bellmanFord(graph map[int][]Edge, start int) map[int]int {
+    dist := make(map[int]int)
+    for node := range graph {
+        dist[node] = math.MaxInt32
+    }
+    dist[start] = 0
+    
+    for i := 0; i < len(graph)-1; i++ {
+        for u, edges := range graph {
+            for _, edge := range edges {
+                if dist[u] != math.MaxInt32 && dist[u]+edge.weight < dist[edge.to] {
+                    dist[edge.to] = dist[u] + edge.weight
+                }
+            }
+        }
+    }
+    return dist
+}`,
+                rust: `use std::collections::HashMap;
+
+fn bellman_ford(graph: &HashMap<usize, Vec<(usize, i32)>>, start: usize) -> HashMap<usize, i32> {
+    let mut dist: HashMap<usize, i32> = graph.keys().map(|&k| (k, i32::MAX)).collect();
+    dist.insert(start, 0);
+    
+    for _ in 0..graph.len() - 1 {
+        for (u, edges) in graph {
+            for &(v, weight) in edges {
+                if dist[u] != i32::MAX && dist[u] + weight < dist[&v] {
+                    *dist.get_mut(&v).unwrap() = dist[u] + weight;
+                }
+            }
+        }
+    }
+    dist
+}`,
+                typescript: `function bellmanFord(graph: Record<number, [number, number][]>, start: number): Record<number, number> {
+    const dist: Record<number, number> = {};
+    for (const node in graph) dist[node] = Infinity;
+    dist[start] = 0;
+    
+    for (let i = 0; i < Object.keys(graph).length - 1; i++) {
+        for (const u in graph) {
+            for (const [v, weight] of graph[u] || []) {
+                if (dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                }
+            }
+        }
+    }
+    return dist;
+}`,
+                deno: `function bellmanFord(graph: Record<number, [number, number][]>, start: number): Record<number, number> {
+    const dist: Record<number, number> = {};
+    for (const node in graph) dist[node] = Infinity;
+    dist[start] = 0;
+    
+    for (let i = 0; i < Object.keys(graph).length - 1; i++) {
+        for (const u in graph) {
+            for (const [v, weight] of graph[u] || []) {
+                if (dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                }
+            }
+        }
+    }
+    return dist;
+}`
+            }
+        },
+        tarjan: {
+            name: "Tarjan's SCC",
+            category: "graphs",
+            complexity: { best: "O(V+E)", avg: "O(V+E)", worst: "O(V+E)", space: "O(V)" },
+            description: "Finds strongly connected components in directed graph.",
+            code: {
+                node: `function tarjan(graph) {
+    let index = 0;
+    const stack = [];
+    const indices = {};
+    const lowlinks = {};
+    const onStack = {};
+    const sccs = [];
+    
+    function strongConnect(v) {
+        indices[v] = index;
+        lowlinks[v] = index;
+        index++;
+        stack.push(v);
+        onStack[v] = true;
+        
+        for (const w of graph[v] || []) {
+            if (indices[w] === undefined) {
+                strongConnect(w);
+                lowlinks[v] = Math.min(lowlinks[v], lowlinks[w]);
+            } else if (onStack[w]) {
+                lowlinks[v] = Math.min(lowlinks[v], indices[w]);
+            }
+        }
+        
+        if (lowlinks[v] === indices[v]) {
+            const scc = [];
+            let w;
+            do {
+                w = stack.pop();
+                onStack[w] = false;
+                scc.push(w);
+            } while (w !== v);
+            sccs.push(scc);
+        }
+    }
+    
+    for (const node in graph) {
+        if (indices[node] === undefined) {
+            strongConnect(node);
+        }
+    }
+    return sccs;
+}`,
+                python: `def tarjan(graph):
+    index = 0
+    stack = []
+    indices = {}
+    lowlinks = {}
+    on_stack = {}
+    sccs = []
+    
+    def strong_connect(v):
+        nonlocal index
+        indices[v] = index
+        lowlinks[v] = index
+        index += 1
+        stack.append(v)
+        on_stack[v] = True
+        
+        for w in graph.get(v, []):
+            if w not in indices:
+                strong_connect(w)
+                lowlinks[v] = min(lowlinks[v], lowlinks[w])
+            elif on_stack[w]:
+                lowlinks[v] = min(lowlinks[v], indices[w])
+        
+        if lowlinks[v] == indices[v]:
+            scc = []
+            while True:
+                w = stack.pop()
+                on_stack[w] = False
+                scc.append(w)
+                if w == v:
+                    break
+            sccs.append(scc)
+    
+    for node in graph:
+        if node not in indices:
+            strong_connect(node)
+    return sccs`,
+                java: `public List<List<Integer>> tarjan(Map<Integer, List<Integer>> graph) {
+    int[] index = {0};
+    Stack<Integer> stack = new Stack<>();
+    Map<Integer, Integer> indices = new HashMap<>();
+    Map<Integer, Integer> lowlinks = new HashMap<>();
+    Set<Integer> onStack = new HashSet<>();
+    List<List<Integer>> sccs = new ArrayList<>();
+    
+    for (int node : graph.keySet()) {
+        if (!indices.containsKey(node)) {
+            strongConnect(node, graph, index, stack, indices, lowlinks, onStack, sccs);
+        }
+    }
+    return sccs;
+}
+
+private void strongConnect(int v, Map<Integer, List<Integer>> graph, int[] index, 
+    Stack<Integer> stack, Map<Integer, Integer> indices, Map<Integer, Integer> lowlinks,
+    Set<Integer> onStack, List<List<Integer>> sccs) {
+    indices.put(v, index[0]);
+    lowlinks.put(v, index[0]);
+    index[0]++;
+    stack.push(v);
+    onStack.add(v);
+    
+    for (int w : graph.getOrDefault(v, List.of())) {
+        if (!indices.containsKey(w)) {
+            strongConnect(w, graph, index, stack, indices, lowlinks, onStack, sccs);
+            lowlinks.put(v, Math.min(lowlinks.get(v), lowlinks.get(w)));
+        } else if (onStack.contains(w)) {
+            lowlinks.put(v, Math.min(lowlinks.get(v), indices.get(w)));
+        }
+    }
+    
+    if (lowlinks.get(v).equals(indices.get(v))) {
+        List<Integer> scc = new ArrayList<>();
+        int w;
+        do {
+            w = stack.pop();
+            onStack.remove(w);
+            scc.add(w);
+        } while (w != v);
+        sccs.add(scc);
+    }
+}`,
+                cpp: `#include <vector>
+#include <stack>
+#include <map>
+#include <algorithm>
+
+std::vector<std::vector<int>> tarjan(std::map<int, std::vector<int>>& graph) {
+    int index = 0;
+    std::stack<int> stack;
+    std::map<int, int> indices, lowlinks;
+    std::map<int, bool> onStack;
+    std::vector<std::vector<int>> sccs;
+    
+    std::function<void(int)> strongConnect = [&](int v) {
+        indices[v] = index;
+        lowlinks[v] = index++;
+        stack.push(v);
+        onStack[v] = true;
+        
+        for (int w : graph[v]) {
+            if (indices.find(w) == indices.end()) {
+                strongConnect(w);
+                lowlinks[v] = std::min(lowlinks[v], lowlinks[w]);
+            } else if (onStack[w]) {
+                lowlinks[v] = std::min(lowlinks[v], indices[w]);
+            }
+        }
+        
+        if (lowlinks[v] == indices[v]) {
+            std::vector<int> scc;
+            int w;
+            do {
+                w = stack.top();
+                stack.pop();
+                onStack[w] = false;
+                scc.push_back(w);
+            } while (w != v);
+            sccs.push_back(scc);
+        }
+    };
+    
+    for (auto& [node, _] : graph) {
+        if (indices.find(node) == indices.end()) {
+            strongConnect(node);
+        }
+    }
+    return sccs;
+}`,
+                csharp: `using System.Collections.Generic;
+using System.Linq;
+
+public List<List<int>> Tarjan(Dictionary<int, List<int>> graph) {
+    int index = 0;
+    var stack = new Stack<int>();
+    var indices = new Dictionary<int, int>();
+    var lowlinks = new Dictionary<int, int>();
+    var onStack = new HashSet<int>();
+    var sccs = new List<List<int>>();
+    
+    void StrongConnect(int v) {
+        indices[v] = index;
+        lowlinks[v] = index++;
+        stack.Push(v);
+        onStack.Add(v);
+        
+        foreach (int w in graph.GetValueOrDefault(v, new List<int>())) {
+            if (!indices.ContainsKey(w)) {
+                StrongConnect(w);
+                lowlinks[v] = Math.Min(lowlinks[v], lowlinks[w]);
+            } else if (onStack.Contains(w)) {
+                lowlinks[v] = Math.Min(lowlinks[v], indices[w]);
+            }
+        }
+        
+        if (lowlinks[v] == indices[v]) {
+            var scc = new List<int>();
+            int w;
+            do {
+                w = stack.Pop();
+                onStack.Remove(w);
+                scc.Add(w);
+            } while (w != v);
+            sccs.Add(scc);
+        }
+    }
+    
+    foreach (int node in graph.Keys) {
+        if (!indices.ContainsKey(node)) {
+            StrongConnect(node);
+        }
+    }
+    return sccs;
+}`,
+                go: `func tarjan(graph map[int][]int) [][]int {
+    index := 0
+    stack := []int{}
+    indices := make(map[int]int)
+    lowlinks := make(map[int]int)
+    onStack := make(map[int]bool)
+    var sccs [][]int
+    
+    var strongConnect func(int)
+    strongConnect = func(v int) {
+        indices[v] = index
+        lowlinks[v] = index
+        index++
+        stack = append(stack, v)
+        onStack[v] = true
+        
+        for _, w := range graph[v] {
+            if _, exists := indices[w]; !exists {
+                strongConnect(w)
+                if lowlinks[w] < lowlinks[v] {
+                    lowlinks[v] = lowlinks[w]
+                }
+            } else if onStack[w] {
+                if indices[w] < lowlinks[v] {
+                    lowlinks[v] = indices[w]
+                }
+            }
+        }
+        
+        if lowlinks[v] == indices[v] {
+            scc := []int{}
+            for {
+                w := stack[len(stack)-1]
+                stack = stack[:len(stack)-1]
+                onStack[w] = false
+                scc = append(scc, w)
+                if w == v {
+                    break
+                }
+            }
+            sccs = append(sccs, scc)
+        }
+    }
+    
+    for node := range graph {
+        if _, exists := indices[node]; !exists {
+            strongConnect(node)
+        }
+    }
+    return sccs
+}`,
+                rust: `use std::collections::{HashMap, VecDeque};
+
+fn tarjan(graph: &HashMap<usize, Vec<usize>>) -> Vec<Vec<usize>> {
+    let mut index = 0;
+    let mut stack = Vec::new();
+    let mut indices = HashMap::new();
+    let mut lowlinks = HashMap::new();
+    let mut on_stack = HashMap::new();
+    let mut sccs = Vec::new();
+    
+    fn strong_connect(
+        v: usize,
+        graph: &HashMap<usize, Vec<usize>>,
+        index: &mut usize,
+        stack: &mut Vec<usize>,
+        indices: &mut HashMap<usize, usize>,
+        lowlinks: &mut HashMap<usize, usize>,
+        on_stack: &mut HashMap<usize, bool>,
+        sccs: &mut Vec<Vec<usize>>,
+    ) {
+        indices.insert(v, *index);
+        lowlinks.insert(v, *index);
+        *index += 1;
+        stack.push(v);
+        on_stack.insert(v, true);
+        
+        for &w in graph.get(&v).unwrap_or(&Vec::new()) {
+            if !indices.contains_key(&w) {
+                strong_connect(w, graph, index, stack, indices, lowlinks, on_stack, sccs);
+                let lowlink_w = *lowlinks.get(&w).unwrap();
+                let lowlink_v = *lowlinks.get(&v).unwrap();
+                lowlinks.insert(v, lowlink_v.min(lowlink_w));
+            } else if *on_stack.get(&w).unwrap_or(&false) {
+                let idx_w = *indices.get(&w).unwrap();
+                let lowlink_v = *lowlinks.get(&v).unwrap();
+                lowlinks.insert(v, lowlink_v.min(idx_w));
+            }
+        }
+        
+        if lowlinks.get(&v) == indices.get(&v) {
+            let mut scc = Vec::new();
+            loop {
+                let w = stack.pop().unwrap();
+                on_stack.insert(w, false);
+                scc.push(w);
+                if w == v {
+                    break;
+                }
+            }
+            sccs.push(scc);
+        }
+    }
+    
+    for node in graph.keys() {
+        if !indices.contains_key(node) {
+            strong_connect(*node, graph, &mut index, &mut stack, &mut indices, 
+                &mut lowlinks, &mut on_stack, &mut sccs);
+        }
+    }
+    sccs
+}`,
+                typescript: `function tarjan(graph: Record<number, number[]>): number[][] {
+    let index = 0;
+    const stack: number[] = [];
+    const indices: Record<number, number> = {};
+    const lowlinks: Record<number, number> = {};
+    const onStack: Record<number, boolean> = {};
+    const sccs: number[][] = [];
+    
+    function strongConnect(v: number): void {
+        indices[v] = index;
+        lowlinks[v] = index++;
+        stack.push(v);
+        onStack[v] = true;
+        
+        for (const w of graph[v] || []) {
+            if (indices[w] === undefined) {
+                strongConnect(w);
+                lowlinks[v] = Math.min(lowlinks[v], lowlinks[w]);
+            } else if (onStack[w]) {
+                lowlinks[v] = Math.min(lowlinks[v], indices[w]);
+            }
+        }
+        
+        if (lowlinks[v] === indices[v]) {
+            const scc: number[] = [];
+            let w: number;
+            do {
+                w = stack.pop()!;
+                onStack[w] = false;
+                scc.push(w);
+            } while (w !== v);
+            sccs.push(scc);
+        }
+    }
+    
+    for (const node in graph) {
+        if (indices[node] === undefined) {
+            strongConnect(Number(node));
+        }
+    }
+    return sccs;
+}`,
+                deno: `function tarjan(graph: Record<number, number[]>): number[][] {
+    let index = 0;
+    const stack: number[] = [];
+    const indices: Record<number, number> = {};
+    const lowlinks: Record<number, number> = {};
+    const onStack: Record<number, boolean> = {};
+    const sccs: number[][] = [];
+    
+    function strongConnect(v: number): void {
+        indices[v] = index;
+        lowlinks[v] = index++;
+        stack.push(v);
+        onStack[v] = true;
+        
+        for (const w of graph[v] || []) {
+            if (indices[w] === undefined) {
+                strongConnect(w);
+                lowlinks[v] = Math.min(lowlinks[v], lowlinks[w]);
+            } else if (onStack[w]) {
+                lowlinks[v] = Math.min(lowlinks[v], indices[w]);
+            }
+        }
+        
+        if (lowlinks[v] === indices[v]) {
+            const scc: number[] = [];
+            let w: number;
+            do {
+                w = stack.pop()!;
+                onStack[w] = false;
+                scc.push(w);
+            } while (w !== v);
+            sccs.push(scc);
+        }
+    }
+    
+    for (const node in graph) {
+        if (indices[node] === undefined) {
+            strongConnect(Number(node));
+        }
+    }
+    return sccs;
+}`
+            }
         }
     },
 

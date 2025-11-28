@@ -253,9 +253,18 @@ class SortingVisualizer {
         }
 
         if (speedSlider) {
+            const multiplierEl = document.getElementById('sortSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
                 this.speed = parseInt(e.target.value);
+                if (multiplierEl) {
+                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                    multiplierEl.textContent = `${multiplier}x`;
+                }
             });
+            if (multiplierEl) {
+                const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                multiplierEl.textContent = `${multiplier}x`;
+            }
         }
 
         if (shuffleBtn) shuffleBtn.addEventListener('click', () => this.generateArray());
@@ -452,7 +461,9 @@ class SortingVisualizer {
     }
 
     getDelay() {
-        return Math.max(1, 101 - this.speed);
+        const baseDelay = Math.max(1, 101 - this.speed);
+        const multiplier = this.speed / 50;
+        return Math.max(1, baseDelay / multiplier);
     }
 
     async delay() {
@@ -969,9 +980,17 @@ class PathfindingVisualizer {
         if (startBtn) startBtn.addEventListener('click', () => this.start());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clearAll());
         if (speedSlider) {
+            const multiplierEl = document.getElementById('pathSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
                 this.speed = parseInt(e.target.value);
+                if (multiplierEl) {
+                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                    multiplierEl.textContent = `${multiplier}x`;
+                }
             });
+            if (multiplierEl) {
+                multiplierEl.textContent = '1x';
+            }
         }
     }
 
@@ -1049,7 +1068,9 @@ class PathfindingVisualizer {
     }
 
     getDelay() {
-        return Math.max(5, 105 - this.speed);
+        const baseDelay = Math.max(5, 105 - this.speed);
+        const multiplier = this.speed / 50;
+        return Math.max(1, baseDelay / multiplier);
     }
 
     async start() {
@@ -2178,9 +2199,17 @@ class TreeVisualizer {
         const speedSlider = document.getElementById('treeSpeed');
         
         if (speedSlider) {
+            const multiplierEl = document.getElementById('treeSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
                 this.speed = parseInt(e.target.value);
+                if (multiplierEl) {
+                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                    multiplierEl.textContent = `${multiplier}x`;
+                }
             });
+            if (multiplierEl) {
+                multiplierEl.textContent = '1x';
+            }
         }
         const clearBtn = document.getElementById('clearTree');
         const traverseBtn = document.getElementById('traverseTree');
@@ -2259,7 +2288,9 @@ class TreeVisualizer {
         if (this.shouldStop) return;
         result.push(node.value);
         if (typeof audioEngine !== 'undefined') audioEngine.playTone(node.value);
-        const delay = Math.max(50, 350 - (this.speed * 3));
+        const baseDelay = Math.max(50, 350 - (this.speed * 3));
+        const multiplier = this.speed / 50;
+        const delay = Math.max(1, baseDelay / multiplier);
         await new Promise(r => setTimeout(r, delay));
         await this.inorder(node.right, result);
     }
@@ -2382,9 +2413,17 @@ class GraphVisualizer {
         if (startBtn) startBtn.addEventListener('click', () => this.runAlgorithm());
         if (clearBtn) clearBtn.addEventListener('click', () => this.clear());
         if (speedSlider) {
+            const multiplierEl = document.getElementById('graphSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
                 this.speed = parseInt(e.target.value);
+                if (multiplierEl) {
+                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                    multiplierEl.textContent = `${multiplier}x`;
+                }
             });
+            if (multiplierEl) {
+                multiplierEl.textContent = '1x';
+            }
         }
     }
 
@@ -2441,7 +2480,9 @@ class GraphVisualizer {
         const queue = [0];
         visited.add(0);
         const result = [];
-        const delay = Math.max(10, 510 - (this.speed * 5));
+        const baseDelay = Math.max(10, 510 - (this.speed * 5));
+        const multiplier = this.speed / 50;
+        const delay = Math.max(1, baseDelay / multiplier);
 
         while (queue.length > 0 && !this.shouldStop) {
             const current = queue.shift();
@@ -2609,9 +2650,17 @@ class DPVisualizer {
         if (startBtn) startBtn.addEventListener('click', () => this.start());
         if (stepBtn) stepBtn.addEventListener('click', () => this.step());
         if (speedSlider) {
+            const multiplierEl = document.getElementById('dpSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
                 this.speed = parseInt(e.target.value);
+                if (multiplierEl) {
+                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                    multiplierEl.textContent = `${multiplier}x`;
+                }
             });
+            if (multiplierEl) {
+                multiplierEl.textContent = '1x';
+            }
         }
     }
 
@@ -2914,9 +2963,17 @@ class MathVisualizer {
         
         if (startBtn) startBtn.addEventListener('click', () => this.calculate());
         if (speedSlider) {
+            const multiplierEl = document.getElementById('mathSpeedMultiplier');
             speedSlider.addEventListener('input', (e) => {
                 this.speed = parseInt(e.target.value);
+                if (multiplierEl) {
+                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                    multiplierEl.textContent = `${multiplier}x`;
+                }
             });
+            if (multiplierEl) {
+                multiplierEl.textContent = '1x';
+            }
         }
     }
 
