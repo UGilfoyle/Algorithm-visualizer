@@ -60,6 +60,7 @@ const LANGUAGE_SPEED = {
     kotlin: 1.7,     // JVM-based, similar to Java
     swift: 1.3,      // Fast, optimized
     node: 2.0,       // V8 JIT, surprisingly fast for JS
+    deno: 2.1,       // Deno runtime, V8 based, slightly slower than Node
     javascript: 2.2, // V8 optimized but still slower
     typescript: 2.2, // Compiles to JS, similar performance
     python: 8.0,     // Interpreted, significantly slower
@@ -80,6 +81,7 @@ const LANGUAGE_INFO = {
     php: { name: 'PHP', symbol: 'PHP', color: '#777bb4' },
     elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e' },
     node: { name: 'Node.js', symbol: 'ND', color: '#339933' },
+    deno: { name: 'Deno', symbol: 'DN', color: '#000000' },
     kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF' },
     swift: { name: 'Swift', symbol: 'SW', color: '#FA7343' }
 };
