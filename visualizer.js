@@ -2591,6 +2591,7 @@ class SearchingVisualizer {
         const targetInput = document.getElementById('searchTarget');
         const generateBtn = document.getElementById('generateSearchArray');
         const startBtn = document.getElementById('startSearch');
+        const speedSlider = document.getElementById('searchSpeed');
         const toggleCompareBtn = document.getElementById('toggleSearchCompare');
         const startCompareBtn = document.getElementById('startSearchCompare');
         const pauseResumeCompareBtn = document.getElementById('pauseResumeSearchCompare');
@@ -2609,6 +2610,20 @@ class SearchingVisualizer {
             targetInput.addEventListener('change', (e) => {
                 this.target = parseInt(e.target.value);
             });
+        }
+
+        if (speedSlider) {
+            const multiplierEl = document.getElementById('searchSpeedMultiplier');
+            speedSlider.addEventListener('input', (e) => {
+                this.speed = parseInt(e.target.value);
+                if (multiplierEl) {
+                    const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                    multiplierEl.textContent = `${multiplier}x`;
+                }
+            });
+            if (multiplierEl) {
+                multiplierEl.textContent = '1x';
+            }
         }
 
         if (generateBtn) generateBtn.addEventListener('click', () => this.generateArray());
@@ -2719,6 +2734,9 @@ class SearchingVisualizer {
         let left = 0, right = this.array.length - 1;
         let steps = 0;
         const checked = [];
+        const baseDelay = Math.max(200, 500);
+        const multiplier = this.speed / 50;
+        const delay = Math.max(50, baseDelay / multiplier);
 
         while (left <= right && !this.shouldStop) {
             const mid = Math.floor((left + right) / 2);
@@ -2730,7 +2748,7 @@ class SearchingVisualizer {
 
             this.render(mid, -1, checked);
             if (typeof audioEngine !== 'undefined') audioEngine.playTone(this.array[mid]);
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, delay));
 
             if (this.array[mid] === this.target) {
                 this.render(-1, mid, checked);
@@ -2754,13 +2772,17 @@ class SearchingVisualizer {
 
     async linearSearch() {
         const checked = [];
+        const baseDelay = Math.max(100, 200);
+        const multiplier = this.speed / 50;
+        const delay = Math.max(50, baseDelay / multiplier);
+        
         for (let i = 0; i < this.array.length && !this.shouldStop; i++) {
             checked.push(i);
             const stepsEl = document.getElementById('searchSteps');
             if (stepsEl) stepsEl.textContent = i + 1;
             this.render(i, -1, checked);
             if (typeof audioEngine !== 'undefined') audioEngine.playTone(this.array[i]);
-            await new Promise(r => setTimeout(r, 200));
+            await new Promise(r => setTimeout(r, delay));
 
             if (this.array[i] === this.target) {
                 this.render(-1, i, checked);
