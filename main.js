@@ -217,7 +217,11 @@ class App {
                     break;
                 case 'dp':
                     if (typeof dpVisualizer !== 'undefined' && dpVisualizer) {
-                        dpVisualizer.showFibonacci(10);
+                        if (dpVisualizer.reset) {
+                            dpVisualizer.reset();
+                        } else {
+                            dpVisualizer.showFibonacci(10);
+                        }
                     }
                     break;
                 case 'strings':
@@ -436,6 +440,9 @@ class App {
             case 'dp':
                 if (typeof dpVisualizer !== 'undefined' && dpVisualizer) {
                     dpVisualizer.stop();
+                    if (dpVisualizer.reset) {
+                        dpVisualizer.reset();
+                    }
                 }
                 break;
             case 'strings':

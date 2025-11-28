@@ -2454,13 +2454,34 @@ class DPVisualizer {
     stop() {
         this.shouldStop = true;
         this.isRunning = false;
-        // Reset visual state when stopped - clear active states
+        this.reset();
+    }
+
+    reset() {
+        // Reset all DP state to initial values
+        this.shouldStop = false;
+        this.isRunning = false;
+        this.currentStep = 0;
+        this.dpArray = [];
+        this.maxN = 0;
+        this.stepMode = false;
+        
+        // Reset visual state
         if (this.container) {
-            const cells = this.container.querySelectorAll('.dp-cell');
-            cells.forEach(cell => {
-                cell.classList.remove('active', 'computed');
-            });
+            this.container.innerHTML = '';
         }
+        
+        // Reset stats to 0
+        const subEl = document.getElementById('dpSubproblems');
+        const resEl = document.getElementById('dpResult');
+        const timeEl = document.getElementById('dpTime');
+        
+        if (subEl) subEl.textContent = '0';
+        if (resEl) resEl.textContent = '-';
+        if (timeEl) timeEl.textContent = '0ms';
+        
+        // Show initial state
+        this.showFibonacci(10);
     }
 
     bindEvents() {
@@ -2513,6 +2534,10 @@ class DPVisualizer {
     executeStep() {
         if (this.currentStep > this.maxN) {
             this.stepMode = false;
+            // Reset after step mode completes
+            setTimeout(() => {
+                this.reset();
+            }, 2000);
             return;
         }
 
@@ -2538,6 +2563,10 @@ class DPVisualizer {
             if (resEl && i === this.maxN) {
                 resEl.textContent = this.dpArray[i];
                 if (typeof audioEngine !== 'undefined') audioEngine.playComplete();
+                // Reset after completion
+                setTimeout(() => {
+                    this.reset();
+                }, 2000);
             }
             
             // Remove active class after a moment
@@ -2572,6 +2601,11 @@ class DPVisualizer {
             const format = formatSelect ? formatSelect.value : 'ms';
             const timeEl = document.getElementById('dpTime');
             if (timeEl) timeEl.textContent = formatTimeValue(elapsed, format);
+            
+            // Reset after completion (2 seconds delay)
+            setTimeout(() => {
+                this.reset();
+            }, 2000);
         }
 
         this.isRunning = false;
