@@ -22,8 +22,8 @@ function getBestTimeFormat(ms) {
 }
 
 function formatTimeValue(ms, format = 'ms') {
-    // Auto-format if format is 'auto' or not specified for large values
-    if (format === 'auto' || (!format || format === 'ms') && ms >= 60000) {
+    // Auto-format if format is 'auto' or if using default 'ms' for large values
+    if (format === 'auto' || ((!format || format === 'ms') && ms >= 60000)) {
         format = getBestTimeFormat(ms);
     }
     
@@ -824,7 +824,13 @@ class LanguageArena {
                 formatSelect._changeHandler = (e) => {
                     const timeValueEl = document.querySelector(`#time-${lang} .time-value`);
                     if (timeValueEl && this.rawTimes[lang] > 0) {
-                        timeValueEl.textContent = formatTimeValue(this.rawTimes[lang], e.target.value);
+                        // Auto-format if still on 'ms' and value is large
+                        let format = e.target.value;
+                        if (format === 'ms' && this.rawTimes[lang] >= 60000) {
+                            format = getBestTimeFormat(this.rawTimes[lang]);
+                            e.target.value = format;
+                        }
+                        timeValueEl.textContent = formatTimeValue(this.rawTimes[lang], format);
                     }
                 };
                 
