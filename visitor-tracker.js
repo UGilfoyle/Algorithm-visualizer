@@ -103,7 +103,6 @@
                     if (ipData2.lon) locationData.lon = ipData2.lon;
                     locationData.method = 'ip';
                 } catch (e2) {
-                    console.log('IP geolocation failed');
                 }
             }
         }
