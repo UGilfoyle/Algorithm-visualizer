@@ -438,7 +438,7 @@
 
             <div class="algorithm-selector">
                 <div class="algorithm-grid" id="treeAlgorithms"></div>
-            </div>
+                </div>
 
             <div class="visualization-split">
                 <div class="viz-panel wide">
@@ -446,17 +446,17 @@
                         <h3>Tree Visualization</h3>
                         <div class="controls-inline">
                 <div class="control-group">
-                                <label>Speed</label>
+                    <label>Speed</label>
                                 <input type="range" id="treeSpeed" min="1" max="100" value="50">
-                            </div>
+                </div>
                             <input type="number" id="treeValue" placeholder="Value" min="1" max="999">
                             <button id="insertNode" class="btn btn-secondary">➕ Insert</button>
                             <button id="deleteNode" class="btn btn-secondary">➖ Delete</button>
                             <button id="searchNode" class="btn btn-secondary">🔍 Search</button>
                             <button id="traverseTree" class="btn btn-primary">▶ Traverse</button>
                             <button id="clearTree" class="btn btn-outline">🧹 Clear</button>
-                        </div>
-                    </div>
+                </div>
+            </div>
                     <div class="tree-container" id="treeCanvas">
                         <svg id="treeSvg"></svg>
                     </div>
@@ -472,7 +472,7 @@
                         <div class="stat-item">
                             <span class="stat-label">Traversal:</span>
                             <span class="stat-value" id="traversalOrder">-</span>
-                        </div>
+                </div>
                     </div>
                 </div>
 
@@ -517,8 +517,8 @@
                     <div class="panel-header">
                         <h3>Graph Visualization</h3>
                         <div class="controls-inline">
-                <div class="control-group">
-                    <label>Speed</label>
+                            <div class="control-group">
+                                <label>Speed</label>
                                 <input type="range" id="graphSpeed" min="1" max="100" value="50">
                             </div>
                             <select id="graphType">
@@ -563,7 +563,7 @@
                         <div class="stat-item">
                             <span class="stat-label">Speed:</span>
                             <span class="stat-value" id="graphSpeedStat">-</span>
-                        </div>
+                </div>
                     </div>
                 </div>
 
@@ -608,7 +608,7 @@
                     <div class="panel-header">
                         <h3>DP Table Visualization</h3>
                         <div class="controls-inline">
-                            <div class="control-group">
+                <div class="control-group">
                                 <label>Speed</label>
                                 <input type="range" id="dpSpeed" min="1" max="100" value="50">
                             </div>
@@ -871,7 +871,13 @@
                     </select>
                 </div>
                 <div class="control-group">
-                    <label>Select Languages to Race</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                        <label>Select Languages to Race</label>
+                        <div class="select-all-buttons">
+                            <button type="button" id="selectAllLanguages" class="btn btn-small btn-outline">Select All</button>
+                            <button type="button" id="deselectAllLanguages" class="btn btn-small btn-outline">Deselect All</button>
+                        </div>
+                    </div>
                     <div class="language-checkboxes" id="languageSelection">
                         <label class="lang-checkbox"><input type="checkbox" value="javascript"><img
                                 src="icons/javascript.svg" alt="JavaScript" class="lang-icon-img" loading="lazy" />
@@ -926,7 +932,7 @@
                 <div class="race-tracks" id="raceTracks">
                     <!-- Race tracks will be generated dynamically -->
                 </div>
-                    </div>
+            </div>
 
             <div class="arena-results" id="arenaResults" style="display: none;">
                 <h3>RACE RESULTS</h3>
@@ -950,7 +956,7 @@
                 <div class="speed-comparison" id="speedComparison">
                     <!-- Speed comparisons will be shown here -->
                 </div>
-                    </div>
+            </div>
 
             <!-- Complexity Graph Modal (Testing Feature) -->
             <div class="complexity-graph-modal" id="complexityGraphModal" style="display: none;">

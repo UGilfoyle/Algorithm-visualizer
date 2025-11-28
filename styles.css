@@ -1328,6 +1328,16 @@ select:focus {
     margin-bottom: var(--spacing-sm);
 }
 
+.select-all-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.btn-small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+}
+
 .language-checkboxes {
     display: flex;
     flex-wrap: wrap;

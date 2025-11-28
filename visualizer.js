@@ -1206,12 +1206,32 @@ class LanguageArena {
     bindEvents() {
         const startBtn = document.getElementById('startRace');
         const resetBtn = document.getElementById('resetRace');
+        const selectAllBtn = document.getElementById('selectAllLanguages');
+        const deselectAllBtn = document.getElementById('deselectAllLanguages');
         const iterSelect = document.getElementById('arenaIterations');
         const algoSelect = document.getElementById('arenaAlgorithm');
         const langCheckboxes = document.querySelectorAll('#languageSelection input');
 
         if (startBtn) startBtn.addEventListener('click', () => this.startRace());
         if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
+        
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => {
+                langCheckboxes.forEach(cb => cb.checked = true);
+                this.updateSelectedLanguages();
+                this.renderTracks();
+                this.setupTimeFormatListeners();
+            });
+        }
+        
+        if (deselectAllBtn) {
+            deselectAllBtn.addEventListener('click', () => {
+                langCheckboxes.forEach(cb => cb.checked = false);
+                this.updateSelectedLanguages();
+                this.renderTracks();
+                this.setupTimeFormatListeners();
+            });
+        }
 
         if (iterSelect) {
             iterSelect.addEventListener('change', (e) => {
