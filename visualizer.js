@@ -812,19 +812,26 @@ class SortingVisualizer {
         const endTime = performance.now();
         const elapsed = endTime - startTime;
         
+        // Calculate simulated execution time based on operations and language speed
+        // Base time per operation (in ms) - comparisons and swaps have different weights
+        const baseTimePerComparison = 0.1; // ms per comparison
+        const baseTimePerSwap = 0.2; // ms per swap (swaps are more expensive)
+        const totalOperations = (comparisons.count * baseTimePerComparison) + (swaps.count * baseTimePerSwap);
+        const simulatedTime = totalOperations / langSpeed;
+        
         // Update time display
         const timeId = `sortTime${panelNum}`;
         const timeEl = document.getElementById(timeId);
         if (timeEl) {
-            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
-            timeEl.textContent = formatTimeValue(elapsed, format);
+            const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
+            timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
 
         // Final render
         tempViz.render([], [], Array.from({ length: array.length }, (_, i) => i));
 
         return {
-            time: elapsed,
+            time: simulatedTime, // Use simulated time for comparison
             comparisons: comparisons.count,
             swaps: swaps.count,
             algorithm: algoKey
@@ -835,16 +842,47 @@ class SortingVisualizer {
         const winner = result1.time < result2.time ? 1 : 2;
         const faster = result1.time < result2.time ? result1 : result2;
         const slower = result1.time < result2.time ? result2 : result1;
-        const speedup = (slower.time / faster.time).toFixed(2);
+        const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
         
         // Highlight winner
         const panel1 = document.querySelector('#sortingBars1').closest('.compare-panel');
         const panel2 = document.querySelector('#sortingBars2').closest('.compare-panel');
         
-        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
-        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+        // Remove any existing winner badges
+        const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
+        const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
+        existingBadges1?.forEach(b => b.remove());
+        existingBadges2?.forEach(b => b.remove());
         
-        // Show comparison message (optional - can be added to UI)
+        if (panel1) {
+            panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+            panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
+            
+            // Add winner badge
+            if (winner === 1) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel1.style.position = 'relative';
+                panel1.appendChild(badge);
+            }
+        }
+        
+        if (panel2) {
+            panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+            panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
+            
+            // Add winner badge
+            if (winner === 2) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel2.style.position = 'relative';
+                panel2.appendChild(badge);
+            }
+        }
     }
 
     // Comparison versions of sorting algorithms (simplified, no audio)
@@ -1768,17 +1806,22 @@ class PathfindingVisualizer {
             await this.animatePathForComparison(container, path, panelNum);
         }
         
+        // Calculate simulated execution time based on nodes visited and language speed
+        // Base time per node (in ms) - adjusted by language speed
+        const baseTimePerNode = 0.4; // ms per node
+        const simulatedTime = (nodesVisited * baseTimePerNode) / langSpeed;
+        
         // Update stats
         document.getElementById(`nodesVisited${panelNum}`).textContent = nodesVisited;
         document.getElementById(`pathLength${panelNum}`).textContent = pathLength;
         const timeEl = document.getElementById(`pathTime${panelNum}`);
         if (timeEl) {
-            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
-            timeEl.textContent = formatTimeValue(elapsed, format);
+            const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
+            timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
         
         return {
-            time: elapsed,
+            time: simulatedTime, // Use simulated time for comparison
             nodesVisited: nodesVisited,
             pathLength: pathLength
         };
@@ -1851,11 +1894,46 @@ class PathfindingVisualizer {
     
     displayComparisonResults(result1, result2) {
         const winner = result1.time < result2.time ? 1 : 2;
+        const faster = result1.time < result2.time ? result1 : result2;
+        const slower = result1.time < result2.time ? result2 : result1;
+        const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
+        
         const panel1 = document.querySelector('#pathGrid1').closest('.compare-panel');
         const panel2 = document.querySelector('#pathGrid2').closest('.compare-panel');
         
-        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
-        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+        // Remove any existing winner badges
+        const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
+        const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
+        existingBadges1?.forEach(b => b.remove());
+        existingBadges2?.forEach(b => b.remove());
+        
+        if (panel1) {
+            panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+            panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
+            
+            if (winner === 1) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel1.style.position = 'relative';
+                panel1.appendChild(badge);
+            }
+        }
+        
+        if (panel2) {
+            panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+            panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
+            
+            if (winner === 2) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel2.style.position = 'relative';
+                panel2.appendChild(badge);
+            }
+        }
     }
     
     togglePauseResumeCompare() {
@@ -3408,14 +3486,19 @@ class SearchingVisualizer {
         const endTime = performance.now();
         const elapsed = endTime - startTime;
         
+        // Calculate simulated execution time based on steps and language speed
+        // Base time per step (in ms) - adjusted by language speed
+        const baseTimePerStep = 0.5; // ms per step
+        const simulatedTime = (steps.count * baseTimePerStep) / langSpeed;
+        
         const timeEl = document.getElementById(`searchTime${panelNum}`);
         if (timeEl) {
-            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
-            timeEl.textContent = formatTimeValue(elapsed, format);
+            const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
+            timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
 
         return {
-            time: elapsed,
+            time: simulatedTime, // Use simulated time for comparison
             steps: steps.count,
             found: foundIndex,
             algorithm: algoKey
@@ -3474,11 +3557,46 @@ class SearchingVisualizer {
 
     displayComparisonResults(result1, result2) {
         const winner = result1.time < result2.time ? 1 : 2;
+        const faster = result1.time < result2.time ? result1 : result2;
+        const slower = result1.time < result2.time ? result2 : result1;
+        const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
+        
         const panel1 = document.querySelector('#searchBars1').closest('.compare-panel');
         const panel2 = document.querySelector('#searchBars2').closest('.compare-panel');
         
-        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
-        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+        // Remove any existing winner badges
+        const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
+        const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
+        existingBadges1?.forEach(b => b.remove());
+        existingBadges2?.forEach(b => b.remove());
+        
+        if (panel1) {
+            panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+            panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
+            
+            if (winner === 1) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel1.style.position = 'relative';
+                panel1.appendChild(badge);
+            }
+        }
+        
+        if (panel2) {
+            panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+            panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
+            
+            if (winner === 2) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel2.style.position = 'relative';
+                panel2.appendChild(badge);
+            }
+        }
     }
 
     togglePauseResumeCompare() {
@@ -3832,14 +3950,19 @@ class TreeVisualizer {
         const endTime = performance.now();
         const elapsed = endTime - startTime;
         
+        // Calculate simulated execution time based on nodes visited and language speed
+        // Base time per node (in ms) - adjusted by language speed
+        const baseTimePerNode = 0.3; // ms per node
+        const simulatedTime = (result.length * baseTimePerNode) / langSpeed;
+        
         const timeEl = document.getElementById(`treeTime${panelNum}`);
         if (timeEl) {
-            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
-            timeEl.textContent = formatTimeValue(elapsed, format);
+            const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
+            timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
         
         return {
-            time: elapsed,
+            time: simulatedTime, // Use simulated time for comparison
             nodes: result.length
         };
     }
@@ -3890,11 +4013,46 @@ class TreeVisualizer {
     
     displayComparisonResults(result1, result2) {
         const winner = result1.time < result2.time ? 1 : 2;
+        const faster = result1.time < result2.time ? result1 : result2;
+        const slower = result1.time < result2.time ? result2 : result1;
+        const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
+        
         const panel1 = document.querySelector('#treeSvg1').closest('.compare-panel');
         const panel2 = document.querySelector('#treeSvg2').closest('.compare-panel');
         
-        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
-        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+        // Remove any existing winner badges
+        const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
+        const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
+        existingBadges1?.forEach(b => b.remove());
+        existingBadges2?.forEach(b => b.remove());
+        
+        if (panel1) {
+            panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+            panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
+            
+            if (winner === 1) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel1.style.position = 'relative';
+                panel1.appendChild(badge);
+            }
+        }
+        
+        if (panel2) {
+            panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+            panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
+            
+            if (winner === 2) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel2.style.position = 'relative';
+                panel2.appendChild(badge);
+            }
+        }
     }
     
     togglePauseResumeCompare() {
@@ -4373,14 +4531,17 @@ class GraphVisualizer {
         
         const visited = new Set();
         const result = [];
+        let operations = 0; // Count operations for simulated time
         
         // Run BFS for comparison
         const queue = [0];
         visited.add(0);
+        operations++; // Initial visit
         
         while (queue.length > 0 && this.isCompareRunning && !this.isComparePaused) {
             const current = queue.shift();
             result.push(current);
+            operations++; // Node processing
             
             // Highlight node
             const svg = document.getElementById(`graphSvg${panelNum}`);
@@ -4396,6 +4557,7 @@ class GraphVisualizer {
             // Explore neighbors
             for (const edge of edges) {
                 if (!this.isCompareRunning || this.isComparePaused) break;
+                operations++; // Edge check
                 
                 let neighbor = null;
                 if (edge.from === current && !visited.has(edge.to)) neighbor = edge.to;
@@ -4404,6 +4566,7 @@ class GraphVisualizer {
                 if (neighbor !== null) {
                     visited.add(neighbor);
                     queue.push(neighbor);
+                    operations++; // Neighbor added
                 }
             }
         }
@@ -4411,25 +4574,69 @@ class GraphVisualizer {
         const endTime = performance.now();
         const elapsed = endTime - startTime;
         
+        // Calculate simulated execution time based on operations and language speed
+        // Base time per operation (in ms) - adjusted by language speed
+        const baseTimePerOp = 0.5; // Base time in ms per operation
+        const simulatedTime = (operations * baseTimePerOp) / langSpeed;
+        
         const timeEl = document.getElementById(`graphTime${panelNum}`);
         if (timeEl) {
-            const format = elapsed >= 2000 ? getBestTimeFormat(elapsed) : 'ms';
-            timeEl.textContent = formatTimeValue(elapsed, format);
+            const format = simulatedTime >= 2000 ? getBestTimeFormat(simulatedTime) : 'ms';
+            timeEl.textContent = formatTimeValue(simulatedTime, format);
         }
         
         return {
-            time: elapsed,
-            vertices: result.length
+            time: simulatedTime, // Use simulated time for comparison
+            vertices: result.length,
+            edges: edges.length
         };
     }
     
     displayComparisonResults(result1, result2) {
         const winner = result1.time < result2.time ? 1 : 2;
+        const faster = result1.time < result2.time ? result1 : result2;
+        const slower = result1.time < result2.time ? result2 : result1;
+        const speedup = slower.time > 0 ? (slower.time / faster.time).toFixed(2) : '1.00';
+        
         const panel1 = document.querySelector('#graphSvg1').closest('.compare-panel');
         const panel2 = document.querySelector('#graphSvg2').closest('.compare-panel');
         
-        if (panel1) panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
-        if (panel2) panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+        // Remove any existing winner badges
+        const existingBadges1 = panel1?.querySelectorAll('.winner-badge');
+        const existingBadges2 = panel2?.querySelectorAll('.winner-badge');
+        existingBadges1?.forEach(b => b.remove());
+        existingBadges2?.forEach(b => b.remove());
+        
+        // Highlight winner with border
+        if (panel1) {
+            panel1.style.borderColor = winner === 1 ? '#22c55e' : 'var(--border-color)';
+            panel1.style.borderWidth = winner === 1 ? '3px' : '1px';
+            
+            // Add winner badge
+            if (winner === 1) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel1.style.position = 'relative';
+                panel1.appendChild(badge);
+            }
+        }
+        
+        if (panel2) {
+            panel2.style.borderColor = winner === 2 ? '#22c55e' : 'var(--border-color)';
+            panel2.style.borderWidth = winner === 2 ? '3px' : '1px';
+            
+            // Add winner badge
+            if (winner === 2) {
+                const badge = document.createElement('div');
+                badge.className = 'winner-badge';
+                badge.textContent = `⚡ ${speedup}x Faster`;
+                badge.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; z-index: 10;';
+                panel2.style.position = 'relative';
+                panel2.appendChild(badge);
+            }
+        }
     }
     
     togglePauseResumeCompare() {
