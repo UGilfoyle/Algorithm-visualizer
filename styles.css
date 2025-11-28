@@ -843,27 +843,28 @@ select:focus {
 }
 
 .deno-logo::before {
-    content: '';
+    content: '🦕';
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 10px;
-    height: 10px;
-    background: white;
-    border-radius: 50% 50% 50% 0;
-    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    font-size: 10px;
+    line-height: 1;
+    filter: brightness(0) invert(1);
+    z-index: 2;
 }
 
 .deno-logo::after {
-    content: '🦕';
+    content: '';
     position: absolute;
-    top: 55%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 8px;
-    line-height: 1;
-    filter: brightness(0) invert(1);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255,255,255,0.3) 1px, rgba(255,255,255,0.3) 2px);
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .cpp-logo {
