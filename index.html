@@ -129,19 +129,30 @@
                     <div class="panel-header">
                         <h3>Code Implementation</h3>
                         <div class="language-tabs" id="languageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Python</button>
-                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span> Java</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node.js</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
-                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span> C++</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Python</button>
+                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span>
+                                Java</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node.js</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
+                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span>
+                                C++</button>
                             <button class="lang-tab" data-lang="c"><span class="lang-logo c-logo"></span> C</button>
                             <button class="lang-tab" data-lang="go"><span class="lang-logo go-logo"></span> Go</button>
-                            <button class="lang-tab" data-lang="rust"><span class="lang-logo rust-logo"></span> Rust</button>
-                            <button class="lang-tab" data-lang="typescript"><span class="lang-logo ts-logo"></span> TypeScript</button>
-                            <button class="lang-tab" data-lang="ruby"><span class="lang-logo ruby-logo"></span> Ruby</button>
-                            <button class="lang-tab" data-lang="swift"><span class="lang-logo swift-logo"></span> Swift</button>
-                            <button class="lang-tab" data-lang="kotlin"><span class="lang-logo kotlin-logo"></span> Kotlin</button>
-                            <button class="lang-tab" data-lang="csharp"><span class="lang-logo csharp-logo"></span> C#</button>
+                            <button class="lang-tab" data-lang="rust"><span class="lang-logo rust-logo"></span>
+                                Rust</button>
+                            <button class="lang-tab" data-lang="typescript"><span class="lang-logo ts-logo"></span>
+                                TypeScript</button>
+                            <button class="lang-tab" data-lang="ruby"><span class="lang-logo ruby-logo"></span>
+                                Ruby</button>
+                            <button class="lang-tab" data-lang="swift"><span class="lang-logo swift-logo"></span>
+                                Swift</button>
+                            <button class="lang-tab" data-lang="kotlin"><span class="lang-logo kotlin-logo"></span>
+                                Kotlin</button>
+                            <button class="lang-tab" data-lang="csharp"><span class="lang-logo csharp-logo"></span>
+                                C#</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -186,7 +197,7 @@
             <div class="algorithm-selector">
                 <div class="algorithm-grid" id="searchingAlgorithms"></div>
             </div>
-            
+
             <div class="visualization-split">
                 <div class="viz-panel">
                     <div class="panel-header">
@@ -197,7 +208,7 @@
                                 <input type="range" id="searchArraySize" min="10" max="50" value="20">
                                 <span id="searchArraySizeValue">20</span>
                             </div>
-                <div class="control-group">
+                            <div class="control-group">
                                 <label>Target</label>
                                 <input type="number" id="searchTarget" min="1" max="100" value="42">
                             </div>
@@ -222,7 +233,7 @@
                                 <option value="ms" selected>ms</option>
                                 <option value="s">sec</option>
                                 <option value="m">min</option>
-                        </select>
+                            </select>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Speed:</span>
@@ -235,13 +246,19 @@
                     <div class="panel-header">
                         <h3>Code Implementation</h3>
                         <div class="language-tabs" id="searchLanguageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Python</button>
-                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span> Java</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node.js</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
-                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span> C++</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Python</button>
+                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span>
+                                Java</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node.js</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
+                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span>
+                                C++</button>
                             <button class="lang-tab" data-lang="go"><span class="lang-logo go-logo"></span> Go</button>
-                            <button class="lang-tab" data-lang="rust"><span class="lang-logo rust-logo"></span> Rust</button>
+                            <button class="lang-tab" data-lang="rust"><span class="lang-logo rust-logo"></span>
+                                Rust</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -287,37 +304,37 @@
                     <div class="panel-header">
                         <h3>Grid Visualization</h3>
                         <div class="controls-inline">
-                <div class="control-group">
-                    <label>Speed</label>
-                    <input type="range" id="pathSpeed" min="1" max="100" value="50">
-                </div>
-                        <select id="mazePattern">
-                            <option value="random">Random Walls</option>
-                            <option value="recursive">Recursive Division</option>
-                            <option value="spiral">Spiral</option>
-                            <option value="clear">Clear Grid</option>
-                        </select>
+                            <div class="control-group">
+                                <label>Speed</label>
+                                <input type="range" id="pathSpeed" min="1" max="100" value="50">
+                            </div>
+                            <select id="mazePattern">
+                                <option value="random">Random Walls</option>
+                                <option value="recursive">Recursive Division</option>
+                                <option value="spiral">Spiral</option>
+                                <option value="clear">Clear Grid</option>
+                            </select>
                             <button id="generateMaze" class="btn btn-secondary">🏗️ Maze</button>
                             <button id="startPath" class="btn btn-primary">▶ Find Path</button>
                             <button id="clearPath" class="btn btn-outline">🧹 Clear</button>
                         </div>
                     </div>
-                <div class="grid-container" id="pathGrid"></div>
-                <div class="legend">
-                    <div class="legend-item"><span class="legend-color start"></span>Start</div>
-                    <div class="legend-item"><span class="legend-color end"></span>End</div>
-                    <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
-                    <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
-                    <div class="legend-item"><span class="legend-color path"></span>Path</div>
-                </div>
+                    <div class="grid-container" id="pathGrid"></div>
+                    <div class="legend">
+                        <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                        <div class="legend-item"><span class="legend-color end"></span>End</div>
+                        <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                        <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                        <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                    </div>
                     <div class="stats-row">
                         <div class="stat-item">
                             <span class="stat-label">Nodes Visited:</span>
-                    <span class="stat-value" id="nodesVisited">0</span>
-                </div>
+                            <span class="stat-value" id="nodesVisited">0</span>
+                        </div>
                         <div class="stat-item">
                             <span class="stat-label">Path Length:</span>
-                    <span class="stat-value" id="pathLength">0</span>
+                            <span class="stat-value" id="pathLength">0</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Time:</span>
@@ -335,10 +352,14 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="pathLanguageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Py</button>
-                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span> C++</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Py</button>
+                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span>
+                                C++</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -357,25 +378,25 @@
 
             <div class="algorithm-selector">
                 <div class="algorithm-grid" id="treeAlgorithms"></div>
-                </div>
+            </div>
 
             <div class="visualization-split">
                 <div class="viz-panel wide">
                     <div class="panel-header">
                         <h3>Tree Visualization</h3>
                         <div class="controls-inline">
-                <div class="control-group">
-                    <label>Speed</label>
+                            <div class="control-group">
+                                <label>Speed</label>
                                 <input type="range" id="treeSpeed" min="1" max="100" value="50">
-                </div>
+                            </div>
                             <input type="number" id="treeValue" placeholder="Value" min="1" max="999">
                             <button id="insertNode" class="btn btn-secondary">➕ Insert</button>
                             <button id="deleteNode" class="btn btn-secondary">➖ Delete</button>
                             <button id="searchNode" class="btn btn-secondary">🔍 Search</button>
                             <button id="traverseTree" class="btn btn-primary">▶ Traverse</button>
                             <button id="clearTree" class="btn btn-outline">🧹 Clear</button>
-                </div>
-            </div>
+                        </div>
+                    </div>
                     <div class="tree-container" id="treeCanvas">
                         <svg id="treeSvg"></svg>
                     </div>
@@ -391,7 +412,7 @@
                         <div class="stat-item">
                             <span class="stat-label">Traversal:</span>
                             <span class="stat-value" id="traversalOrder">-</span>
-                </div>
+                        </div>
                     </div>
                 </div>
 
@@ -399,10 +420,14 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="treeLanguageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Py</button>
-                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span> Java</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Py</button>
+                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span>
+                                Java</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -472,7 +497,7 @@
                         <div class="stat-item">
                             <span class="stat-label">Speed:</span>
                             <span class="stat-value" id="graphSpeedStat">-</span>
-                </div>
+                        </div>
                     </div>
                 </div>
 
@@ -480,10 +505,14 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="graphLanguageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Py</button>
-                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span> C++</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Py</button>
+                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span>
+                                C++</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -509,7 +538,7 @@
                     <div class="panel-header">
                         <h3>DP Table Visualization</h3>
                         <div class="controls-inline">
-                <div class="control-group">
+                            <div class="control-group">
                                 <label>Speed</label>
                                 <input type="range" id="dpSpeed" min="1" max="100" value="50">
                             </div>
@@ -544,10 +573,14 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="dpLanguageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Py</button>
-                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span> C++</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Py</button>
+                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span>
+                                C++</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -604,10 +637,14 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="stringLanguageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Py</button>
-                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span> Java</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Py</button>
+                            <button class="lang-tab" data-lang="java"><span class="lang-logo java-logo"></span>
+                                Java</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -668,10 +705,14 @@
                     <div class="panel-header">
                         <h3>Implementation</h3>
                         <div class="language-tabs compact" id="mathLanguageTabs">
-                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span> Py</button>
-                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span> C++</button>
-                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span> Node</button>
-                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span> Deno</button>
+                            <button class="lang-tab" data-lang="python"><span class="lang-logo python-logo"></span>
+                                Py</button>
+                            <button class="lang-tab" data-lang="cpp"><span class="lang-logo cpp-logo"></span>
+                                C++</button>
+                            <button class="lang-tab active" data-lang="node"><span class="lang-logo node-logo"></span>
+                                Node</button>
+                            <button class="lang-tab" data-lang="deno"><span class="lang-logo deno-logo"></span>
+                                Deno</button>
                         </div>
                     </div>
                     <div class="code-container">
@@ -760,7 +801,7 @@
                     <span>Progress</span>
                     <span>Time</span>
                     <span>Position</span>
-                    </div>
+                </div>
                 <div class="race-tracks" id="raceTracks">
                     <!-- Race tracks will be generated dynamically -->
                 </div>
