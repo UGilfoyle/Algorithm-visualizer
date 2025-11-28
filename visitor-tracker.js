@@ -107,14 +107,19 @@
 
         for (const service of ipServices) {
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+
                 const response = await fetch(service.url, {
-                    signal: AbortSignal.timeout(3000)
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
+
                 if (!response.ok) continue;
-                
+
                 const data = await response.json();
                 const parsed = service.parse(data);
-                
+
                 if (parsed.country && parsed.country !== 'Unknown') {
                     locationData.country = parsed.country;
                     if (parsed.city) locationData.city = parsed.city;
