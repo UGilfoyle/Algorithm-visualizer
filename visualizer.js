@@ -1799,11 +1799,17 @@ class LanguageArena {
             <rect x="${padding.left}" y="${padding.top}" width="${chartWidth}" height="${chartHeight}" 
                   fill="var(--bg-tertiary)" rx="8" opacity="0.3"/>`;
         
-        // Grid lines
+        // Grid lines with Y-axis values
         for (let i = 0; i <= 5; i++) {
             const y = padding.top + (chartHeight / 5) * i;
             svg += `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" 
                      stroke="var(--border-color)" stroke-width="1" opacity="0.3"/>`;
+            
+            // Y-axis scale values (time values)
+            const timeValue = maxTime - ((maxTime - minTime) / 5) * i;
+            const formattedTime = timeValue < 1000 ? `${timeValue.toFixed(1)}ms` : `${(timeValue / 1000).toFixed(2)}s`;
+            svg += `<text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" 
+                     fill="var(--text-secondary)" font-size="10">${formattedTime}</text>`;
         }
         
         // Calculate points for line graph
@@ -1831,16 +1837,20 @@ class LanguageArena {
         }
         
         // Draw points and labels
-        points.forEach((point) => {
+        points.forEach((point, idx) => {
             // Point circle
             svg += `<circle cx="${point.x}" cy="${point.y}" r="6" fill="${point.info.color}" 
                      stroke="var(--bg-primary)" stroke-width="2"/>`;
             
-            // Language symbol below
+            // Language symbol below (X-axis value)
             svg += `<text x="${point.x}" y="${padding.top + chartHeight + 20}" 
                      text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="600">${point.info.symbol}</text>`;
             
-            // Time value above point
+            // Language name below symbol (X-axis label)
+            svg += `<text x="${point.x}" y="${padding.top + chartHeight + 35}" 
+                     text-anchor="middle" fill="var(--text-muted)" font-size="9">${point.info.name}</text>`;
+            
+            // Time value above point (Y-axis value at point)
             svg += `<text x="${point.x}" y="${point.y - 10}" 
                      text-anchor="middle" fill="var(--text-secondary)" font-size="9">${point.result.displayTime}</text>`;
         });
