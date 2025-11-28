@@ -772,8 +772,8 @@ class LanguageArena {
                     <span class="lang-name">${info.name}</span>
                 </div>
                 <div class="track-bar">
-                    <div class="track-progress" id="progress-${lang}" style="background: ${info.color}">
-                        <span class="track-progress-label" id="label-${lang}">${info.symbol}</span>
+                    <div class="track-runner" id="runner-${lang}" style="background: ${info.color}; border-color: ${info.color}">
+                        <span class="runner-symbol">${info.symbol}</span>
                     </div>
                 </div>
                 <div class="track-time" id="time-${lang}">-</div>
@@ -799,14 +799,15 @@ class LanguageArena {
 
         // Reset all tracks
         this.selectedLanguages.forEach(lang => {
-            const progressEl = document.getElementById(`progress-${lang}`);
             const runnerEl = document.getElementById(`runner-${lang}`);
             const timeEl = document.getElementById(`time-${lang}`);
             const posEl = document.getElementById(`position-${lang}`);
             const trackEl = document.getElementById(`track-${lang}`);
 
-            if (progressEl) progressEl.style.width = '0%';
-            if (runnerEl) runnerEl.style.left = '0%';
+            if (runnerEl) {
+                runnerEl.style.left = '0%';
+                runnerEl.style.transform = 'translateX(0)';
+            }
             if (timeEl) timeEl.textContent = '-';
             if (posEl) posEl.textContent = '-';
             if (trackEl) trackEl.classList.remove('winner', 'finished');
@@ -870,15 +871,18 @@ class LanguageArena {
     }
 
     async runRacer(lang, time, minTime, duration) {
-        const progressEl = document.getElementById(`progress-${lang}`);
-        const labelEl = document.getElementById(`label-${lang}`);
+        const runnerEl = document.getElementById(`runner-${lang}`);
         const timeEl = document.getElementById(`time-${lang}`);
         const trackEl = document.getElementById(`track-${lang}`);
+        const trackBarEl = trackEl ? trackEl.querySelector('.track-bar') : null;
 
-        if (!progressEl) return;
+        if (!runnerEl || !trackBarEl) return;
 
         const racerDuration = (time / minTime) * (duration * 0.8);
         const info = LANGUAGE_INFO[lang];
+        const trackWidth = trackBarEl.offsetWidth;
+        const ballSize = 40; // Size of the ball
+        const maxPosition = trackWidth - ballSize;
 
         return new Promise(resolve => {
             const startTime = performance.now();
@@ -893,7 +897,19 @@ class LanguageArena {
                 const elapsed = performance.now() - startTime;
                 const progress = Math.min(elapsed / racerDuration, 1);
 
-                progressEl.style.width = `${progress * 100}%`;
+                // Calculate position: move back and forth based on progress
+                // Use sine wave to create back-and-forth motion
+                const oscillation = Math.sin(progress * Math.PI * 4); // 4 complete cycles
+                const normalizedProgress = (oscillation + 1) / 2; // Normalize to 0-1
+                
+                // Combine oscillation with forward progress
+                const forwardProgress = progress;
+                const backAndForth = normalizedProgress * 0.3; // 30% oscillation
+                const finalProgress = forwardProgress * 0.7 + backAndForth * 0.3;
+                
+                // Calculate actual position
+                const position = finalProgress * maxPosition;
+                runnerEl.style.left = `${position}px`;
 
                 // Play tick sound periodically
                 if (elapsed - lastTickTime > 200 && typeof audioEngine !== 'undefined') {
@@ -905,6 +921,8 @@ class LanguageArena {
                     const frameId = requestAnimationFrame(animate);
                     this.animationFrames.push(frameId);
                 } else {
+                    // Ensure ball reaches the end
+                    runnerEl.style.left = `${maxPosition}px`;
                     if (trackEl) trackEl.classList.add('finished');
                     const displayTime = this.formatTime(time);
                     if (timeEl) timeEl.textContent = displayTime;

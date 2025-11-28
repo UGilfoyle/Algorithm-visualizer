@@ -1081,38 +1081,43 @@ select:focus {
 
 .track-bar {
     position: relative;
-    height: 28px;
+    height: 50px;
     background: var(--bg-tertiary);
     border-radius: var(--radius-md);
-    overflow: hidden;
+    overflow: visible;
     border: 1px solid var(--border-color);
-}
-
-.track-progress {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    border-radius: var(--radius-md);
-    transition: width 0.1s linear;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding-right: var(--spacing-sm);
 }
 
-.track-progress-label {
-    font-size: 0.7rem;
+.track-runner {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 3px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: left 0.05s linear, transform 0.1s ease;
+    z-index: 10;
+    left: 0;
+    transform: translateX(0);
+}
+
+.track-runner .runner-symbol {
+    font-size: 0.75rem;
     font-weight: bold;
     color: var(--bg-primary);
     font-family: var(--font-mono);
-    opacity: 0;
-    transition: opacity 0.2s;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.track-progress[style*="width: 100%"] .track-progress-label,
-.track-progress[style*="width: 9"] .track-progress-label {
-    opacity: 1;
+.track-runner:hover {
+    transform: translateX(0) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .track-time,
