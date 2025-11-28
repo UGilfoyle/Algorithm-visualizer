@@ -7,7 +7,26 @@
 let globalStopFlag = false;
 
 // Global time formatter
+// Auto-select best format based on time value
+function getBestTimeFormat(ms) {
+    if (ms >= 86400000) { // >= 1 day
+        return 'd';
+    } else if (ms >= 3600000) { // >= 1 hour
+        return 'h';
+    } else if (ms >= 60000) { // >= 1 minute
+        return 'm';
+    } else if (ms >= 1000) { // >= 1 second
+        return 's';
+    }
+    return 'ms';
+}
+
 function formatTimeValue(ms, format = 'ms') {
+    // Auto-format if format is 'auto' or not specified for large values
+    if (format === 'auto' || (!format || format === 'ms') && ms >= 60000) {
+        format = getBestTimeFormat(ms);
+    }
+    
     switch (format) {
         case 's':
             return `${(ms / 1000).toFixed(3)}s`;
@@ -1070,9 +1089,13 @@ class LanguageArena {
                     // Store raw time value
                     this.rawTimes[lang] = time;
                     
-                    // Get format from dropdown
+                    // Auto-select best format and update dropdown
                     const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
-                    const format = formatSelect ? formatSelect.value : 'ms';
+                    const bestFormat = getBestTimeFormat(time);
+                    if (formatSelect && formatSelect.value === 'ms') {
+                        formatSelect.value = bestFormat;
+                    }
+                    const format = formatSelect ? formatSelect.value : bestFormat;
                     const displayTime = formatTimeValue(time, format);
                     
                     const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
