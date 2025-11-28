@@ -666,36 +666,132 @@
                 <div class="viz-panel wide">
                     <div class="panel-header">
                         <h3>Tree Visualization</h3>
-                        <div class="controls-inline">
-                <div class="control-group">
-                    <label>Speed</label>
+                        <div class="controls-inline" style="position: relative;">
+                            <button id="treeInfoBtn" class="info-icon-btn" title="Show tree info">i</button>
+                            <div class="control-group">
                                 <label>Speed <span id="treeSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="treeSpeed" min="25" max="100" value="50">
-                </div>
+                            </div>
                             <input type="number" id="treeValue" placeholder="Value" min="1" max="999">
                             <button id="insertNode" class="btn btn-secondary">➕ Insert</button>
                             <button id="deleteNode" class="btn btn-secondary">➖ Delete</button>
                             <button id="searchNode" class="btn btn-secondary">🔍 Search</button>
                             <button id="traverseTree" class="btn btn-primary">▶ Traverse</button>
                             <button id="clearTree" class="btn btn-outline">🧹 Clear</button>
-                </div>
-            </div>
-                    <div class="tree-container" id="treeCanvas">
-                        <svg id="treeSvg"></svg>
+                            <button id="toggleTreeCompare" class="btn btn-outline">⚔️ Compare</button>
+                        </div>
                     </div>
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <span class="stat-label">Nodes:</span>
-                            <span class="stat-value" id="treeNodes">0</span>
+                    <div id="treeCompareControls" class="compare-controls" style="display: none;">
+                        <div class="compare-selectors">
+                            <div class="compare-selector">
+                                <label>Algorithm 1:</label>
+                                <select id="treeCompareAlgo1" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 1:</label>
+                                <select id="treeCompareLang1" class="compare-select">
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Algorithm 2:</label>
+                                <select id="treeCompareAlgo2" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 2:</label>
+                                <select id="treeCompareLang2" class="compare-select">
+                                    <option value="java">Java</option>
+                                    <option value="python">Python</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-actions">
+                                <button id="startTreeCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                                <button id="pauseResumeTreeCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏸ Pause</button>
+                                <button id="stopTreeCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹ Stop</button>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Height:</span>
-                            <span class="stat-value" id="treeHeight">0</span>
+                    </div>
+                    <div id="treeCompareContainer" class="compare-container" style="display: none;">
+                        <div class="compare-panel">
+                            <h4 id="treeCompareAlgo1Name">Algorithm 1</h4>
+                            <div class="tree-container compare-tree" id="treeCanvas1">
+                                <svg id="treeSvg1"></svg>
+                            </div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Nodes:</span>
+                                    <span class="stat-value" id="treeNodes1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Height:</span>
+                                    <span class="stat-value" id="treeHeight1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="treeTime1">0ms</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Traversal:</span>
-                            <span class="stat-value" id="traversalOrder">-</span>
-                </div>
+                        <div class="compare-panel">
+                            <h4 id="treeCompareAlgo2Name">Algorithm 2</h4>
+                            <div class="tree-container compare-tree" id="treeCanvas2">
+                                <svg id="treeSvg2"></svg>
+                            </div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Nodes:</span>
+                                    <span class="stat-value" id="treeNodes2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Height:</span>
+                                    <span class="stat-value" id="treeHeight2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="treeTime2">0ms</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="treeRegularVisualization">
+                        <div class="tree-container" id="treeCanvas">
+                            <svg id="treeSvg"></svg>
+                        </div>
+                        <div class="stats-row" id="treeRegularStatsRow">
+                            <div class="stat-item">
+                                <span class="stat-label">Nodes:</span>
+                                <span class="stat-value" id="treeNodes">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Height:</span>
+                                <span class="stat-value" id="treeHeight">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Traversal:</span>
+                                <span class="stat-value" id="traversalOrder">-</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -757,7 +853,8 @@
                 <div class="viz-panel wide">
                     <div class="panel-header">
                         <h3>Graph Visualization</h3>
-                        <div class="controls-inline">
+                        <div class="controls-inline" style="position: relative;">
+                            <button id="graphInfoBtn" class="info-icon-btn" title="Show graph info">i</button>
                             <div class="control-group">
                                 <label>Speed <span id="graphSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="graphSpeed" min="25" max="100" value="50">
@@ -772,39 +869,135 @@
                             <button id="generateGraph" class="btn btn-secondary">🔄 Generate</button>
                             <button id="startGraphAlgo" class="btn btn-primary">▶ Run</button>
                             <button id="clearGraph" class="btn btn-outline">🧹 Clear</button>
+                            <button id="toggleGraphCompare" class="btn btn-outline">⚔️ Compare</button>
                         </div>
                     </div>
-                    <div class="graph-container" id="graphCanvas">
-                        <svg id="graphSvg"></svg>
+                    <div id="graphCompareControls" class="compare-controls" style="display: none;">
+                        <div class="compare-selectors">
+                            <div class="compare-selector">
+                                <label>Algorithm 1:</label>
+                                <select id="graphCompareAlgo1" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 1:</label>
+                                <select id="graphCompareLang1" class="compare-select">
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Algorithm 2:</label>
+                                <select id="graphCompareAlgo2" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 2:</label>
+                                <select id="graphCompareLang2" class="compare-select">
+                                    <option value="java">Java</option>
+                                    <option value="python">Python</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-actions">
+                                <button id="startGraphCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                                <button id="pauseResumeGraphCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏸ Pause</button>
+                                <button id="stopGraphCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹ Stop</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <span class="stat-label">Vertices:</span>
-                            <span class="stat-value" id="graphVertices">0</span>
+                    <div id="graphCompareContainer" class="compare-container" style="display: none;">
+                        <div class="compare-panel">
+                            <h4 id="graphCompareAlgo1Name">Algorithm 1</h4>
+                            <div class="graph-container compare-graph" id="graphCanvas1">
+                                <svg id="graphSvg1"></svg>
+                            </div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Vertices:</span>
+                                    <span class="stat-value" id="graphVertices1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Edges:</span>
+                                    <span class="stat-value" id="graphEdges1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="graphTime1">0ms</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Edges:</span>
-                            <span class="stat-value" id="graphEdges">0</span>
+                        <div class="compare-panel">
+                            <h4 id="graphCompareAlgo2Name">Algorithm 2</h4>
+                            <div class="graph-container compare-graph" id="graphCanvas2">
+                                <svg id="graphSvg2"></svg>
+                            </div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Vertices:</span>
+                                    <span class="stat-value" id="graphVertices2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Edges:</span>
+                                    <span class="stat-value" id="graphEdges2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="graphTime2">0ms</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Result:</span>
-                            <span class="stat-value" id="graphResult">-</span>
+                    </div>
+                    <div id="graphRegularVisualization">
+                        <div class="graph-container" id="graphCanvas">
+                            <svg id="graphSvg"></svg>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Time:</span>
-                            <span class="stat-value" id="graphTime">0ms</span>
-                            <select id="graphTimeFormat" class="time-format-select">
-                                <option value="ms" selected>ms</option>
-                                <option value="s">sec</option>
-                                <option value="m">min</option>
-                                <option value="h">hrs</option>
-                                <option value="d">day</option>
-                            </select>
+                        <div class="stats-row" id="graphRegularStatsRow">
+                            <div class="stat-item">
+                                <span class="stat-label">Vertices:</span>
+                                <span class="stat-value" id="graphVertices">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Edges:</span>
+                                <span class="stat-value" id="graphEdges">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Result:</span>
+                                <span class="stat-value" id="graphResult">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Time:</span>
+                                <span class="stat-value" id="graphTime">0ms</span>
+                                <select id="graphTimeFormat" class="time-format-select">
+                                    <option value="ms" selected>ms</option>
+                                    <option value="s">sec</option>
+                                    <option value="m">min</option>
+                                    <option value="h">hrs</option>
+                                    <option value="d">day</option>
+                                </select>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Speed:</span>
+                                <span class="stat-value" id="graphSpeedStat">-</span>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Speed:</span>
-                            <span class="stat-value" id="graphSpeedStat">-</span>
-                </div>
                     </div>
                 </div>
 
@@ -863,36 +1056,129 @@
                 <div class="viz-panel wide">
                     <div class="panel-header">
                         <h3>DP Table Visualization</h3>
-                        <div class="controls-inline">
-                <div class="control-group">
+                        <div class="controls-inline" style="position: relative;">
+                            <button id="dpInfoBtn" class="info-icon-btn" title="Show DP info">i</button>
+                            <div class="control-group">
                                 <label>Speed <span id="dpSpeedMultiplier" class="speed-multiplier">1x</span></label>
                                 <input type="range" id="dpSpeed" min="25" max="100" value="50">
                             </div>
                             <input type="text" id="dpInput" placeholder="Enter input..." value="fibonacci: 10">
                             <button id="startDP" class="btn btn-primary">▶ Solve</button>
                             <button id="stepDP" class="btn btn-secondary">⏭ Step</button>
+                            <button id="toggleDPCompare" class="btn btn-outline">⚔️ Compare</button>
                         </div>
                     </div>
-                    <div class="dp-container" id="dpTable"></div>
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <span class="stat-label">Subproblems:</span>
-                            <span class="stat-value" id="dpSubproblems">0</span>
+                    <div id="dpCompareControls" class="compare-controls" style="display: none;">
+                        <div class="compare-selectors">
+                            <div class="compare-selector">
+                                <label>Algorithm 1:</label>
+                                <select id="dpCompareAlgo1" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 1:</label>
+                                <select id="dpCompareLang1" class="compare-select">
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Algorithm 2:</label>
+                                <select id="dpCompareAlgo2" class="compare-select"></select>
+                            </div>
+                            <div class="compare-selector">
+                                <label>Language 2:</label>
+                                <select id="dpCompareLang2" class="compare-select">
+                                    <option value="java">Java</option>
+                                    <option value="python">Python</option>
+                                    <option value="node">Node.js</option>
+                                    <option value="deno">Deno</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="c">C</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="kotlin">Kotlin</option>
+                                </select>
+                            </div>
+                            <div class="compare-actions">
+                                <button id="startDPCompare" class="btn btn-primary">⚔️ Start Comparison</button>
+                                <button id="pauseResumeDPCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏸ Pause</button>
+                                <button id="stopDPCompare" class="btn btn-outline"
+                                    style="visibility:hidden; position:absolute; opacity:0; pointer-events:none;">⏹ Stop</button>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Result:</span>
-                            <span class="stat-value" id="dpResult">-</span>
+                    </div>
+                    <div id="dpCompareContainer" class="compare-container" style="display: none;">
+                        <div class="compare-panel">
+                            <h4 id="dpCompareAlgo1Name">Algorithm 1</h4>
+                            <div class="dp-container compare-dp" id="dpTable1"></div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Subproblems:</span>
+                                    <span class="stat-value" id="dpSubproblems1">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Result:</span>
+                                    <span class="stat-value" id="dpResult1">-</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="dpTime1">0ms</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Time:</span>
-                            <span class="stat-value" id="dpTime">0ms</span>
-                            <select id="dpTimeFormat" class="time-format-select">
-                                <option value="ms" selected>ms</option>
-                                <option value="s">sec</option>
-                                <option value="m">min</option>
-                                <option value="h">hrs</option>
-                                <option value="d">day</option>
-                            </select>
+                        <div class="compare-panel">
+                            <h4 id="dpCompareAlgo2Name">Algorithm 2</h4>
+                            <div class="dp-container compare-dp" id="dpTable2"></div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">Subproblems:</span>
+                                    <span class="stat-value" id="dpSubproblems2">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Result:</span>
+                                    <span class="stat-value" id="dpResult2">-</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time:</span>
+                                    <span class="stat-value" id="dpTime2">0ms</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dpRegularVisualization">
+                        <div class="dp-container" id="dpTable"></div>
+                        <div class="stats-row" id="dpRegularStatsRow">
+                            <div class="stat-item">
+                                <span class="stat-label">Subproblems:</span>
+                                <span class="stat-value" id="dpSubproblems">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Result:</span>
+                                <span class="stat-value" id="dpResult">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Time:</span>
+                                <span class="stat-value" id="dpTime">0ms</span>
+                                <select id="dpTimeFormat" class="time-format-select">
+                                    <option value="ms" selected>ms</option>
+                                    <option value="s">sec</option>
+                                    <option value="m">min</option>
+                                    <option value="h">hrs</option>
+                                    <option value="d">day</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1291,6 +1577,33 @@
             <button class="search-info-close-btn" id="searchInfoCloseBtn">&times;</button>
             <h2>Array Information</h2>
             <div id="searchInfoContent" class="search-info-content"></div>
+        </div>
+    </div>
+
+    <!-- Tree Info Modal -->
+    <div class="search-info-modal" id="treeInfoModal" style="display: none;">
+        <div class="search-info-modal-content">
+            <button class="search-info-close-btn" id="treeInfoCloseBtn">&times;</button>
+            <h2>Tree Information</h2>
+            <div id="treeInfoContent" class="search-info-content"></div>
+        </div>
+    </div>
+
+    <!-- Graph Info Modal -->
+    <div class="search-info-modal" id="graphInfoModal" style="display: none;">
+        <div class="search-info-modal-content">
+            <button class="search-info-close-btn" id="graphInfoCloseBtn">&times;</button>
+            <h2>Graph Information</h2>
+            <div id="graphInfoContent" class="search-info-content"></div>
+        </div>
+    </div>
+
+    <!-- DP Info Modal -->
+    <div class="search-info-modal" id="dpInfoModal" style="display: none;">
+        <div class="search-info-modal-content">
+            <button class="search-info-close-btn" id="dpInfoCloseBtn">&times;</button>
+            <h2>DP Problem Information</h2>
+            <div id="dpInfoContent" class="search-info-content"></div>
         </div>
     </div>
 
