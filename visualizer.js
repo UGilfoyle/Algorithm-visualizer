@@ -2626,7 +2626,10 @@ class SearchingVisualizer {
             }
         }
 
+        const infoBtn = document.getElementById('searchInfoBtn');
+        
         if (generateBtn) generateBtn.addEventListener('click', () => this.generateArray());
+        if (infoBtn) infoBtn.addEventListener('click', () => this.showArrayInfo());
         if (startBtn) startBtn.addEventListener('click', () => this.start());
 
         if (toggleCompareBtn) {
@@ -2669,9 +2672,51 @@ class SearchingVisualizer {
         this.stop();
         const sizeEl = document.getElementById('searchArraySize');
         const size = parseInt(sizeEl?.value || 20);
+        // Generate array with exact size: [5, 10, 15, ..., size*5]
         this.array = Array.from({ length: size }, (_, i) => (i + 1) * 5);
+        // Sort array for binary search compatibility
+        this.array.sort((a, b) => a - b);
         this.render();
         this.resetStats();
+    }
+
+    showArrayInfo() {
+        if (!this.array || this.array.length === 0) {
+            alert('Please generate an array first by clicking "Generate"');
+            return;
+        }
+        
+        const size = this.array.length;
+        const min = Math.min(...this.array);
+        const max = Math.max(...this.array);
+        const sorted = [...this.array].sort((a, b) => a - b);
+        const isSorted = JSON.stringify(this.array) === JSON.stringify(sorted);
+        
+        // Show first 20 and last 20 values if array is large
+        let arrayPreview = '';
+        if (size <= 40) {
+            arrayPreview = this.array.join(', ');
+        } else {
+            const first20 = this.array.slice(0, 20).join(', ');
+            const last20 = this.array.slice(-20).join(', ');
+            arrayPreview = `${first20} ... (${size - 40} more values) ... ${last20}`;
+        }
+        
+        const info = `Array Information:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Size: ${size} elements
+Min Value: ${min}
+Max Value: ${max}
+Range: ${min} to ${max}
+Is Sorted: ${isSorted ? 'Yes ✓' : 'No ✗'}
+Target: ${this.target}
+
+Array Values:
+${arrayPreview}
+
+Note: Array is generated as [5, 10, 15, ..., ${size * 5}]`;
+        
+        alert(info);
     }
 
     resetStats() {
