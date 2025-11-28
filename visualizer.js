@@ -280,18 +280,20 @@ class SortingVisualizer {
         if (toggleCompareBtn) {
             toggleCompareBtn.addEventListener('click', () => {
                 this.isCompareMode = !this.isCompareMode;
+                const regularViz = document.getElementById('regularVisualization');
+                
                 if (this.isCompareMode) {
                     this.stopComparison(); // Stop any running comparison
                     compareControls.style.display = 'block';
                     compareContainer.style.display = 'grid';
-                    this.container.style.display = 'none';
+                    if (regularViz) regularViz.style.display = 'none';
                     toggleCompareBtn.textContent = '❌ Exit Compare';
                     toggleCompareBtn.classList.add('active');
                 } else {
                     this.stopComparison(); // Stop any running comparison
                     compareControls.style.display = 'none';
                     compareContainer.style.display = 'none';
-                    this.container.style.display = 'flex';
+                    if (regularViz) regularViz.style.display = 'block';
                     toggleCompareBtn.textContent = '⚔️ Compare';
                     toggleCompareBtn.classList.remove('active');
                 }
