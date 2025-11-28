@@ -151,10 +151,13 @@ class App {
         navButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const section = btn.dataset.section;
-                this.switchSection(section);
-                
-                navButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                if (section === 'playground') {
+                    this.showPlaygroundModal();
+                } else {
+                    this.switchSection(section);
+                    navButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
             });
         });
     }
@@ -456,3 +459,52 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('submit', e => e.preventDefault());
+
+const app = new App();
+
+app.showPlaygroundModal = function() {
+    const modal = document.getElementById('playgroundModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+};
+
+app.hidePlaygroundModal = function() {
+    const modal = document.getElementById('playgroundModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+app.setupPlaygroundModal = function() {
+    const closeBtn = document.getElementById('closePlaygroundModal');
+    const modal = document.getElementById('playgroundModal');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            this.hidePlaygroundModal();
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.hidePlaygroundModal();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+            this.hidePlaygroundModal();
+        }
+    });
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        app.setupPlaygroundModal();
+    });
+} else {
+    app.setupPlaygroundModal();
+}
