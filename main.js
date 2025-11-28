@@ -2,22 +2,22 @@
 // Main Application Controller
 // ========================================
 
-// Initialize SVG icons
+// Initialize language icons
 function initLanguageIcons() {
-    // Wait for LANGUAGE_SVGS to be available
-    if (typeof LANGUAGE_SVGS === 'undefined') {
+    // Wait for LANGUAGE_ICONS to be available
+    if (typeof LANGUAGE_ICONS === 'undefined') {
         setTimeout(() => initLanguageIcons(), 100);
         return;
     }
     
-    // Map language names to SVG keys
+    // Map language names to icon paths
     const langMap = {
         'python': 'python',
         'java': 'java',
         'node': 'node',
         'deno': 'deno',
         'cpp': 'cpp',
-        'c': 'cpp', // Use C++ SVG for C
+        'c': 'c',
         'go': 'go',
         'rust': 'rust',
         'typescript': 'typescript',
@@ -30,53 +30,59 @@ function initLanguageIcons() {
         'elixir': 'elixir'
     };
     
-    function injectSVGs() {
+    function injectIcons() {
         // Update all lang-logo elements with data-lang attribute
-        document.querySelectorAll('.lang-logo[data-lang], .lang-logo-svg[data-lang], span[data-lang]').forEach(el => {
+        document.querySelectorAll('.lang-logo[data-lang], span[data-lang]').forEach(el => {
             const lang = el.getAttribute('data-lang');
             if (!lang) return;
             
-            const svgKey = langMap[lang];
-            if (svgKey && LANGUAGE_SVGS[svgKey]) {
-                // Only inject if empty or doesn't have SVG content
-                if (!el.innerHTML.trim() || !el.querySelector('svg')) {
-                    el.innerHTML = LANGUAGE_SVGS[svgKey];
-                    el.className = 'lang-logo-svg';
+            const iconKey = langMap[lang];
+            if (iconKey && LANGUAGE_ICONS[iconKey]) {
+                // Replace with img tag if not already an img
+                if (el.tagName !== 'IMG') {
+                    const img = document.createElement('img');
+                    img.src = LANGUAGE_ICONS[iconKey];
+                    img.alt = lang;
+                    img.className = 'lang-icon-img';
+                    el.replaceWith(img);
                 }
             }
         });
         
-        // Also check parent buttons with data-lang and find child spans
+        // Also check parent buttons with data-lang and find/create icon
         document.querySelectorAll('.lang-tab[data-lang]').forEach(button => {
             const lang = button.getAttribute('data-lang');
-            const svgKey = langMap[lang];
-            if (svgKey && LANGUAGE_SVGS[svgKey]) {
-                let iconEl = button.querySelector('.lang-logo, .lang-logo-svg, span[data-lang]');
-                if (!iconEl) {
-                    // Create icon element if it doesn't exist
-                    iconEl = document.createElement('span');
-                    iconEl.className = 'lang-logo-svg';
-                    iconEl.setAttribute('data-lang', lang);
-                    button.insertBefore(iconEl, button.firstChild);
-                }
-                if (!iconEl.innerHTML.trim() || !iconEl.querySelector('svg')) {
-                    iconEl.innerHTML = LANGUAGE_SVGS[svgKey];
-                    iconEl.className = 'lang-logo-svg';
+            const iconKey = langMap[lang];
+            if (iconKey && LANGUAGE_ICONS[iconKey]) {
+                let iconEl = button.querySelector('.lang-logo, .lang-icon-img, span[data-lang], img.lang-icon-img');
+                if (!iconEl || (iconEl.tagName !== 'IMG' && !iconEl.querySelector('img'))) {
+                    // Create or replace with img element
+                    if (iconEl && iconEl.tagName !== 'IMG') {
+                        iconEl.remove();
+                    }
+                    const img = document.createElement('img');
+                    img.src = LANGUAGE_ICONS[iconKey];
+                    img.alt = lang;
+                    img.className = 'lang-icon-img';
+                    button.insertBefore(img, button.firstChild);
+                } else if (iconEl.tagName === 'IMG') {
+                    // Update existing img src
+                    iconEl.src = LANGUAGE_ICONS[iconKey];
                 }
             }
         });
     }
     
     // Initial injection
-    injectSVGs();
+    injectIcons();
     
     // Watch for dynamically added elements
-    if (!window.svgObserver) {
-        window.svgObserver = new MutationObserver(() => {
-            injectSVGs();
+    if (!window.iconObserver) {
+        window.iconObserver = new MutationObserver(() => {
+            injectIcons();
         });
         
-        window.svgObserver.observe(document.body, { childList: true, subtree: true });
+        window.iconObserver.observe(document.body, { childList: true, subtree: true });
     }
 }
 
@@ -105,7 +111,7 @@ class App {
         this.setupAlgorithmSelectors();
         this.setupLanguageTabs();
         this.loadAlgorithmInfo();
-        // Initialize icons after a short delay to ensure LANGUAGE_SVGS is loaded
+        // Initialize icons after a short delay to ensure LANGUAGE_ICONS is loaded
         setTimeout(() => initLanguageIcons(), 100);
     }
     

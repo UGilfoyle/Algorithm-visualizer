@@ -69,40 +69,43 @@ const LANGUAGE_SPEED = {
     elixir: 5.0      // BEAM VM, moderate speed
 };
 
-const LANGUAGE_SVGS = {
-    java: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><path fill="#5382A1" d="M62.308 119.887c-.44-4.567-.88-9.093-1.225-13.577-.221-2.763.173-5.443.789-8.125 1.006-4.386 2.153-8.736 3.212-13.105.712-2.918.267-5.898-.788-8.739-2.363-6.146-5.095-12.153-7.861-18.161C50.272 59.085 47.592 52.192 45.953 45.181c-.688-2.891-.053-6.038 1.242-8.791 1.604-3.485 3.844-6.619 6.123-9.705C57.87 19.591 59.48 14.476 58.211 9.438c-1.078-4.34-3.603-8.223-7.137-11.052C44.018 .006 37.668 3.251 32.853 7.879c-4.351 4.183-8.357 8.799-12.131 13.473-5.087 6.213-10.581 12.552-14.673 19.781C2.468 46.1.184 53.775 0 61.549c-.125 5.413 1.885 10.7 5.674 14.633 4.127 4.3 10.016 7.577 16.926 8.553 5.497.828 11.002.329 16.215-1.411 2.853-.979 5.604-2.334 8.28-3.841 7.105-4.016 13.958-8.716 21.027-13.281a182.776 182.776 0 0 0 20.231-13.079c2.886-2.042 5.782-4.099 8.642-6.172 2.768-2.01 5.508-4.072 8.361-6.104.776-.567 1.783-.703 2.724-.324.916.37 1.37 1.202 1.163 2.079-.338 1.434-1.68 2.435-3.205 2.32-2.265-.174-4.664-.351-6.943-.517-5.135-.366-10.316-.686-15.501-.924h-.021c-.991-.022-1.513.932-.682 1.523 5.175 3.677 10.288 7.404 15.403 11.147 4.514 3.353 9.109 6.717 13.576 10.156 2.193 1.747 4.422 3.514 6.587 5.354.837.7 2.08.529 2.721-.403.629-.919.316-2.225-.708-2.662-4.754-2.076-9.57-4.123-14.323-6.163a116.249 116.249 0 0 0-13.154-6.186c-2.013-.834-4.191-1.536-6.33-2.302-.873-.293-1.714.211-2.03 1.002a1.681 1.681 0 0 0 .498 1.932c5.397 5.129 10.802 10.271 16.135 15.385 4.269 4.138 8.612 8.263 12.948 12.412.827.785 2.157.524 2.723-.557.464-.837.252-1.756-.506-2.37-5.32-4.489-10.67-8.976-15.991-13.484A175.831 175.831 0 0 0 62.308 119.887z"></path></svg>',
-    python: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><path fill="#306998" d="M62.1 121.2c-.5-4.7-1-9.3-1.4-13.9-.2-2.8.2-5.7.9-8.5 1-4.6 2.1-9.2 3.2-13.8.7-3 .3-6-.8-8.9-2.5-6.5-5.3-13-8.2-19.5-2.3-5.3-4.7-10.7-6.8-16.1-.7-3-.1-6.3 1.2-8.6 1.6-3.5 3.8-6.7 6.1-9.8 4.2-6 5.8-11.3 4.9-16.9C59.3 9.3 56.8 5.4 53.2 2.8c-5.2-3.8-11.5-.6-15.2 3.2-4.3 4.1-8.2 8.1-12.1 12.1-5.1 6.2-10.5 12.6-14.6 19.5C2.5 52.4.2 60 .1 67.8c-.1 5.5 2 11 6 14.8 4.1 4.4 10 7.7 16.8 8.8 5.5.8 11 .3 16.1-1.4 2.9-1 5.6-2.4 8.2-3.9 7.4-4.2 14.2-8.7 21.3-13.6a185.784 185.784 0 0 0 20.4-13.2c2.9-2.1 5.8-4.1 8.6-6.3 2.8-2 5.5-4 8.4-6.2.8-.6 1.9-.7 2.9-.3.9.4 1.3 1.2 1.2 2.1-.4 1.5-1.7 2.5-3.2 2.4-2.3-.2-4.7-.4-7-.5-5.2-.3-10.4-.7-15.5-1-.1 0-.1 0-.2 0-.1 0-.2.1-.1.3-6.1 3.6-12.2 7.2-18.4 10.8-5.2 3.1-10.4 6.1-15.6 9.1-2.6 1.5-5.3 3-8.2 4.6-2.3 1.2-4.7 2.4-7.2 3.7-.8.4-1.8.6-2.5-.2-.7-.9-.5-2.2.7-2.7 5.2-2 10.4-3.9 15.5-6 3.7-1.6 7.3-3.2 11-4.8 1.5-.7 2.3-.1 3 .8a1.623 1.623 0 0 0 .6 2c5.5 5.2 11 10.4 16.5 15.8 4.4 4.2 8.9 8.3 13.3 12.6.8.7 2.2.5 2.8-.6.5-.8.3-1.8-.5-2.4-5.1-4.5-10.2-9-15.2-13.5z"></path></svg>',
-    deno: '<svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#000"/><path d="M41.8 37.7a9.3 9.3 0 00-5.9-8.6 7.2 7.2 0 00-10.7 5.4" stroke="#fff" stroke-width="3" fill="none"/><ellipse cx="27.5" cy="44.5" rx="2" ry="1.5" fill="#fff"/><ellipse cx="36.5" cy="44.5" rx="2" ry="1.5" fill="#fff"/><ellipse cx="32" cy="51" rx="5" ry="2" fill="#fff"/></svg>',
-    node: '<svg viewBox="0 0 128 128"><g><path fill="#8CC84B" d="M64.01 4L12 32v64l52 28 52-28V32z"/><path fill="#fff" d="M63.98 9.37L18.04 33.8v60.41l45.94 24.43 45.94-24.43V33.8z"/><path fill="#8CC84B" d="M64.01 14.84l41.31 22V91.93L64.01 113.76 22.69 91.93V36.84z"/><g><path fill="#1A1A1A" d="M72.95 45.94h-6.87v36.22c0 1.33.65 2.09 2.02 2.09.6 0 1.36-.12 2.7-.7V90.6c-1.4.39-2.83.59-4.5.59-4.43 0-6.7-2.22-6.7-7.24V45.94h-5.08v-4.26c1.58.36 3.13.54 4.67.54s3.07-.18 4.65-.54V41.68h6.87v4.26zM81.22 70.06c0-4.99-1.91-7.26-6.3-7.26-1.48 0-2.9.22-4.17.63v-4.25c1.58-.35 3.13-.53 4.67-.53 7.27 0 10.84 4.26 10.84 12.92v17.11c-1.58.36-3.13.54-4.67.54s-3.09-.18-4.67-.54V87.01c1.35.59 2.11.71 2.7.71 1.38 0 2.03-.76 2.03-2.11V70.06z"/></g></g></svg>',
-    typescript: '<svg viewBox="0 0 128 128"><g><path fill="#3178C6" d="M14 14h100v100H14z"/><path fill="#fff" d="M36.87 64.04v2.21h10.83v16.39c0 .37-.13.44-1.69.84-6.36 1.56-8.98 2.42-12.19 3.79v2.24c3.24-1.39 5.98-2.29 12.18-3.79 6.19-1.51 7.46-2.11 7.46-5.11V67.33h10.77v-2.21z"/><path fill="#fff" d="M89.8 64.04v2.21h-4.65v16.68c0 .37-.14.44-1.71.84-5.68 1.37-7.96 2.07-11.03 3.27v2.23c3.11-1.22 5.44-1.85 11.03-3.27 5.6-1.42 7.08-2.14 7.08-5.11V67.33h4.61v-2.21z"/></g></svg>',
-    php: '<svg viewBox="0 0 128 128"><ellipse cx="64" cy="64" rx="61" ry="32" fill="#777BB4"/><text x="22" y="85" font-family="Arial" font-size="48" fill="#fff">PHP</text></svg>',
-    elixir: '<svg viewBox="0 0 128 128"><path fill="#6E4A7E" d="M64 12c-35 30-52 72-33 92 19 20 61 11 66-17 5-28-21-69-33-75z"/></svg>',
-    kotlin: '<svg viewBox="0 0 128 128"><rect width="128" height="128" fill="#FFF"/><polygon points="0,0 128,0 0,128" fill="#7F52FF"/><polygon points="128,0 128,128 0,128" fill="#FFAA1D" opacity="0.9"/></svg>',
-    swift: '<svg viewBox="0 0 128 128"><rect width="128" height="128" rx="20" fill="#f05138"/><path d="M37 99c-10-16 10-36 36-66 18 20 39 46 29 59-5 7-12 7-19 7-7-1-22-5-46 0z" fill="#fff"/><path d="M68 39c6 8 13 19 16 21" stroke="#fff" stroke-width="2" fill="none"/></svg>',
-    ruby: '<svg viewBox="0 0 128 128"><ellipse cx="64" cy="72" rx="51" ry="41" fill="#CC342D"/><polygon points="64,7 114,72 64,121 14,72" fill="#fff" opacity="0.2"/><ellipse cx="64" cy="72" rx="35" ry="28" fill="#fff" opacity="0.2"/></svg>',
-    javascript: '<svg viewBox="0 0 128 128"><rect width="128" height="128" rx="20" fill="#F7DF1E"/><path d="M24 102V28h80v74z" fill="none"/><text x="34" y="92" font-family="Arial Black" font-size="54" fill="#000">JS</text></svg>',
-    cpp: '<svg viewBox="0 0 128 128"><rect width="128" height="128" rx="20" fill="#00599C"/><text x="36" y="92" font-family="Arial Black" font-size="54" fill="#FFF">C++</text></svg>',
-    csharp: '<svg viewBox="0 0 128 128"><rect width="128" height="128" rx="20" fill="#68217A"/><text x="36" y="92" font-family="Arial Black" font-size="54" fill="#FFF">C#</text></svg>',
-    rust: '<svg viewBox="0 0 128 128"><circle cx="64" cy="64" r="56" fill="#000"/><text x="34" y="92" font-family="Arial Black" font-size="54" fill="#FFF">R</text></svg>',
-    go: '<svg viewBox="0 0 128 128"><rect width="128" height="128" rx="20" fill="#00ADD8"/><text x="36" y="92" font-family="Arial Black" font-size="54" fill="#FFF">GO</text></svg>'
+// Language icon paths
+const LANGUAGE_ICONS = {
+    java: 'icons/java-original.png',
+    python: 'icons/python-original.png',
+    deno: 'icons/deno-logo.png',
+    node: 'icons/nodejs-original.png',
+    typescript: 'icons/typescript-original.png',
+    php: 'icons/php-original.png',
+    elixir: 'icons/elixir-original.png',
+    kotlin: 'icons/kotlin-original.png',
+    swift: 'icons/swift-original.png',
+    ruby: 'icons/ruby-original.png',
+    javascript: 'icons/javascript-original.png',
+    cpp: 'icons/cplusplus-original.png',
+    csharp: 'icons/csharp-original.png',
+    rust: 'icons/rust-original.png',
+    go: 'icons/go-original.png',
+    c: 'icons/cplusplus-original.png' // Use C++ icon for C
 };
 
 const LANGUAGE_INFO = {
-    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', svg: LANGUAGE_SVGS.javascript },
-    python: { name: 'Python', symbol: 'PY', color: '#3776ab', svg: LANGUAGE_SVGS.python },
-    java: { name: 'Java', symbol: 'JV', color: '#007396', svg: LANGUAGE_SVGS.java },
-    cpp: { name: 'C++', symbol: 'C++', color: '#00599c', svg: LANGUAGE_SVGS.cpp },
-    csharp: { name: 'C#', symbol: 'C#', color: '#239120', svg: LANGUAGE_SVGS.csharp },
-    go: { name: 'Go', symbol: 'GO', color: '#00add8', svg: LANGUAGE_SVGS.go },
-    rust: { name: 'Rust', symbol: 'RS', color: '#dea584', svg: LANGUAGE_SVGS.rust },
-    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', svg: LANGUAGE_SVGS.ruby },
-    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', svg: LANGUAGE_SVGS.php },
-    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', svg: LANGUAGE_SVGS.elixir },
-    node: { name: 'Node.js', symbol: 'ND', color: '#339933', svg: LANGUAGE_SVGS.node },
-    deno: { name: 'Deno', symbol: 'DN', color: '#000000', svg: LANGUAGE_SVGS.deno },
-    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', svg: LANGUAGE_SVGS.kotlin },
-    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', svg: LANGUAGE_SVGS.swift },
-    typescript: { name: 'TypeScript', symbol: 'TS', color: '#3178c6', svg: LANGUAGE_SVGS.typescript }
+    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', icon: LANGUAGE_ICONS.javascript },
+    python: { name: 'Python', symbol: 'PY', color: '#3776ab', icon: LANGUAGE_ICONS.python },
+    java: { name: 'Java', symbol: 'JV', color: '#007396', icon: LANGUAGE_ICONS.java },
+    cpp: { name: 'C++', symbol: 'C++', color: '#00599c', icon: LANGUAGE_ICONS.cpp },
+    csharp: { name: 'C#', symbol: 'C#', color: '#239120', icon: LANGUAGE_ICONS.csharp },
+    go: { name: 'Go', symbol: 'GO', color: '#00add8', icon: LANGUAGE_ICONS.go },
+    rust: { name: 'Rust', symbol: 'RS', color: '#dea584', icon: LANGUAGE_ICONS.rust },
+    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', icon: LANGUAGE_ICONS.ruby },
+    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', icon: LANGUAGE_ICONS.php },
+    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', icon: LANGUAGE_ICONS.elixir },
+    node: { name: 'Node.js', symbol: 'ND', color: '#339933', icon: LANGUAGE_ICONS.node },
+    deno: { name: 'Deno', symbol: 'DN', color: '#000000', icon: LANGUAGE_ICONS.deno },
+    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', icon: LANGUAGE_ICONS.kotlin },
+    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', icon: LANGUAGE_ICONS.swift },
+    typescript: { name: 'TypeScript', symbol: 'TS', color: '#3178c6', icon: LANGUAGE_ICONS.typescript },
+    c: { name: 'C', symbol: 'C', color: '#a8b9cc', icon: LANGUAGE_ICONS.c }
 };
 
 // ==================== SORTING VISUALIZER ====================
@@ -809,12 +812,12 @@ class LanguageArena {
             track.id = `track-${lang}`;
             track.innerHTML = `
                 <div class="track-lang">
-                    <span class="lang-logo-svg" data-lang="${lang}"></span>
+                    <img src="${info.icon}" alt="${info.name}" class="lang-icon-img" />
                     <span class="lang-name">${info.name}</span>
                 </div>
                 <div class="track-bar">
                     <div class="track-runner" id="runner-${lang}" style="background: ${info.color}; border-color: ${info.color}">
-                        <span class="lang-logo-svg runner-logo" data-lang="${lang}"></span>
+                        <img src="${info.icon}" alt="${info.name}" class="lang-icon-img runner-icon" />
                     </div>
                 </div>
                 <div class="track-time" id="time-${lang}">
