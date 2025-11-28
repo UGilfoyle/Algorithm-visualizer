@@ -116,43 +116,71 @@ const LANGUAGE_SPEED = {
 };
 
 // Language icon paths
-const LANGUAGE_ICONS = {
-    java: 'icons/java.svg',
-    python: 'icons/python.svg',
-    deno: 'icons/deno.png',
-    node: 'icons/nodejs.svg',
-    typescript: 'icons/typescript.svg',
-    php: 'icons/php.svg',
-    elixir: 'icons/elixir.svg',
-    kotlin: 'icons/kotlin.svg',
-    swift: 'icons/swift.svg',
-    ruby: 'icons/ruby.svg',
-    javascript: 'icons/javascript.svg',
-    cpp: 'icons/cplusplus.svg',
-    csharp: 'icons/csharp.svg',
-    rust: 'icons/rust.svg',
-    go: 'icons/go.svg',
-    c: 'icons/cplusplus.svg' // Use C++ icon for C
-};
+function getLanguageIcons() {
+    const isDarkMode = document.documentElement.getAttribute('data-theme') !== 'light';
+    return {
+        java: 'icons/java.svg',
+        python: 'icons/python.svg',
+        deno: 'icons/deno.png',
+        node: 'icons/nodejs.svg',
+        typescript: 'icons/typescript.svg',
+        php: 'icons/php.svg',
+        elixir: 'icons/elixir.svg',
+        kotlin: 'icons/kotlin.svg',
+        swift: 'icons/swift.svg',
+        ruby: 'icons/ruby.svg',
+        javascript: 'icons/javascript.svg',
+        cpp: 'icons/cplusplus.svg',
+        csharp: 'icons/csharp.svg',
+        rust: isDarkMode ? 'icons/rust-dark.png' : 'icons/rust.svg',
+        go: 'icons/go.svg',
+        c: 'icons/cplusplus.svg' // Use C++ icon for C
+    };
+}
 
-const LANGUAGE_INFO = {
-    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', icon: LANGUAGE_ICONS.javascript },
-    python: { name: 'Python', symbol: 'PY', color: '#3776ab', icon: LANGUAGE_ICONS.python },
-    java: { name: 'Java', symbol: 'JV', color: '#007396', icon: LANGUAGE_ICONS.java },
-    cpp: { name: 'C++', symbol: 'C++', color: '#00599c', icon: LANGUAGE_ICONS.cpp },
-    csharp: { name: 'C#', symbol: 'C#', color: '#239120', icon: LANGUAGE_ICONS.csharp },
-    go: { name: 'Go', symbol: 'GO', color: '#00add8', icon: LANGUAGE_ICONS.go },
-    rust: { name: 'Rust', symbol: 'RS', color: '#dea584', icon: LANGUAGE_ICONS.rust },
-    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', icon: LANGUAGE_ICONS.ruby },
-    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', icon: LANGUAGE_ICONS.php },
-    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', icon: LANGUAGE_ICONS.elixir },
-    node: { name: 'Node.js', symbol: 'ND', color: '#339933', icon: LANGUAGE_ICONS.node },
-    deno: { name: 'Deno', symbol: 'DN', color: '#000000', icon: LANGUAGE_ICONS.deno },
-    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', icon: LANGUAGE_ICONS.kotlin },
-    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', icon: LANGUAGE_ICONS.swift },
-    typescript: { name: 'TypeScript', symbol: 'TS', color: '#3178c6', icon: LANGUAGE_ICONS.typescript },
-    c: { name: 'C', symbol: 'C', color: '#a8b9cc', icon: LANGUAGE_ICONS.c }
-};
+const LANGUAGE_ICONS = getLanguageIcons();
+
+function getLanguageInfo() {
+    const icons = getLanguageIcons();
+    return {
+        javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', icon: icons.javascript },
+        python: { name: 'Python', symbol: 'PY', color: '#3776ab', icon: icons.python },
+        java: { name: 'Java', symbol: 'JV', color: '#007396', icon: icons.java },
+        cpp: { name: 'C++', symbol: 'C++', color: '#00599c', icon: icons.cpp },
+        csharp: { name: 'C#', symbol: 'C#', color: '#239120', icon: icons.csharp },
+        go: { name: 'Go', symbol: 'GO', color: '#00add8', icon: icons.go },
+        rust: { name: 'Rust', symbol: 'RS', color: '#dea584', icon: icons.rust },
+        ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', icon: icons.ruby },
+        php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', icon: icons.php },
+        elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', icon: icons.elixir },
+        node: { name: 'Node.js', symbol: 'ND', color: '#339933', icon: icons.node },
+        deno: { name: 'Deno', symbol: 'DN', color: '#000000', icon: icons.deno },
+        kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', icon: icons.kotlin },
+        swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', icon: icons.swift },
+        typescript: { name: 'TypeScript', symbol: 'TS', color: '#3178c6', icon: icons.typescript },
+        c: { name: 'C', symbol: 'C', color: '#a8b9cc', icon: icons.c }
+    };
+}
+
+const LANGUAGE_INFO = getLanguageInfo();
+
+// Function to update Rust icons when theme changes
+function updateRustIcons() {
+    const icons = getLanguageIcons();
+    const rustIcon = icons.rust;
+    
+    // Update all Rust icon images
+    document.querySelectorAll('img[alt*="Rust" i], img[alt*="rust" i], img[src*="rust"]').forEach(img => {
+        if (img.src.includes('rust')) {
+            img.src = rustIcon;
+        }
+    });
+    
+    // Update LANGUAGE_INFO
+    if (LANGUAGE_INFO.rust) {
+        LANGUAGE_INFO.rust.icon = rustIcon;
+    }
+}
 
 // ==================== SORTING VISUALIZER ====================
 class SortingVisualizer {
@@ -2113,3 +2141,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export stop function for navigation
 window.stopAllVisualizations = stopAllVisualizations;
+
+// Export updateRustIcons for theme changes
+window.updateRustIcons = updateRustIcons;
