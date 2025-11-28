@@ -1468,75 +1468,80 @@ class LanguageArena {
     }
 
     getBaseTime() {
-        // Times are in milliseconds, scaled by iterations
         const iter = this.iterations;
         
+        const normalizeIter = (value) => {
+            if (value > 1000000000) return value / 1000000;
+            if (value > 1000000) return value / 1000;
+            return value;
+        };
+        
+        const normalizedIter = normalizeIter(iter);
+        const scaleFactor = iter > 1000000000 ? 1000000 : iter > 1000000 ? 1000 : 1;
+        
         switch (this.algorithm) {
-            // O(n) - Linear
             case 'fibonacci':
-                return iter * 0.0008; // Iterative Fibonacci
+                return normalizedIter * 0.8 * scaleFactor;
             case 'factorial':
-                return iter * 0.0001; // Simple multiplication
+                return normalizedIter * 0.1 * scaleFactor;
             case 'loop':
-                return iter * 0.000008; // Simple loop
+                return normalizedIter * 0.008 * scaleFactor;
             case 'arraySum':
-                return iter * 0.00001; // Array sum operation
+                return normalizedIter * 0.01 * scaleFactor;
             case 'stringConcat':
-                return iter * 0.00005; // String concatenation
+                return normalizedIter * 0.05 * scaleFactor;
             
-            // O(n log n) - Linearithmic
             case 'sorting':
-                return iter * Math.log2(iter || 1) * 0.00008; // Quick Sort
+            case 'quickSort':
+                return normalizedIter * Math.log2(normalizedIter || 1) * 0.08 * scaleFactor;
             case 'mergeSort':
-                return iter * Math.log2(iter || 1) * 0.0001; // Merge Sort
+                return normalizedIter * Math.log2(normalizedIter || 1) * 0.1 * scaleFactor;
             case 'heapSort':
-                return iter * Math.log2(iter || 1) * 0.00012; // Heap Sort
+                return normalizedIter * Math.log2(normalizedIter || 1) * 0.12 * scaleFactor;
             
-            // O(n²) - Quadratic
             case 'nestedLoop':
-                return iter * iter * 0.0000008; // Nested loops
+                return normalizedIter * normalizedIter * 0.0008 * scaleFactor;
             case 'bubbleSort':
-                return iter * iter * 0.00001; // Bubble Sort
+                return normalizedIter * normalizedIter * 0.01 * scaleFactor;
             case 'matrix':
-                const size = Math.sqrt(iter);
-                return size * size * size * 0.0003; // O(n³) for matrix multiplication
+            case 'matrixMultiplication':
+                const size = Math.sqrt(normalizedIter);
+                return size * size * size * 0.3 * scaleFactor;
             case 'selectionSort':
-                return iter * iter * 0.000012; // Selection Sort
+                return normalizedIter * normalizedIter * 0.012 * scaleFactor;
             
-            // O(n log log n) - Near-linear
             case 'primes':
-                return iter * Math.log2(Math.log2(iter || 1) || 1) * 0.01; // Sieve of Eratosthenes
+                return normalizedIter * Math.log2(Math.log2(normalizedIter || 1) || 1) * 10 * scaleFactor;
             
-            // O(log n) - Logarithmic
             case 'binarySearch':
-                return Math.log2(iter || 1) * 0.1; // Binary search
+                return Math.log2(normalizedIter || 1) * 100 * scaleFactor;
             
-            // O(2^n) - Exponential
             case 'recursiveFibonacci':
-                return Math.pow(2, Math.min(iter / 100, 20)) * 0.5; // Recursive Fibonacci
+                const expLimit = Math.min(normalizedIter / 100, 20);
+                return Math.pow(2, expLimit) * 500 * scaleFactor;
             
-            // O(n!) - Factorial
             case 'permutations':
-                // Limit to prevent overflow
-                const n = Math.min(iter / 1000, 10);
+                const n = Math.min(normalizedIter / 1000, 10);
                 let fact = 1;
                 for (let i = 2; i <= n; i++) fact *= i;
-                return fact * 0.1;
+                return fact * 100 * scaleFactor;
             
             case 'graphBFS':
-                return iter * 0.0002; // BFS traversal
+                return normalizedIter * 0.2 * scaleFactor;
             case 'graphDFS':
-                return iter * 0.00015; // DFS traversal
+                return normalizedIter * 0.15 * scaleFactor;
             case 'dijkstra':
-                return iter * iter * 0.00002;
+                return normalizedIter * normalizedIter * 0.02 * scaleFactor;
             
             case 'stringSearch':
-                return iter * 0.00003; // String pattern matching
+            case 'stringPatternSearch':
+                return normalizedIter * 0.03 * scaleFactor;
             case 'stringHash':
-                return iter * 0.00002; // String hashing
+            case 'stringHashing':
+                return normalizedIter * 0.02 * scaleFactor;
             
             default:
-                return iter * 0.001;
+                return normalizedIter * 1 * scaleFactor;
         }
     }
 

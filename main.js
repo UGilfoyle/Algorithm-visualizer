@@ -692,7 +692,11 @@ function setupFeedbackModal() {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
                 
-                const response = await fetch('/api/feedback', {
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3000/api/feedback'
+                    : '/api/feedback';
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -706,6 +710,10 @@ function setupFeedbackModal() {
                     })
                 });
                 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
                 
                 if (result.success) {
@@ -714,11 +722,15 @@ function setupFeedbackModal() {
                         closeModal();
                     }, 2000);
                 } else {
-                    alert('Failed to submit feedback. Please try again.');
+                    throw new Error(result.error || 'Failed to submit feedback');
                 }
             } catch (error) {
                 console.error('Feedback submission error:', error);
-                alert('Failed to submit feedback. Please try again.');
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    alert('Feedback API is only available when deployed. Your feedback will be saved when the app is live!');
+                } else {
+                    alert('Failed to submit feedback. Please try again.');
+                }
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Submit Feedback';
