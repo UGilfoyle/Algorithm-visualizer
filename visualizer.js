@@ -824,10 +824,18 @@ class LanguageArena {
                 formatSelect._changeHandler = (e) => {
                     const timeValueEl = document.querySelector(`#time-${lang} .time-value`);
                     if (timeValueEl && this.rawTimes[lang] > 0) {
-                        // Auto-format if still on 'ms' and value is large
                         let format = e.target.value;
+                        // Auto-format large values even if user selects 'ms'
                         if (format === 'ms' && this.rawTimes[lang] >= 60000) {
                             format = getBestTimeFormat(this.rawTimes[lang]);
+                            e.target.value = format;
+                        }
+                        // Always use best format for very large values regardless of selection
+                        if (this.rawTimes[lang] >= 86400000) { // >= 1 day
+                            format = 'd';
+                            e.target.value = format;
+                        } else if (this.rawTimes[lang] >= 3600000) { // >= 1 hour
+                            format = 'h';
                             e.target.value = format;
                         }
                         timeValueEl.textContent = formatTimeValue(this.rawTimes[lang], format);
@@ -1095,25 +1103,21 @@ class LanguageArena {
                     // Store raw time value
                     this.rawTimes[lang] = time;
                     
-                    // Auto-select best format and update dropdown
+                    // Auto-select best format and update dropdown for large values
                     const formatSelect = document.getElementById(`arenaTimeFormat-${lang}`);
                     const bestFormat = getBestTimeFormat(time);
-                    // Always auto-select best format for large values
-                    if (formatSelect) {
-                        if (time >= 60000 && formatSelect.value === 'ms') {
-                            formatSelect.value = bestFormat;
-                        }
-                        const format = formatSelect.value;
-                        const displayTime = formatTimeValue(time, format);
-                        
-                        const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
-                        if (timeValueEl) timeValueEl.textContent = displayTime;
-                    } else {
-                        // Fallback if dropdown doesn't exist
-                        const displayTime = formatTimeValue(time, bestFormat);
-                        const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
-                        if (timeValueEl) timeValueEl.textContent = displayTime;
+                    
+                    // Always auto-select best format for large values (>= 1 minute)
+                    if (formatSelect && time >= 60000) {
+                        formatSelect.value = bestFormat;
                     }
+                    
+                    // Use best format for display if value is large, otherwise use dropdown value
+                    const format = (time >= 60000) ? bestFormat : (formatSelect ? formatSelect.value : 'ms');
+                    const displayTime = formatTimeValue(time, format);
+                    
+                    const timeValueEl = timeEl ? timeEl.querySelector('.time-value') : null;
+                    if (timeValueEl) timeValueEl.textContent = displayTime;
                     
                     
                     this.results.push({ lang, time, displayTime });
