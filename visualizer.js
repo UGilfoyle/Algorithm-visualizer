@@ -1049,6 +1049,7 @@ class LanguageArena {
     reset() {
         this.stop();
         this.results = [];
+        this.rawTimes = {};
         const resultsEl = document.getElementById('arenaResults');
         if (resultsEl) resultsEl.style.display = 'none';
         this.renderTracks();
