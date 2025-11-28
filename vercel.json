@@ -1,9 +1,7 @@
 {
     "version": 2,
-    "buildCommand": null,
+    "buildCommand": "echo 'No build step required'",
     "outputDirectory": ".",
-    "devCommand": null,
-    "installCommand": null,
     "framework": null,
     "rewrites": [
         {
