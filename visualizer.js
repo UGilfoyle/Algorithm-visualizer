@@ -1109,7 +1109,7 @@ class LanguageArena {
         if (!runnerEl || !trackBarEl) return;
 
         const racerDuration = (time / minTime) * (duration * 0.8);
-        const info = LANGUAGE_INFO[lang];
+        const info = getLanguageInfo()[lang];
         const trackWidth = trackBarEl.offsetWidth;
         const ballSize = 40; // Size of the ball
         const maxPosition = trackWidth - ballSize;
