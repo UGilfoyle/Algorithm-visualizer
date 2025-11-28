@@ -1630,6 +1630,84 @@ select:focus {
     color: var(--text-secondary);
 }
 
+/* Complexity Graph Modal */
+.complexity-graph-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(5px);
+}
+
+.complexity-graph-content {
+    background: var(--bg-card);
+    border: 2px solid var(--gold);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    max-width: 700px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+}
+
+.testing-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    background: linear-gradient(135deg, #d4a574, #8b6914);
+    color: var(--bg-primary);
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.complexity-graph-content h3 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.testing-message {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-lg);
+    font-style: italic;
+}
+
+.complexity-graph-container {
+    margin: var(--spacing-lg) 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+}
+
+.complexity-graph-container svg {
+    width: 100%;
+    height: auto;
+}
+
+#closeComplexityGraph {
+    width: 100%;
+    margin-top: var(--spacing-lg);
+}
+
 .speed-bar {
     display: flex;
     align-items: center;
