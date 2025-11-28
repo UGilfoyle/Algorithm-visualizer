@@ -145,10 +145,10 @@ body {
    Theme Toggle Button
    ======================================== */
 .theme-toggle {
-    position: fixed;
+    position: absolute;
     top: 1rem;
     left: 1rem;
-    z-index: 1000;
+    z-index: 1001;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -211,10 +211,10 @@ body {
    Audio Controls
    ======================================== */
 .audio-controls {
-    position: fixed;
+    position: absolute;
     top: 1rem;
     right: 1rem;
-    z-index: 1000;
+    z-index: 1001;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -1530,15 +1530,17 @@ select:focus {
     }
     
     .audio-controls {
+        position: relative;
         top: auto;
-        bottom: 1rem;
+        right: auto;
+        margin-top: var(--spacing-md);
     }
     
     .theme-toggle {
+        position: relative;
         top: auto;
-        bottom: 1rem;
         left: auto;
-        right: 7rem;
+        margin-bottom: var(--spacing-md);
     }
     
     .controls-inline {
