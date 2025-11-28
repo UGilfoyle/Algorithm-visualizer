@@ -63,17 +63,19 @@ const LANGUAGE_SPEED = {
 };
 
 const LANGUAGE_INFO = {
-    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e' },
-    python: { name: 'Python', symbol: 'PY', color: '#3776ab' },
-    java: { name: 'Java', symbol: 'JV', color: '#007396' },
-    cpp: { name: 'C++', symbol: 'C++', color: '#00599c' },
-    csharp: { name: 'C#', symbol: 'C#', color: '#239120' },
-    go: { name: 'Go', symbol: 'GO', color: '#00add8' },
-    rust: { name: 'Rust', symbol: 'RS', color: '#dea584' },
-    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d' },
-    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4' },
-    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e' },
-    node: { name: 'Node.js', symbol: 'ND', color: '#339933' }
+    javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', speed: 1.2 },
+    python: { name: 'Python', symbol: 'PY', color: '#3776ab', speed: 3.5 },
+    java: { name: 'Java', symbol: 'JV', color: '#007396', speed: 1.1 },
+    cpp: { name: 'C++', symbol: 'C++', color: '#00599c', speed: 0.8 },
+    csharp: { name: 'C#', symbol: 'C#', color: '#239120', speed: 1.15 },
+    go: { name: 'Go', symbol: 'GO', color: '#00add8', speed: 0.95 },
+    rust: { name: 'Rust', symbol: 'RS', color: '#dea584', speed: 0.75 },
+    ruby: { name: 'Ruby', symbol: 'RB', color: '#cc342d', speed: 4.0 },
+    php: { name: 'PHP', symbol: 'PHP', color: '#777bb4', speed: 2.5 },
+    elixir: { name: 'Elixir', symbol: 'EX', color: '#6e4a7e', speed: 2.2 },
+    node: { name: 'Node.js', symbol: 'ND', color: '#339933', speed: 1.1 },
+    kotlin: { name: 'Kotlin', symbol: 'KT', color: '#7F52FF', speed: 1.05 },
+    swift: { name: 'Swift', symbol: 'SW', color: '#FA7343', speed: 0.9 }
 };
 
 // ==================== SORTING VISUALIZER ====================
