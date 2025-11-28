@@ -3,15 +3,28 @@ const CACHE_NAME = 'algorithm-visualizer-v1';
 const STATIC_CACHE = 'static-v1';
 const ICON_CACHE = 'icons-v1';
 
+// Get base path for GitHub Pages compatibility
+const getBasePath = () => {
+    // For GitHub Pages, use repository name as base path
+    // For root domain or Vercel, use empty string
+    const path = self.location.pathname;
+    if (path.includes('/Algorithm-visualizer/')) {
+        return '/Algorithm-visualizer';
+    }
+    return '';
+};
+
+const BASE_PATH = getBasePath();
+
 // Assets to cache immediately
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/main.js',
-    '/visualizer.js',
-    '/audio.js',
-    '/algorithms.js'
+    `${BASE_PATH}/`,
+    `${BASE_PATH}/index.html`,
+    `${BASE_PATH}/styles.css`,
+    `${BASE_PATH}/main.js`,
+    `${BASE_PATH}/visualizer.js`,
+    `${BASE_PATH}/audio.js`,
+    `${BASE_PATH}/algorithms.js`
 ];
 
 // Install event - cache static assets
@@ -48,7 +61,7 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(request.url);
 
     // Cache icons with longer TTL
-    if (url.pathname.startsWith('/icons/')) {
+    if (url.pathname.includes('/icons/')) {
         event.respondWith(
             caches.open(ICON_CACHE).then((cache) => {
                 return cache.match(request).then((response) => {
@@ -68,12 +81,15 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Cache static assets
-    if (STATIC_ASSETS.some(asset => url.pathname.includes(asset))) {
+    const assetPath = url.pathname.replace(BASE_PATH, '');
+    if (STATIC_ASSETS.some(asset => assetPath.includes(asset.replace(BASE_PATH, ''))) || 
+        assetPath === '/' || assetPath === '/index.html' ||
+        assetPath.endsWith('.css') || assetPath.endsWith('.js')) {
         event.respondWith(
             caches.match(request).then((response) => {
                 return response || fetch(request).then((fetchResponse) => {
                     if (fetchResponse.ok) {
-                        const cacheToUse = url.pathname.startsWith('/icons/') ? ICON_CACHE : STATIC_CACHE;
+                        const cacheToUse = url.pathname.includes('/icons/') ? ICON_CACHE : STATIC_CACHE;
                         caches.open(cacheToUse).then((cache) => {
                             cache.put(request, fetchResponse.clone());
                         });
