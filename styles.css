@@ -1466,7 +1466,7 @@ select:focus {
     position: absolute;
     width: 40px;
     height: 40px;
-    border-radius: 0;
+    border-radius: 50%;
     background: transparent;
     border: none;
     display: flex;
