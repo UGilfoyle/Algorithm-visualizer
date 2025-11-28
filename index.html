@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Arena | Visual DSA Playground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="grid-overlay"></div>
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <header class="main-header">
+        <div class="logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">Algorithm Arena</span>
+        </div>
+        <nav class="main-nav">
+            <button class="nav-btn active" data-section="pathfinding">
+                <span class="nav-icon">🗺️</span>
+                Pathfinding
+            </button>
+            <button class="nav-btn" data-section="sorting">
+                <span class="nav-icon">📊</span>
+                Sorting
+            </button>
+            <button class="nav-btn" data-section="complexity">
+                <span class="nav-icon">📈</span>
+                Big O Race
+            </button>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- Pathfinding Section -->
+        <section id="pathfinding" class="section active">
+            <div class="section-header">
+                <h1>Pathfinding Visualizer</h1>
+                <p>Watch algorithms navigate through mazes in real-time</p>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>Algorithm</label>
+                    <div class="select-wrapper">
+                        <select id="pathAlgorithm">
+                            <option value="bfs">BFS (Breadth-First)</option>
+                            <option value="dfs">DFS (Depth-First)</option>
+                            <option value="dijkstra">Dijkstra's</option>
+                            <option value="astar">A* Search</option>
+                            <option value="greedy">Greedy Best-First</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Speed</label>
+                    <input type="range" id="pathSpeed" min="1" max="100" value="50">
+                </div>
+                <div class="control-group">
+                    <label>Maze Pattern</label>
+                    <div class="select-wrapper">
+                        <select id="mazePattern">
+                            <option value="random">Random Walls</option>
+                            <option value="recursive">Recursive Division</option>
+                            <option value="spiral">Spiral</option>
+                            <option value="clear">Clear Grid</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button id="generateMaze" class="btn btn-secondary">Generate Maze</button>
+                    <button id="startPath" class="btn btn-primary">
+                        <span class="btn-icon">▶</span>
+                        Visualize
+                    </button>
+                    <button id="clearPath" class="btn btn-outline">Clear Path</button>
+                </div>
+            </div>
+
+            <div class="visualization-container">
+                <div class="grid-container" id="pathGrid"></div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-color start"></span>Start</div>
+                    <div class="legend-item"><span class="legend-color end"></span>End</div>
+                    <div class="legend-item"><span class="legend-color wall"></span>Wall</div>
+                    <div class="legend-item"><span class="legend-color visited"></span>Visited</div>
+                    <div class="legend-item"><span class="legend-color path"></span>Path</div>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <span class="stat-value" id="nodesVisited">0</span>
+                    <span class="stat-label">Nodes Visited</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="pathLength">0</span>
+                    <span class="stat-label">Path Length</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="timeTaken">0ms</span>
+                    <span class="stat-label">Time Taken</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sorting Section -->
+        <section id="sorting" class="section">
+            <div class="section-header">
+                <h1>Sorting Showdown</h1>
+                <p>Race sorting algorithms against each other</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>Array Size</label>
+                    <input type="range" id="arraySize" min="10" max="200" value="50">
+                    <span id="arraySizeValue">50</span>
+                </div>
+                <div class="control-group">
+                    <label>Speed</label>
+                    <input type="range" id="sortSpeed" min="1" max="100" value="50">
+                </div>
+                <div class="btn-group">
+                    <button id="shuffleArray" class="btn btn-secondary">Shuffle</button>
+                    <button id="startSort" class="btn btn-primary">
+                        <span class="btn-icon">▶</span>
+                        Race!
+                    </button>
+                </div>
+            </div>
+
+            <div class="sorting-race-container">
+                <div class="sort-lane" data-algorithm="bubble">
+                    <div class="lane-header">
+                        <span class="algo-name">Bubble Sort</span>
+                        <span class="algo-complexity">O(n²)</span>
+                        <span class="algo-time" id="bubbleTime">-</span>
+                    </div>
+                    <div class="bars-container" id="bubbleBars"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="bubbleProgress"></div></div>
+                </div>
+                <div class="sort-lane" data-algorithm="selection">
+                    <div class="lane-header">
+                        <span class="algo-name">Selection Sort</span>
+                        <span class="algo-complexity">O(n²)</span>
+                        <span class="algo-time" id="selectionTime">-</span>
+                    </div>
+                    <div class="bars-container" id="selectionBars"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="selectionProgress"></div></div>
+                </div>
+                <div class="sort-lane" data-algorithm="insertion">
+                    <div class="lane-header">
+                        <span class="algo-name">Insertion Sort</span>
+                        <span class="algo-complexity">O(n²)</span>
+                        <span class="algo-time" id="insertionTime">-</span>
+                    </div>
+                    <div class="bars-container" id="insertionBars"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="insertionProgress"></div></div>
+                </div>
+                <div class="sort-lane" data-algorithm="merge">
+                    <div class="lane-header">
+                        <span class="algo-name">Merge Sort</span>
+                        <span class="algo-complexity">O(n log n)</span>
+                        <span class="algo-time" id="mergeTime">-</span>
+                    </div>
+                    <div class="bars-container" id="mergeBars"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="mergeProgress"></div></div>
+                </div>
+                <div class="sort-lane" data-algorithm="quick">
+                    <div class="lane-header">
+                        <span class="algo-name">Quick Sort</span>
+                        <span class="algo-complexity">O(n log n)</span>
+                        <span class="algo-time" id="quickTime">-</span>
+                    </div>
+                    <div class="bars-container" id="quickBars"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="quickProgress"></div></div>
+                </div>
+                <div class="sort-lane" data-algorithm="heap">
+                    <div class="lane-header">
+                        <span class="algo-name">Heap Sort</span>
+                        <span class="algo-complexity">O(n log n)</span>
+                        <span class="algo-time" id="heapTime">-</span>
+                    </div>
+                    <div class="bars-container" id="heapBars"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="heapProgress"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Complexity Section -->
+        <section id="complexity" class="section">
+            <div class="section-header">
+                <h1>Big O Race Track</h1>
+                <p>Watch complexity classes compete as input size grows</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>Input Size (n)</label>
+                    <input type="range" id="inputSize" min="1" max="100" value="10">
+                    <span id="inputSizeValue">10</span>
+                </div>
+                <div class="btn-group">
+                    <button id="startRace" class="btn btn-primary">
+                        <span class="btn-icon">🏁</span>
+                        Start Race
+                    </button>
+                    <button id="autoRace" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span>
+                        Auto Grow
+                    </button>
+                </div>
+            </div>
+
+            <div class="race-track-container">
+                <div class="race-lane" data-complexity="1">
+                    <div class="lane-info">
+                        <span class="complexity-label">O(1)</span>
+                        <span class="complexity-name">Constant</span>
+                    </div>
+                    <div class="track">
+                        <div class="racer" id="racer-1">🚀</div>
+                        <div class="distance-marker"></div>
+                    </div>
+                    <span class="operations" id="ops-1">1</span>
+                </div>
+                <div class="race-lane" data-complexity="logn">
+                    <div class="lane-info">
+                        <span class="complexity-label">O(log n)</span>
+                        <span class="complexity-name">Logarithmic</span>
+                    </div>
+                    <div class="track">
+                        <div class="racer" id="racer-logn">🏎️</div>
+                        <div class="distance-marker"></div>
+                    </div>
+                    <span class="operations" id="ops-logn">1</span>
+                </div>
+                <div class="race-lane" data-complexity="n">
+                    <div class="lane-info">
+                        <span class="complexity-label">O(n)</span>
+                        <span class="complexity-name">Linear</span>
+                    </div>
+                    <div class="track">
+                        <div class="racer" id="racer-n">🚗</div>
+                        <div class="distance-marker"></div>
+                    </div>
+                    <span class="operations" id="ops-n">10</span>
+                </div>
+                <div class="race-lane" data-complexity="nlogn">
+                    <div class="lane-info">
+                        <span class="complexity-label">O(n log n)</span>
+                        <span class="complexity-name">Linearithmic</span>
+                    </div>
+                    <div class="track">
+                        <div class="racer" id="racer-nlogn">🚐</div>
+                        <div class="distance-marker"></div>
+                    </div>
+                    <span class="operations" id="ops-nlogn">10</span>
+                </div>
+                <div class="race-lane" data-complexity="n2">
+                    <div class="lane-info">
+                        <span class="complexity-label">O(n²)</span>
+                        <span class="complexity-name">Quadratic</span>
+                    </div>
+                    <div class="track">
+                        <div class="racer" id="racer-n2">🚌</div>
+                        <div class="distance-marker"></div>
+                    </div>
+                    <span class="operations" id="ops-n2">100</span>
+                </div>
+                <div class="race-lane" data-complexity="2n">
+                    <div class="lane-info">
+                        <span class="complexity-label">O(2ⁿ)</span>
+                        <span class="complexity-name">Exponential</span>
+                    </div>
+                    <div class="track">
+                        <div class="racer" id="racer-2n">🐢</div>
+                        <div class="distance-marker"></div>
+                    </div>
+                    <span class="operations" id="ops-2n">1024</span>
+                </div>
+            </div>
+
+            <div class="complexity-chart">
+                <canvas id="complexityGraph"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <p>Built with ❤️ for learning algorithms | Drag walls in pathfinder!</p>
+    </footer>
+
+    <script src="pathfinding.js"></script>
+    <script src="sorting.js"></script>
+    <script src="complexity.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
+
