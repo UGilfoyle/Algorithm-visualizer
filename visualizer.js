@@ -1848,22 +1848,28 @@ class LanguageArena {
                      stroke-linecap="round" stroke-linejoin="round"/>`;
         }
         
-        // Draw points and labels
         points.forEach((point, idx) => {
-            // Point circle
-            svg += `<circle cx="${point.x}" cy="${point.y}" r="6" fill="${point.info.color}" 
-                     stroke="var(--bg-primary)" stroke-width="2"/>`;
+            const iconPath = point.info.icon;
             
-            // Language symbol below (X-axis value)
+            if (iconPath) {
+                svg += `<g>
+                    <circle cx="${point.x}" cy="${point.y}" r="12" fill="var(--bg-primary)" 
+                            stroke="var(--border-color)" stroke-width="2"/>
+                    <image x="${point.x - 10}" y="${point.y - 10}" width="20" height="20" 
+                           href="${iconPath}" preserveAspectRatio="xMidYMid meet"/>
+                </g>`;
+            } else {
+                svg += `<circle cx="${point.x}" cy="${point.y}" r="6" fill="${point.info.color}" 
+                         stroke="var(--bg-primary)" stroke-width="2"/>`;
+            }
+            
             svg += `<text x="${point.x}" y="${padding.top + chartHeight + 25}" 
                      text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="600">${point.info.symbol}</text>`;
             
-            // Language name below symbol (X-axis label)
             svg += `<text x="${point.x}" y="${padding.top + chartHeight + 42}" 
                      text-anchor="middle" fill="var(--text-secondary)" font-size="11">${point.info.name}</text>`;
             
-            // Time value above point (Y-axis value at point) - larger and more visible
-            svg += `<text x="${point.x}" y="${point.y - 12}" 
+            svg += `<text x="${point.x}" y="${point.y - 18}" 
                      text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="600">${point.result.displayTime}</text>`;
         });
         
