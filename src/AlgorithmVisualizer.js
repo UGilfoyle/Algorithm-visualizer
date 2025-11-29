@@ -544,6 +544,17 @@ class AlgorithmVisualizer {
                 break;
         }
     }
+
+    /**
+     * Setup playground modal (for backward compatibility)
+     */
+    setupPlaygroundModal() {
+        // Playground is now a full section, not a modal
+        // This method is kept for backward compatibility
+        if (typeof playgroundManager !== 'undefined' && playgroundManager) {
+            playgroundManager.init();
+        }
+    }
 }
 
 // Export for use in other modules
