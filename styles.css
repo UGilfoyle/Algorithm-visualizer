@@ -765,8 +765,10 @@ select:focus {
     overflow-y: hidden;
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
+    position: relative;
 }
 
 @media (min-width: 2560px) {

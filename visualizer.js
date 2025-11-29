@@ -542,17 +542,7 @@ class SortingVisualizer {
         const sampleSize = shouldSample ? 1000 : this.array.length;
         const step = shouldSample ? Math.ceil(this.array.length / sampleSize) : 1;
 
-        // Calculate minimum bar width to prevent container overflow
-        // For arrays > 200, ensure bars have minimum width of 1px
-        const minBarWidth = this.array.length > 200 ? 1 : 0;
-        const gap = 2; // gap between bars in pixels
-        const containerPadding = 32; // approximate padding
-        const availableWidth = targetContainer.clientWidth - containerPadding;
-        const totalBars = shouldSample ? sampleSize : this.array.length;
-        const calculatedBarWidth = availableWidth / totalBars - gap;
-        const barWidth = Math.max(minBarWidth, Math.min(calculatedBarWidth, 30)); // max 30px, min 1px
-
-        // Use requestAnimationFrame for smoother rendering
+        // Use requestAnimationFrame for smoother rendering and to ensure container is measured
         requestAnimationFrame(() => {
             try {
                 targetContainer.innerHTML = '';
@@ -560,6 +550,20 @@ class SortingVisualizer {
                 
                 if (maxVal === 0 || isNaN(maxVal)) {
                     return; // Invalid array values
+                }
+
+                // Calculate bar width after container is in DOM and visible
+                const gap = 2; // gap between bars in pixels
+                const containerPadding = 32; // approximate padding
+                const containerWidth = targetContainer.clientWidth || targetContainer.offsetWidth || 800; // fallback to 800px
+                const availableWidth = Math.max(100, containerWidth - containerPadding);
+                const totalBars = shouldSample ? sampleSize : this.array.length;
+                
+                // For arrays > 200, calculate explicit bar width to prevent overflow
+                let barWidth = null;
+                if (this.array.length > 200) {
+                    const calculatedWidth = (availableWidth / totalBars) - gap;
+                    barWidth = Math.max(1, Math.min(calculatedWidth, 30)); // min 1px, max 30px
                 }
 
                 for (let i = 0; i < this.array.length; i += step) {
@@ -571,10 +575,12 @@ class SortingVisualizer {
                     bar.style.height = `${(val / maxVal) * 100}%`;
                     
                     // Set explicit width for large arrays to prevent overflow
-                    if (this.array.length > 200) {
+                    if (barWidth !== null) {
                         bar.style.width = `${barWidth}px`;
                         bar.style.minWidth = `${barWidth}px`;
+                        bar.style.maxWidth = `${barWidth}px`;
                         bar.style.flexShrink = '0';
+                        bar.style.flexGrow = '0';
                     } else if (shouldSample) {
                         bar.style.width = `${step * 100 / sampleSize}%`;
                     }
