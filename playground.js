@@ -610,6 +610,36 @@ int main() {
     cout << "Hello, World!" << endl;
     return 0;
 }`;
+                    } else if (this.language === 'python') {
+                        this.editor.placeholder = `# Write your Python code here
+# Example:
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+print('Fibonacci(10):', fibonacci(10))
+
+# Try sorting a list
+arr = [64, 34, 25, 12, 22, 11, 90]
+print('Original:', arr)
+arr.sort()
+print('Sorted:', arr)`;
+                    } else if (this.language === 'typescript') {
+                        this.editor.placeholder = `// Write your TypeScript code here
+// Example:
+function fibonacci(n: number): number {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log('Fibonacci(10):', fibonacci(10));
+
+// Try sorting an array
+const arr: number[] = [64, 34, 25, 12, 22, 11, 90];
+console.log('Original:', arr);
+arr.sort((a, b) => a - b);
+console.log('Sorted:', arr);`;
                     }
                 }
             });
@@ -635,6 +665,10 @@ int main() {
             await this.runJava(code);
         } else if (this.language === 'cpp') {
             await this.runCpp(code);
+        } else if (this.language === 'python') {
+            await this.runPython(code);
+        } else if (this.language === 'typescript') {
+            await this.runTypeScript(code);
         } else {
             this.addOutput(`⚠️ Language "${this.language}" is not yet supported!`, 'warn');
         }
@@ -857,6 +891,140 @@ int main() {
         this.addOutput('       cout << "Hello, World!" << endl;', 'info');
         this.addOutput('       return 0;', 'info');
         this.addOutput('   }', 'info');
+    }
+
+    async runPython(code) {
+        this.addOutput('⏳ Running Python code...', 'info');
+        
+        try {
+            // Use Piston API (public, no API key required)
+            const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    language: 'python',
+                    version: '3.10.0',
+                    files: [
+                        {
+                            name: 'main.py',
+                            content: code
+                        }
+                    ],
+                    stdin: '',
+                    args: []
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // Display results
+            if (result.run && result.run.stdout) {
+                this.addOutput(result.run.stdout, 'log');
+            }
+            
+            if (result.run && result.run.stderr) {
+                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
+            }
+            
+            if (result.compile && result.compile.stderr) {
+                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+            }
+            
+            if (result.run && result.run.code !== 0) {
+                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            }
+            
+            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
+                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            }
+
+        } catch (error) {
+            this.addOutput(`❌ Error: ${error.message}`, 'error');
+            this.addOutput('   Note: Code execution requires internet connection.', 'error');
+            this.addOutput('   Example Python code:', 'info');
+            this.addOutput('   print("Hello, World!")', 'info');
+        }
+    }
+
+    async runTypeScript(code) {
+        this.addOutput('⏳ Compiling and running TypeScript code...', 'info');
+        
+        try {
+            // Use Piston API (public, no API key required)
+            const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    language: 'typescript',
+                    version: '5.0.3',
+                    files: [
+                        {
+                            name: 'main.ts',
+                            content: code
+                        }
+                    ],
+                    stdin: '',
+                    args: []
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // Display results
+            if (result.run && result.run.stdout) {
+                this.addOutput(result.run.stdout, 'log');
+            }
+            
+            if (result.run && result.run.stderr) {
+                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
+            }
+            
+            if (result.compile && result.compile.stderr) {
+                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+            }
+            
+            if (result.run && result.run.code !== 0) {
+                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            }
+            
+            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
+                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            }
+
+        } catch (error) {
+            // Fallback: Try transpiling TypeScript to JavaScript
+            try {
+                this.addOutput('⚠️ Trying to transpile TypeScript to JavaScript...', 'info');
+                // Simple TypeScript to JavaScript transpilation (basic)
+                // Remove type annotations for basic transpilation
+                let jsCode = code
+                    .replace(/:\s*\w+(\[\])?/g, '') // Remove type annotations
+                    .replace(/<[^>]+>/g, ''); // Remove generic types
+                
+                this.addOutput('⚠️ Note: Type checking is disabled. Running as JavaScript...', 'warn');
+                this.runJavaScript(jsCode);
+            } catch (fallbackError) {
+                this.addOutput(`❌ Error: ${error.message}`, 'error');
+                this.addOutput('   Note: Code execution requires internet connection.', 'error');
+                this.addOutput('   Example TypeScript code:', 'info');
+                this.addOutput('   function greet(name: string): void {', 'info');
+                this.addOutput('       console.log("Hello, " + name);', 'info');
+                this.addOutput('   }', 'info');
+                this.addOutput('   greet("World");', 'info');
+            }
+        }
     }
 
     addOutput(message, type = 'log') {
