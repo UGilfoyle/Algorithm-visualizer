@@ -65,7 +65,11 @@ class AlgorithmVisualizer {
      */
     switchSection(sectionId) {
         // Stop all running visualizations
-        this.visualizationManager.stopAll();
+        if (this.visualizationManager) {
+            this.visualizationManager.stopAll();
+        } else if (typeof window.stopAllVisualizations === 'function') {
+            window.stopAllVisualizations();
+        }
 
         // Play section change sound
         if (typeof audioEngine !== 'undefined' && audioEngine) {
@@ -295,8 +299,45 @@ class AlgorithmVisualizer {
      * @param {string} key - Algorithm key
      */
     handleAlgorithmChange(category, key) {
-        // Implementation will be added based on existing logic
-        // This is a placeholder for the refactored method
+        // Reset visualization when algorithm changes
+        if (category === 'sorting' && sortingVisualizer) {
+            sortingVisualizer.stop();
+            sortingVisualizer.setAlgorithm(key);
+            sortingVisualizer.generateArray();
+            sortingVisualizer.resetStats();
+        } else if (category === 'searching' && searchingVisualizer) {
+            searchingVisualizer.stop();
+            searchingVisualizer.setAlgorithm(key);
+            searchingVisualizer.generateArray();
+            searchingVisualizer.resetStats();
+        } else if (category === 'graphs' && graphVisualizer) {
+            graphVisualizer.stop();
+            graphVisualizer.generateGraph();
+        } else if (category === 'graphs' && pathfindingVisualizer) {
+            pathfindingVisualizer.stop();
+            pathfindingVisualizer.setAlgorithm(key);
+            pathfindingVisualizer.initGrid();
+        } else if (category === 'trees' && treeVisualizer) {
+            treeVisualizer.stop();
+            treeVisualizer.clear();
+            treeVisualizer.insertInitialNodes();
+        } else if (category === 'dp' && dpVisualizer) {
+            if (dpVisualizer.stop) dpVisualizer.stop();
+            if (dpVisualizer.reset) dpVisualizer.reset();
+        } else if (category === 'strings' && stringVisualizer) {
+            stringVisualizer.stop();
+            stringVisualizer.render();
+        } else if (category === 'math' && mathVisualizer) {
+            if (mathVisualizer.stop) mathVisualizer.stop();
+            const mathViz = document.getElementById('mathVisualization');
+            if (mathViz) mathViz.innerHTML = '';
+            const mathResult = document.getElementById('mathResult');
+            if (mathResult) mathResult.textContent = '-';
+            const mathSteps = document.getElementById('mathSteps');
+            if (mathSteps) mathSteps.textContent = '0';
+            const mathTime = document.getElementById('mathTime');
+            if (mathTime) mathTime.textContent = '0ms';
+        }
     }
 
     /**
@@ -304,24 +345,204 @@ class AlgorithmVisualizer {
      * @param {string} category - Algorithm category
      */
     populateComparisonDropdowns(category) {
-        // Implementation from existing code
-        // This maintains existing functionality
+        // Pathfinding uses graphs category
+        const actualCategory = category === 'pathfinding' ? 'graphs' : category;
+        if (!ALGORITHMS[actualCategory]) return;
+
+        const dropdownIds = {
+            trees: ['treeCompareAlgo1', 'treeCompareAlgo2'],
+            graphs: ['graphCompareAlgo1', 'graphCompareAlgo2'],
+            dp: ['dpCompareAlgo1', 'dpCompareAlgo2'],
+            pathfinding: ['pathCompareAlgo1', 'pathCompareAlgo2']
+        };
+
+        const ids = dropdownIds[category];
+        if (!ids) return;
+
+        // Filter pathfinding algorithms (bfs, dfs, dijkstra, astar, greedy)
+        const pathfindingAlgos = ['bfs', 'dfs', 'dijkstra', 'astar', 'greedy'];
+
+        ids.forEach(id => {
+            const dropdown = document.getElementById(id);
+            if (!dropdown) return;
+
+            dropdown.innerHTML = '';
+            Object.keys(ALGORITHMS[actualCategory]).forEach(key => {
+                // For pathfinding, only show pathfinding algorithms
+                if (category === 'pathfinding' && !pathfindingAlgos.includes(key)) {
+                    return;
+                }
+                const algo = ALGORITHMS[actualCategory][key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = algo.name;
+                dropdown.appendChild(option);
+            });
+        });
     }
 
     /**
      * Load algorithm information
      */
     loadAlgorithmInfo() {
-        // Implementation from existing code
-        // This maintains existing functionality
+        const section = this.currentSection;
+        let category = section;
+
+        if (section === 'pathfinding') category = 'graphs';
+
+        const algoKey = this.currentAlgorithm[category] || this.currentAlgorithm[section];
+        const algo = ALGORITHMS[category]?.[algoKey];
+
+        if (!algo) return;
+
+        const codeDisplayIds = {
+            sorting: 'codeDisplay',
+            searching: 'searchCodeDisplay',
+            pathfinding: 'pathCodeDisplay',
+            trees: 'treeCodeDisplay',
+            graphs: 'graphCodeDisplay',
+            dp: 'dpCodeDisplay',
+            strings: 'stringCodeDisplay',
+            math: 'mathCodeDisplay'
+        };
+
+        const tabContainerIds = {
+            sorting: 'languageTabs',
+            searching: 'searchLanguageTabs',
+            pathfinding: 'pathLanguageTabs',
+            trees: 'treeLanguageTabs',
+            graphs: 'graphLanguageTabs',
+            dp: 'dpLanguageTabs',
+            strings: 'stringLanguageTabs',
+            math: 'mathLanguageTabs'
+        };
+
+        const codeEl = document.getElementById(codeDisplayIds[section]);
+        if (codeEl && algo.code) {
+            // Get the active language from the tabs
+            const tabContainer = document.getElementById(tabContainerIds[section]);
+            let activeLang = 'node';
+            if (tabContainer) {
+                const activeTab = tabContainer.querySelector('.lang-tab.active');
+                if (activeTab) {
+                    activeLang = activeTab.dataset.lang;
+                    this.currentLanguage = activeLang;
+                }
+            }
+            // Node.js and Deno use JavaScript code
+            const langCode = (activeLang === 'node' || activeLang === 'deno') ? 'javascript' : activeLang;
+            const code = algo.code[langCode] || algo.code.javascript || algo.code.java || algo.code.cpp || 'No implementation available';
+            codeEl.textContent = code;
+        }
+
+        if (section === 'sorting') {
+            this.updateElementText('timeBest', algo.complexity?.best || '-');
+            this.updateElementText('timeAvg', algo.complexity?.avg || '-');
+            this.updateElementText('timeWorst', algo.complexity?.worst || '-');
+            this.updateElementText('spaceComplexity', algo.complexity?.space || '-');
+            this.updateElementText('algoDescription', algo.description || '-');
+        } else if (section === 'searching') {
+            this.updateElementText('searchTimeBest', algo.complexity?.best || '-');
+            this.updateElementText('searchTimeWorst', algo.complexity?.worst || '-');
+            this.updateElementText('searchSpaceComplexity', algo.complexity?.space || '-');
+            this.updateElementText('searchAlgoDescription', algo.description || '-');
+        }
+    }
+
+    /**
+     * Update element text content
+     * @param {string} id - Element ID
+     * @param {string} text - Text content
+     */
+    updateElementText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
     }
 
     /**
      * Setup language tabs
      */
     setupLanguageTabs() {
-        // Implementation from existing code
-        // This maintains existing functionality
+        const tabContainers = document.querySelectorAll('.language-tabs');
+        
+        tabContainers.forEach(container => {
+            const tabs = container.querySelectorAll('.lang-tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs in this container
+                    container.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Update code display
+                    this.loadAlgorithmInfo();
+                    this.resetVisualization();
+                });
+            });
+        });
+    }
+
+    /**
+     * Reset visualization when language changes
+     */
+    resetVisualization() {
+        const section = this.currentSection;
+
+        switch (section) {
+            case 'sorting':
+                if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
+                    sortingVisualizer.stop();
+                    sortingVisualizer.render();
+                    sortingVisualizer.resetStats();
+                    if (sortingVisualizer.updateButtonStates) {
+                        sortingVisualizer.updateButtonStates();
+                    }
+                }
+                break;
+            case 'searching':
+                if (typeof searchingVisualizer !== 'undefined' && searchingVisualizer) {
+                    searchingVisualizer.stop();
+                    searchingVisualizer.render();
+                    searchingVisualizer.resetStats();
+                }
+                break;
+            case 'pathfinding':
+                if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
+                    pathfindingVisualizer.reset();
+                }
+                break;
+            case 'trees':
+                if (typeof treeVisualizer !== 'undefined' && treeVisualizer) {
+                    treeVisualizer.stop();
+                }
+                break;
+            case 'graphs':
+                if (typeof graphVisualizer !== 'undefined' && graphVisualizer) {
+                    graphVisualizer.stop();
+                    graphVisualizer.render();
+                }
+                break;
+            case 'dp':
+                if (typeof dpVisualizer !== 'undefined' && dpVisualizer) {
+                    dpVisualizer.stop();
+                    if (dpVisualizer.reset) {
+                        dpVisualizer.reset();
+                    }
+                }
+                break;
+            case 'strings':
+                if (typeof stringVisualizer !== 'undefined' && stringVisualizer) {
+                    stringVisualizer.stop();
+                    stringVisualizer.render();
+                }
+                break;
+            case 'math':
+                if (typeof mathVisualizer !== 'undefined' && mathVisualizer) {
+                    mathVisualizer.stop();
+                }
+                break;
+        }
     }
 }
 

@@ -1,18 +1,30 @@
+// Use TimeFormatter class if available, otherwise use fallback functions
+// This maintains backward compatibility while using OOP structure
 let globalStopFlag = false;
+
+// Fallback functions for backward compatibility
 function getBestTimeFormat(ms) {
-    if (ms >= 86400000) {
-        return 'd';
-    } else if (ms >= 3600000) {
-        return 'h';
-    } else if (ms >= 60000) {
-        return 'm';
-    } else if (ms >= 2000) {
-        return 's';
+    if (typeof TimeFormatter !== 'undefined') {
+        return TimeFormatter.getBestFormat(ms);
     }
+    // Fallback implementation
+    if (ms >= 86400000) return 'd';
+    if (ms >= 3600000) return 'h';
+    if (ms >= 60000) return 'm';
+    if (ms >= 2000) return 's';
     return 'ms';
 }
 
 function formatTimeValue(ms, format = 'ms') {
+    if (typeof TimeFormatter !== 'undefined') {
+        if (format === 'auto' || (!format || format === 'ms')) {
+            if (ms >= 2000) {
+                format = TimeFormatter.getBestFormat(ms);
+            }
+        }
+        return TimeFormatter.format(ms, format);
+    }
+    // Fallback implementation (original code)
     if (format === 'auto' || (!format || format === 'ms')) {
         if (ms >= 2000) {
             format = getBestTimeFormat(ms);
@@ -71,21 +83,47 @@ let rawTimeValues = {
     mathTime: 0
 };
 
+// Use VisualizationManager if available, otherwise use fallback
 function stopAllVisualizations() {
     globalStopFlag = true;
-    if (sortingVisualizer) sortingVisualizer.stop();
-    if (searchingVisualizer) searchingVisualizer.stop();
-    if (pathfindingVisualizer) pathfindingVisualizer.stop();
-    if (treeVisualizer) treeVisualizer.stop();
-    if (graphVisualizer) graphVisualizer.stop();
-    if (dpVisualizer) dpVisualizer.stop();
-    if (stringVisualizer) stringVisualizer.stop();
-    if (languageArena) languageArena.stop();
+    
+    // Use VisualizationManager if available
+    if (typeof VisualizationManager !== 'undefined' && window.visualizationManager) {
+        window.visualizationManager.stopAll();
+    } else {
+        // Fallback to direct references
+        if (sortingVisualizer) sortingVisualizer.stop();
+        if (searchingVisualizer) searchingVisualizer.stop();
+        if (pathfindingVisualizer) pathfindingVisualizer.stop();
+        if (treeVisualizer) treeVisualizer.stop();
+        if (graphVisualizer) graphVisualizer.stop();
+        if (dpVisualizer) dpVisualizer.stop();
+        if (stringVisualizer) stringVisualizer.stop();
+        if (languageArena) languageArena.stop();
+    }
 
     // Reset flag after a short delay
     setTimeout(() => { globalStopFlag = false; }, 100);
 }
 
+// Make it globally available
+if (typeof window !== 'undefined') {
+    window.stopAllVisualizations = stopAllVisualizations;
+}
+
+// Use LanguageManager if available, otherwise use fallback
+// This maintains backward compatibility while using OOP structure
+
+// Initialize language manager instance
+let languageManager = null;
+if (typeof LanguageManager !== 'undefined') {
+    languageManager = new LanguageManager();
+    if (typeof window !== 'undefined') {
+        window.languageManager = languageManager;
+    }
+}
+
+// Fallback LANGUAGE_SPEED for backward compatibility
 const LANGUAGE_SPEED = {
     cpp: 1.0,        // Baseline (fastest) - Native compiled
     rust: 1.0,       // Similar to C++ - Native compiled, zero-cost abstractions
@@ -106,12 +144,18 @@ const LANGUAGE_SPEED = {
     ruby: 11.0       // Interpreted - Slower than Python
 };
 
+// Fallback functions for backward compatibility
 let _cachedLanguageIcons = null;
 let _cachedTheme = null;
 
 function getLanguageIcons() {
+    // Use LanguageManager if available
+    if (languageManager) {
+        return languageManager.getIcons();
+    }
+    
+    // Fallback implementation
     const currentTheme = document.documentElement.getAttribute('data-theme');
-    // Return cached version if theme hasn't changed
     if (_cachedLanguageIcons && _cachedTheme === currentTheme) {
         return _cachedLanguageIcons;
     }
@@ -144,8 +188,13 @@ function getLanguageIcons() {
 let _cachedLanguageInfo = null;
 
 function getLanguageInfo() {
+    // Use LanguageManager if available
+    if (languageManager) {
+        return languageManager.getInfo();
+    }
+    
+    // Fallback implementation
     const icons = getLanguageIcons();
-    // Only rebuild if icons changed
     if (!_cachedLanguageInfo || _cachedLanguageInfo.rust.icon !== icons.rust) {
         _cachedLanguageInfo = {
             javascript: { name: 'JavaScript', symbol: 'JS', color: '#f7df1e', icon: icons.javascript },
@@ -170,7 +219,7 @@ function getLanguageInfo() {
     return _cachedLanguageInfo;
 }
 
-// Initialize cached values
+// Initialize cached values (for backward compatibility)
 const LANGUAGE_ICONS = getLanguageIcons();
 const LANGUAGE_INFO = getLanguageInfo();
 
@@ -961,8 +1010,10 @@ class SortingVisualizer {
         const swaps = { count: 0 };
         const startTime = performance.now();
 
-        // Get language speed factor
-        const langSpeed = LANGUAGE_SPEED[langKey] || 1.0;
+        // Get language speed factor - use LanguageManager if available
+        const langSpeed = (languageManager && languageManager.getSpeed) 
+            ? languageManager.getSpeed(langKey) 
+            : (LANGUAGE_SPEED[langKey] || 1.0);
 
         // Create a temporary visualizer instance for this comparison
         const tempViz = {
@@ -5760,6 +5811,18 @@ document.addEventListener('DOMContentLoaded', () => {
     dpVisualizer = new DPVisualizer();
     stringVisualizer = new StringVisualizer();
     mathVisualizer = new MathVisualizer();
+
+    // Register visualizers with VisualizationManager if available
+    if (typeof VisualizationManager !== 'undefined' && window.visualizationManager) {
+        window.visualizationManager.register('sorting', sortingVisualizer);
+        window.visualizationManager.register('searching', searchingVisualizer);
+        window.visualizationManager.register('pathfinding', pathfindingVisualizer);
+        window.visualizationManager.register('trees', treeVisualizer);
+        window.visualizationManager.register('graphs', graphVisualizer);
+        window.visualizationManager.register('dp', dpVisualizer);
+        window.visualizationManager.register('strings', stringVisualizer);
+        window.visualizationManager.register('math', mathVisualizer);
+    }
 
     // Time format change listeners
     const timeFormatSelectors = [

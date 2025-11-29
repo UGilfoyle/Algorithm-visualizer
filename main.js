@@ -623,9 +623,26 @@ function initTheme() {
 }
 
 // Initialize app when DOM is ready
+// Use AlgorithmVisualizer if available, otherwise fallback to App
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
-    const app = new App();
+    
+    // Initialize visualization manager if available
+    if (typeof VisualizationManager !== 'undefined') {
+        window.visualizationManager = new VisualizationManager();
+    }
+    
+    // Use AlgorithmVisualizer if available, otherwise use App
+    let app;
+    if (typeof AlgorithmVisualizer !== 'undefined') {
+        app = new AlgorithmVisualizer();
+        window.app = app;
+        // Maintain backward compatibility
+        window.AlgorithmVisualizer = AlgorithmVisualizer;
+    } else {
+        app = new App();
+        window.app = app;
+    }
     
     console.log(`
     ᛭ ALGORITHM UNIVERSE ᛭
@@ -635,19 +652,47 @@ document.addEventListener('DOMContentLoaded', () => {
     50+ Algorithms await your command.
     Toggle themes with the sun/moon button.
     `);
+    
+    // Setup playground and feedback modals
+    if (app.setupPlaygroundModal) {
+        app.setupPlaygroundModal();
+    }
+    setupFeedbackModal();
 });
 
 document.addEventListener('submit', e => e.preventDefault());
 
-const app = new App();
-
+// Initialize app instance (for backward compatibility)
+let app;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        app.setupPlaygroundModal();
+        if (!window.app) {
+            if (typeof AlgorithmVisualizer !== 'undefined') {
+                app = new AlgorithmVisualizer();
+                window.app = app;
+            } else {
+                app = new App();
+                window.app = app;
+            }
+        }
+        if (window.app && window.app.setupPlaygroundModal) {
+            window.app.setupPlaygroundModal();
+        }
         setupFeedbackModal();
     });
 } else {
-    app.setupPlaygroundModal();
+    if (!window.app) {
+        if (typeof AlgorithmVisualizer !== 'undefined') {
+            app = new AlgorithmVisualizer();
+            window.app = app;
+        } else {
+            app = new App();
+            window.app = app;
+        }
+    }
+    if (window.app && window.app.setupPlaygroundModal) {
+        window.app.setupPlaygroundModal();
+    }
     setupFeedbackModal();
 }
 
