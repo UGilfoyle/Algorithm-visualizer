@@ -559,11 +559,25 @@ class SortingVisualizer {
                 const availableWidth = Math.max(100, containerWidth - containerPadding);
                 const totalBars = shouldSample ? sampleSize : this.array.length;
                 
-                // For arrays > 200, calculate explicit bar width to prevent overflow
+                // Calculate bar width to fit container, but allow scrolling if needed
+                // For small arrays (<=200), bars fill the container
+                // For larger arrays, calculate width to fit, but minimum 2px for visibility
                 let barWidth = null;
-                if (this.array.length > 200) {
+                let useFlex = false;
+                
+                if (this.array.length <= 200) {
+                    // Small arrays: use flex to fill container
+                    useFlex = true;
+                } else {
+                    // Large arrays: calculate width to fit container width
                     const calculatedWidth = (availableWidth / totalBars) - gap;
+                    // Use minimum 2px for better visibility, but allow smaller if needed for scrolling
                     barWidth = Math.max(1, Math.min(calculatedWidth, 30)); // min 1px, max 30px
+                    
+                    // If calculated width is very small (< 2px), use 2px and allow scrolling
+                    if (barWidth < 2) {
+                        barWidth = 2;
+                    }
                 }
 
                 for (let i = 0; i < this.array.length; i += step) {
@@ -574,8 +588,13 @@ class SortingVisualizer {
                     bar.className = 'bar';
                     bar.style.height = `${(val / maxVal) * 100}%`;
                     
-                    // Set explicit width for large arrays to prevent overflow
-                    if (barWidth !== null) {
+                    // Set width based on array size
+                    if (useFlex) {
+                        // Small arrays: use flex to fill container
+                        bar.style.flex = '1 1 auto';
+                        bar.style.minWidth = '0';
+                    } else if (barWidth !== null) {
+                        // Large arrays: explicit width to fit container or scroll
                         bar.style.width = `${barWidth}px`;
                         bar.style.minWidth = `${barWidth}px`;
                         bar.style.maxWidth = `${barWidth}px`;

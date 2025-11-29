@@ -571,6 +571,10 @@ body {
     margin: 0;
     box-shadow: var(--shadow);
     box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .panel-header {
@@ -778,9 +782,9 @@ select:focus {
 }
 
 .bar {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     max-width: 30px;
-    min-width: 1px;
+    min-width: 0;
     background: var(--bar-gradient);
     border-radius: var(--radius-sm) var(--radius-sm) 0 0;
     transition: height 0.05s ease, background 0.1s ease;
