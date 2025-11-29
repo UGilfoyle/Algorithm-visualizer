@@ -754,13 +754,19 @@ select:focus {
 .bars-container {
     display: flex;
     align-items: flex-end;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 2px;
     height: 300px;
     padding: var(--spacing-md);
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 2560px) {
@@ -770,8 +776,9 @@ select:focus {
 }
 
 .bar {
-    flex: 1;
+    flex: 0 0 auto;
     max-width: 30px;
+    min-width: 1px;
     background: var(--bar-gradient);
     border-radius: var(--radius-sm) var(--radius-sm) 0 0;
     transition: height 0.05s ease, background 0.1s ease;
