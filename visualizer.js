@@ -386,9 +386,20 @@ class SortingVisualizer {
             speedSlider.addEventListener('input', (e) => {
                 try {
                     const newSpeed = parseInt(e.target.value, 10);
-                    // Validate speed value
-                    if (!isNaN(newSpeed) && newSpeed >= 25 && newSpeed <= 100) {
+                    // Validate speed value - allow up to 250 (5x speed)
+                    // For arrays > 500, allow higher speeds (up to 5x)
+                    const maxSpeed = this.size > 500 ? 250 : 150; // 5x for large arrays, 3x for smaller
+                    const actualMaxSpeed = Math.min(250, maxSpeed);
+                    if (!isNaN(newSpeed) && newSpeed >= 25 && newSpeed <= actualMaxSpeed) {
                         this.speed = newSpeed;
+                        if (multiplierEl) {
+                            const multiplier = Math.round((this.speed / 50) * 10) / 10;
+                            multiplierEl.textContent = `${multiplier}x`;
+                        }
+                    } else if (newSpeed > actualMaxSpeed) {
+                        // Clamp to max speed
+                        this.speed = actualMaxSpeed;
+                        speedSlider.value = actualMaxSpeed;
                         if (multiplierEl) {
                             const multiplier = Math.round((this.speed / 50) * 10) / 10;
                             multiplierEl.textContent = `${multiplier}x`;
@@ -402,6 +413,23 @@ class SortingVisualizer {
                         multiplierEl.textContent = '1x';
                     }
                 }
+            });
+            
+            // Update max speed when array size changes
+            const updateMaxSpeed = () => {
+                const maxSpeed = this.size > 500 ? 250 : 150;
+                speedSlider.max = maxSpeed;
+            };
+            
+            // Listen for size changes
+            const sizeSlider = document.getElementById('arraySize');
+            if (sizeSlider) {
+                sizeSlider.addEventListener('change', updateMaxSpeed);
+            }
+            
+            // Update on preset button clicks
+            document.querySelectorAll('.btn-preset[data-size]').forEach(btn => {
+                btn.addEventListener('click', updateMaxSpeed);
             });
         }
 
@@ -904,8 +932,18 @@ class SortingVisualizer {
             speed: this.speed,
             langSpeed: langSpeed,
             getDelay: () => {
-                const baseDelay = Math.max(1, 101 - this.speed);
+                // Use the same improved delay calculation as regular mode
                 const multiplier = this.speed / 50;
+                let baseDelay;
+                if (this.speed <= 50) {
+                    baseDelay = Math.max(1, 101 - this.speed);
+                } else if (this.speed <= 100) {
+                    baseDelay = Math.max(1, 51 - ((this.speed - 50) * 0.5));
+                } else if (this.speed <= 150) {
+                    baseDelay = Math.max(0.5, 26 - ((this.speed - 100) * 0.3));
+                } else {
+                    baseDelay = Math.max(0.1, 11 - ((this.speed - 150) * 0.1));
+                }
                 // Apply language speed factor - faster languages have shorter delays
                 const langMultiplier = 1 / langSpeed;
                 return Math.max(0.1, (baseDelay / multiplier / 10) * langMultiplier);
@@ -1215,9 +1253,30 @@ class SortingVisualizer {
     }
 
     getDelay() {
-        const baseDelay = Math.max(1, 101 - this.speed);
+        // Speed calculation: 
+        // - speed 25 = 0.5x (slower)
+        // - speed 50 = 1x (normal)
+        // - speed 100 = 2x (faster)
+        // - speed 150 = 3x (much faster)
+        // - speed 250 = 5x (very fast)
         const multiplier = this.speed / 50;
-        return Math.max(1, baseDelay / multiplier);
+        // Base delay decreases as speed increases
+        // For higher speeds, reduce delay more aggressively
+        let baseDelay;
+        if (this.speed <= 50) {
+            // 0.5x to 1x: linear decrease
+            baseDelay = Math.max(1, 101 - this.speed);
+        } else if (this.speed <= 100) {
+            // 1x to 2x: faster decrease
+            baseDelay = Math.max(1, 51 - ((this.speed - 50) * 0.5));
+        } else if (this.speed <= 150) {
+            // 2x to 3x: even faster decrease
+            baseDelay = Math.max(0.5, 26 - ((this.speed - 100) * 0.3));
+        } else {
+            // 3x to 5x: very fast decrease
+            baseDelay = Math.max(0.1, 11 - ((this.speed - 150) * 0.1));
+        }
+        return Math.max(0.1, baseDelay / multiplier);
     }
 
     async delay() {
