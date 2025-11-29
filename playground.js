@@ -10,8 +10,9 @@ class PlaygroundManager {
             warn: console.warn,
             info: console.info
         };
-        this.codeTemplates = {
-            sorting: `// Bubble Sort
+        this.languageTemplates = {
+            javascript: {
+                sorting: `// Bubble Sort
 function bubbleSort(arr) {
     const n = arr.length;
     for (let i = 0; i < n - 1; i++) {
@@ -197,7 +198,289 @@ console.log('Reversed:', reverseString(text));
 console.log('Is "racecar" palindrome?', isPalindrome('racecar'));
 console.log('Vowel count:', countVowels(text));
 console.log('Longest word:', longestWord(text));`
+            },
+            java: {
+                sorting: `public class Main {
+    public static void bubbleSort(int[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {64, 34, 25, 12, 22, 11, 90};
+        System.out.print("Original: ");
+        for (int num : arr) System.out.print(num + " ");
+        System.out.println();
+        
+        bubbleSort(arr);
+        System.out.print("Sorted: ");
+        for (int num : arr) System.out.print(num + " ");
+        System.out.println();
+    }
+}`,
+                searching: `public class Main {
+    public static int binarySearch(int[] arr, int target) {
+        int left = 0, right = arr.length - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (arr[mid] == target) return mid;
+            if (arr[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19};
+        int target = 7;
+        int index = binarySearch(arr, target);
+        System.out.println("Array: " + java.util.Arrays.toString(arr));
+        System.out.println("Target: " + target);
+        System.out.println("Found at index: " + index);
+    }
+}`,
+                recursion: `public class Main {
+    public static int fibonacci(int n) {
+        if (n <= 1) return n;
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+    
+    public static int factorial(int n) {
+        if (n <= 1) return 1;
+        return n * factorial(n - 1);
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("Fibonacci(10): " + fibonacci(10));
+        System.out.println("Factorial(5): " + factorial(5));
+    }
+}`,
+                'data-structures': `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Stack
+        Stack<Integer> stack = new Stack<>();
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+        System.out.println("Stack: " + stack);
+        System.out.println("Popped: " + stack.pop());
+        
+        // Queue
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(1);
+        queue.offer(2);
+        queue.offer(3);
+        System.out.println("Queue: " + queue);
+        System.out.println("Dequeued: " + queue.poll());
+    }
+}`,
+                math: `public class Main {
+    public static int gcd(int a, int b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
+    }
+    
+    public static int lcm(int a, int b) {
+        return (a * b) / gcd(a, b);
+    }
+    
+    public static boolean isPrime(int n) {
+        if (n < 2) return false;
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("GCD(48, 18): " + gcd(48, 18));
+        System.out.println("LCM(12, 18): " + lcm(12, 18));
+        System.out.println("Is 17 prime? " + isPrime(17));
+        System.out.println("Is 20 prime? " + isPrime(20));
+    }
+}`,
+                strings: `public class Main {
+    public static String reverseString(String str) {
+        return new StringBuilder(str).reverse().toString();
+    }
+    
+    public static boolean isPalindrome(String str) {
+        String cleaned = str.toLowerCase().replaceAll("[^a-z0-9]", "");
+        return cleaned.equals(new StringBuilder(cleaned).reverse().toString());
+    }
+    
+    public static void main(String[] args) {
+        String text = "Hello World Algorithm Universe";
+        System.out.println("Original: " + text);
+        System.out.println("Reversed: " + reverseString(text));
+        System.out.println("Is 'racecar' palindrome? " + isPalindrome("racecar"));
+    }
+}`
+            },
+            cpp: {
+                sorting: `#include <iostream>
+#include <vector>
+using namespace std;
+
+void bubbleSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+            }
+        }
+    }
+}
+
+int main() {
+    vector<int> arr = {64, 34, 25, 12, 22, 11, 90};
+    cout << "Original: ";
+    for (int num : arr) cout << num << " ";
+    cout << endl;
+    
+    bubbleSort(arr);
+    cout << "Sorted: ";
+    for (int num : arr) cout << num << " ";
+    cout << endl;
+    return 0;
+}`,
+                searching: `#include <iostream>
+#include <vector>
+using namespace std;
+
+int binarySearch(vector<int>& arr, int target) {
+    int left = 0, right = arr.size() - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == target) return mid;
+        if (arr[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}
+
+int main() {
+    vector<int> arr = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19};
+    int target = 7;
+    int index = binarySearch(arr, target);
+    cout << "Target: " << target << endl;
+    cout << "Found at index: " << index << endl;
+    return 0;
+}`,
+                recursion: `#include <iostream>
+using namespace std;
+
+int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+int factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}
+
+int main() {
+    cout << "Fibonacci(10): " << fibonacci(10) << endl;
+    cout << "Factorial(5): " << factorial(5) << endl;
+    return 0;
+}`,
+                'data-structures': `#include <iostream>
+#include <stack>
+#include <queue>
+using namespace std;
+
+int main() {
+    // Stack
+    stack<int> st;
+    st.push(1);
+    st.push(2);
+    st.push(3);
+    cout << "Stack top: " << st.top() << endl;
+    st.pop();
+    cout << "After pop: " << st.top() << endl;
+    
+    // Queue
+    queue<int> q;
+    q.push(1);
+    q.push(2);
+    q.push(3);
+    cout << "Queue front: " << q.front() << endl;
+    q.pop();
+    cout << "After pop: " << q.front() << endl;
+    return 0;
+}`,
+                math: `#include <iostream>
+using namespace std;
+
+int gcd(int a, int b) {
+    if (b == 0) return a;
+    return gcd(b, a % b);
+}
+
+int lcm(int a, int b) {
+    return (a * b) / gcd(a, b);
+}
+
+bool isPrime(int n) {
+    if (n < 2) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+
+int main() {
+    cout << "GCD(48, 18): " << gcd(48, 18) << endl;
+    cout << "LCM(12, 18): " << lcm(12, 18) << endl;
+    cout << "Is 17 prime? " << (isPrime(17) ? "Yes" : "No") << endl;
+    cout << "Is 20 prime? " << (isPrime(20) ? "Yes" : "No") << endl;
+    return 0;
+}`,
+                strings: `#include <iostream>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+string reverseString(string str) {
+    reverse(str.begin(), str.end());
+    return str;
+}
+
+bool isPalindrome(string str) {
+    string cleaned = str;
+    cleaned.erase(remove_if(cleaned.begin(), cleaned.end(), 
+        [](char c) { return !isalnum(c); }), cleaned.end());
+    transform(cleaned.begin(), cleaned.end(), cleaned.begin(), ::tolower);
+    string reversed = cleaned;
+    reverse(reversed.begin(), reversed.end());
+    return cleaned == reversed;
+}
+
+int main() {
+    string text = "Hello World";
+    cout << "Original: " << text << endl;
+    cout << "Reversed: " << reverseString(text) << endl;
+    cout << "Is 'racecar' palindrome? " << (isPalindrome("racecar") ? "Yes" : "No") << endl;
+    return 0;
+}`
+            }
         };
+        
+        // Backward compatibility - keep old templates structure
+        this.codeTemplates = this.languageTemplates.javascript;
+        
         this.init();
     }
 
@@ -284,7 +567,12 @@ console.log('Longest word:', longestWord(text));`
         templateBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const template = btn.dataset.template;
-                if (this.codeTemplates[template]) {
+                const langTemplates = this.languageTemplates[this.language];
+                if (langTemplates && langTemplates[template]) {
+                    this.editor.value = langTemplates[template];
+                    this.updateCursorPosition();
+                } else if (this.codeTemplates[template]) {
+                    // Fallback to JavaScript templates
                     this.editor.value = this.codeTemplates[template];
                     this.updateCursorPosition();
                 }
@@ -297,26 +585,62 @@ console.log('Longest word:', longestWord(text));`
         if (langSelect) {
             langSelect.addEventListener('change', (e) => {
                 this.language = e.target.value;
-                // For now, only JavaScript is fully supported
-                if (this.language !== 'javascript') {
-                    this.addOutput('⚠️ Only JavaScript is currently supported. Python and TypeScript support coming soon!', 'warning');
+                // Update placeholder based on language
+                if (this.editor) {
+                    if (this.language === 'javascript') {
+                        this.editor.placeholder = `// Write your code here...
+// Example:
+function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log('Fibonacci(10):', fibonacci(10));`;
+                    } else if (this.language === 'java') {
+                        this.editor.placeholder = `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`;
+                    } else if (this.language === 'cpp') {
+                        this.editor.placeholder = `#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    return 0;
+}`;
+                    }
                 }
             });
         }
     }
 
-    runCode() {
+    async runCode() {
         if (!this.editor || !this.output) return;
 
         const code = this.editor.value.trim();
         if (!code) {
-            this.addOutput('⚠️ Please write some code first!', 'warning');
+            this.addOutput('⚠️ Please write some code first!', 'warn');
             return;
         }
 
         // Clear previous output
         this.clearOutput();
 
+        // Handle different languages
+        if (this.language === 'javascript') {
+            this.runJavaScript(code);
+        } else if (this.language === 'java') {
+            await this.runJava(code);
+        } else if (this.language === 'cpp') {
+            await this.runCpp(code);
+        } else {
+            this.addOutput(`⚠️ Language "${this.language}" is not yet supported!`, 'warn');
+        }
+    }
+
+    runJavaScript(code) {
         // Override console methods to capture output
         const outputLines = [];
         console.log = (...args) => {
@@ -378,6 +702,98 @@ console.log('Longest word:', longestWord(text));`
             console.error = this.originalConsole.error;
             console.warn = this.originalConsole.warn;
             console.info = this.originalConsole.info;
+        }
+    }
+
+    async runJava(code) {
+        this.addOutput('⏳ Compiling and running Java code...', 'info');
+        
+        try {
+            const formData = new FormData();
+            formData.append('LanguageChoice', '4'); // Java
+            formData.append('Program', code);
+            formData.append('Input', '');
+            formData.append('CompilerArgs', '');
+
+            const response = await fetch('https://rextester.com/rundotnet/api', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // Display results
+            if (result.Result) {
+                this.addOutput(result.Result, 'log');
+            }
+            
+            if (result.Warnings) {
+                this.addOutput(`\n⚠️ Warnings:\n${result.Warnings}`, 'warn');
+            }
+            
+            if (result.Errors) {
+                this.addOutput(`\n❌ Compilation Errors:\n${result.Errors}`, 'error');
+            } else if (!result.Result && !result.Warnings) {
+                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            }
+            
+            if (result.Stats) {
+                this.addOutput(`\n📊 ${result.Stats}`, 'info');
+            }
+
+        } catch (error) {
+            this.addOutput(`❌ Error: ${error.message}`, 'error');
+            this.addOutput('   Make sure you have a public class named "Main" with a main method.', 'error');
+        }
+    }
+
+    async runCpp(code) {
+        this.addOutput('⏳ Compiling and running C++ code...', 'info');
+        
+        try {
+            const formData = new FormData();
+            formData.append('LanguageChoice', '7'); // C++
+            formData.append('Program', code);
+            formData.append('Input', '');
+            formData.append('CompilerArgs', '');
+
+            const response = await fetch('https://rextester.com/rundotnet/api', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // Display results
+            if (result.Result) {
+                this.addOutput(result.Result, 'log');
+            }
+            
+            if (result.Warnings) {
+                this.addOutput(`\n⚠️ Warnings:\n${result.Warnings}`, 'warn');
+            }
+            
+            if (result.Errors) {
+                this.addOutput(`\n❌ Compilation Errors:\n${result.Errors}`, 'error');
+            } else if (!result.Result && !result.Warnings) {
+                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            }
+            
+            if (result.Stats) {
+                this.addOutput(`\n📊 ${result.Stats}`, 'info');
+            }
+
+        } catch (error) {
+            this.addOutput(`❌ Error: ${error.message}`, 'error');
+            this.addOutput('   Make sure your code includes necessary headers and has a main() function.', 'error');
         }
     }
 
