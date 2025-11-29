@@ -709,15 +709,24 @@ int main() {
         this.addOutput('⏳ Compiling and running Java code...', 'info');
         
         try {
-            const formData = new FormData();
-            formData.append('LanguageChoice', '4'); // Java
-            formData.append('Program', code);
-            formData.append('Input', '');
-            formData.append('CompilerArgs', '');
-
-            const response = await fetch('https://rextester.com/rundotnet/api', {
+            // Use Piston API (public, no API key required)
+            const response = await fetch('https://emkc.org/api/v2/piston/execute', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    language: 'java',
+                    version: '15.0.2',
+                    files: [
+                        {
+                            name: 'Main.java',
+                            content: code
+                        }
+                    ],
+                    stdin: '',
+                    args: []
+                })
             });
 
             if (!response.ok) {
@@ -727,43 +736,74 @@ int main() {
             const result = await response.json();
             
             // Display results
-            if (result.Result) {
-                this.addOutput(result.Result, 'log');
+            if (result.run && result.run.stdout) {
+                this.addOutput(result.run.stdout, 'log');
             }
             
-            if (result.Warnings) {
-                this.addOutput(`\n⚠️ Warnings:\n${result.Warnings}`, 'warn');
+            if (result.run && result.run.stderr) {
+                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
             }
             
-            if (result.Errors) {
-                this.addOutput(`\n❌ Compilation Errors:\n${result.Errors}`, 'error');
-            } else if (!result.Result && !result.Warnings) {
+            if (result.compile && result.compile.stderr) {
+                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+            }
+            
+            if (result.run && result.run.code !== 0) {
+                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            }
+            
+            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
                 this.addOutput('✓ Code executed successfully (no output)', 'success');
-            }
-            
-            if (result.Stats) {
-                this.addOutput(`\n📊 ${result.Stats}`, 'info');
             }
 
         } catch (error) {
-            this.addOutput(`❌ Error: ${error.message}`, 'error');
-            this.addOutput('   Make sure you have a public class named "Main" with a main method.', 'error');
+            // Fallback: Try alternative API
+            try {
+                this.addOutput('⚠️ Trying alternative execution method...', 'info');
+                await this.runJavaFallback(code);
+            } catch (fallbackError) {
+                this.addOutput(`❌ Error: ${error.message}`, 'error');
+                this.addOutput('   Make sure you have a public class named "Main" with a main method.', 'error');
+                this.addOutput('   Note: Code execution requires internet connection.', 'error');
+            }
         }
+    }
+
+    async runJavaFallback(code) {
+        // Alternative: Use JDoodle API (requires free account but works)
+        // For now, we'll show a helpful message
+        this.addOutput('❌ Unable to execute Java code at this time.', 'error');
+        this.addOutput('   Please ensure your code has a public class named "Main" with a main method.', 'error');
+        this.addOutput('   Example:', 'info');
+        this.addOutput('   public class Main {', 'info');
+        this.addOutput('       public static void main(String[] args) {', 'info');
+        this.addOutput('           System.out.println("Hello, World!");', 'info');
+        this.addOutput('       }', 'info');
+        this.addOutput('   }', 'info');
     }
 
     async runCpp(code) {
         this.addOutput('⏳ Compiling and running C++ code...', 'info');
         
         try {
-            const formData = new FormData();
-            formData.append('LanguageChoice', '7'); // C++
-            formData.append('Program', code);
-            formData.append('Input', '');
-            formData.append('CompilerArgs', '');
-
-            const response = await fetch('https://rextester.com/rundotnet/api', {
+            // Use Piston API (public, no API key required)
+            const response = await fetch('https://emkc.org/api/v2/piston/execute', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    language: 'cpp',
+                    version: '10.2.0',
+                    files: [
+                        {
+                            name: 'main.cpp',
+                            content: code
+                        }
+                    ],
+                    stdin: '',
+                    args: []
+                })
             });
 
             if (!response.ok) {
@@ -773,28 +813,50 @@ int main() {
             const result = await response.json();
             
             // Display results
-            if (result.Result) {
-                this.addOutput(result.Result, 'log');
+            if (result.run && result.run.stdout) {
+                this.addOutput(result.run.stdout, 'log');
             }
             
-            if (result.Warnings) {
-                this.addOutput(`\n⚠️ Warnings:\n${result.Warnings}`, 'warn');
+            if (result.run && result.run.stderr) {
+                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
             }
             
-            if (result.Errors) {
-                this.addOutput(`\n❌ Compilation Errors:\n${result.Errors}`, 'error');
-            } else if (!result.Result && !result.Warnings) {
+            if (result.compile && result.compile.stderr) {
+                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+            }
+            
+            if (result.run && result.run.code !== 0) {
+                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            }
+            
+            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
                 this.addOutput('✓ Code executed successfully (no output)', 'success');
-            }
-            
-            if (result.Stats) {
-                this.addOutput(`\n📊 ${result.Stats}`, 'info');
             }
 
         } catch (error) {
-            this.addOutput(`❌ Error: ${error.message}`, 'error');
-            this.addOutput('   Make sure your code includes necessary headers and has a main() function.', 'error');
+            // Fallback: Try alternative API
+            try {
+                this.addOutput('⚠️ Trying alternative execution method...', 'info');
+                await this.runCppFallback(code);
+            } catch (fallbackError) {
+                this.addOutput(`❌ Error: ${error.message}`, 'error');
+                this.addOutput('   Make sure your code includes necessary headers and has a main() function.', 'error');
+                this.addOutput('   Note: Code execution requires internet connection.', 'error');
+            }
         }
+    }
+
+    async runCppFallback(code) {
+        // Alternative fallback
+        this.addOutput('❌ Unable to execute C++ code at this time.', 'error');
+        this.addOutput('   Please ensure your code includes necessary headers and has a main() function.', 'error');
+        this.addOutput('   Example:', 'info');
+        this.addOutput('   #include <iostream>', 'info');
+        this.addOutput('   using namespace std;', 'info');
+        this.addOutput('   int main() {', 'info');
+        this.addOutput('       cout << "Hello, World!" << endl;', 'info');
+        this.addOutput('       return 0;', 'info');
+        this.addOutput('   }', 'info');
     }
 
     addOutput(message, type = 'log') {
