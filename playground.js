@@ -585,10 +585,13 @@ int main() {
         if (langSelect) {
             langSelect.addEventListener('change', (e) => {
                 this.language = e.target.value;
-                // Update placeholder based on language
+                // Update placeholder and code based on language
                 if (this.editor) {
+                    let placeholder = '';
+                    let defaultCode = '';
+                    
                     if (this.language === 'javascript') {
-                        this.editor.placeholder = `// Write your code here...
+                        placeholder = `// Write your code here...
 // Example:
 function fibonacci(n) {
     if (n <= 1) return n;
@@ -596,22 +599,25 @@ function fibonacci(n) {
 }
 
 console.log('Fibonacci(10):', fibonacci(10));`;
+                        defaultCode = placeholder;
                     } else if (this.language === 'java') {
-                        this.editor.placeholder = `public class Main {
+                        placeholder = `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
     }
 }`;
+                        defaultCode = placeholder;
                     } else if (this.language === 'cpp') {
-                        this.editor.placeholder = `#include <iostream>
+                        placeholder = `#include <iostream>
 using namespace std;
 
 int main() {
     cout << "Hello, World!" << endl;
     return 0;
 }`;
+                        defaultCode = placeholder;
                     } else if (this.language === 'python') {
-                        this.editor.placeholder = `# Write your Python code here
+                        placeholder = `# Write your Python code here
 # Example:
 def fibonacci(n):
     if n <= 1:
@@ -625,8 +631,9 @@ arr = [64, 34, 25, 12, 22, 11, 90]
 print('Original:', arr)
 arr.sort()
 print('Sorted:', arr)`;
+                        defaultCode = placeholder;
                     } else if (this.language === 'typescript') {
-                        this.editor.placeholder = `// Write your TypeScript code here
+                        placeholder = `// Write your TypeScript code here
 // Example:
 function fibonacci(n: number): number {
     if (n <= 1) return n;
@@ -640,6 +647,18 @@ const arr: number[] = [64, 34, 25, 12, 22, 11, 90];
 console.log('Original:', arr);
 arr.sort((a, b) => a - b);
 console.log('Sorted:', arr);`;
+                        defaultCode = placeholder;
+                    }
+                    
+                    // Update placeholder
+                    this.editor.placeholder = placeholder;
+                    
+                    // If editor is empty or contains only placeholder/old code, replace with new template
+                    const currentCode = this.editor.value.trim();
+                    const oldPlaceholder = this.editor.placeholder || '';
+                    if (!currentCode || currentCode === oldPlaceholder || currentCode.length < 10) {
+                        this.editor.value = defaultCode;
+                        this.updateCursorPosition();
                     }
                 }
             });
@@ -764,6 +783,9 @@ console.log('Sorted:', arr);`;
             });
 
             if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error(`Rate limit exceeded. Please wait a moment and try again. (HTTP ${response.status})`);
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -841,6 +863,9 @@ console.log('Sorted:', arr);`;
             });
 
             if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error(`Rate limit exceeded. Please wait a moment and try again. (HTTP ${response.status})`);
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -918,6 +943,9 @@ console.log('Sorted:', arr);`;
             });
 
             if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error(`Rate limit exceeded. Please wait a moment and try again. (HTTP ${response.status})`);
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -977,6 +1005,9 @@ console.log('Sorted:', arr);`;
             });
 
             if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error(`Rate limit exceeded. Please wait a moment and try again. (HTTP ${response.status})`);
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -1047,10 +1078,20 @@ console.log('Sorted:', arr);`;
 
     clearOutput() {
         if (!this.output) return;
+        // Update hint based on language
+        let hint = '💡 Tip: Use console.log() to print values';
+        if (this.language === 'python') {
+            hint = '💡 Tip: Use print() to display output';
+        } else if (this.language === 'java') {
+            hint = '💡 Tip: Use System.out.println() to display output';
+        } else if (this.language === 'cpp') {
+            hint = '💡 Tip: Use cout or printf() to display output';
+        }
+        
         this.output.innerHTML = `
             <div class="output-placeholder">
                 <p>Output will appear here when you run your code</p>
-                <p class="output-hint">💡 Tip: Use console.log() to print values</p>
+                <p class="output-hint">${hint}</p>
             </div>
         `;
     }
