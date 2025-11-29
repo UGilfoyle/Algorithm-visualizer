@@ -149,6 +149,9 @@ body {
     transition: background 0.3s ease, color 0.3s ease;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
 }
 
 
@@ -441,6 +444,9 @@ body {
     padding: var(--spacing-xl);
     max-width: 2000px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 @media (min-width: 3840px) {
@@ -2779,6 +2785,7 @@ select:focus {
         padding: 0.5rem 0.8rem;
         font-size: 0.7rem;
         min-width: auto;
+        min-height: 44px; /* Touch target */
     }
     
     .section-header h1 {
@@ -2813,6 +2820,7 @@ select:focus {
         width: 100%;
         padding: 0.75rem;
         font-size: 0.9rem;
+        min-height: 44px; /* Touch target */
     }
     
     .control-group {
@@ -2829,6 +2837,122 @@ select:focus {
         width: 100%;
         padding: 0.6rem;
         font-size: 0.9rem;
+        min-height: 44px; /* Touch target */
+    }
+    
+    /* Size presets mobile */
+    .size-presets {
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+        justify-content: center;
+    }
+    
+    .btn-preset {
+        min-height: 44px; /* Touch target */
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Compare containers mobile */
+    .compare-container {
+        grid-template-columns: 1fr !important;
+        gap: var(--spacing-md);
+    }
+    
+    .compare-panel {
+        padding: var(--spacing-sm);
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .compare-panel h4 {
+        font-size: 0.85rem;
+        white-space: normal;
+        word-break: break-word;
+        padding-bottom: var(--spacing-xs);
+    }
+    
+    .compare-panel .bars-container.compare-bars,
+    .compare-panel .tree-container.compare-tree,
+    .compare-panel .graph-container.compare-graph,
+    .compare-panel .dp-container.compare-dp,
+    .compare-panel .grid-container.compare-grid {
+        height: 200px;
+        min-height: 200px;
+        max-height: 200px;
+    }
+    
+    .compare-selectors {
+        grid-template-columns: 1fr !important;
+        gap: var(--spacing-sm);
+    }
+    
+    .compare-selector {
+        min-width: 0;
+        width: 100%;
+    }
+    
+    .compare-select {
+        width: 100%;
+        min-height: 44px; /* Touch target */
+        font-size: 0.85rem;
+    }
+    
+    .compare-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: var(--spacing-sm);
+    }
+    
+    .compare-actions .btn {
+        width: 100%;
+        min-height: 44px;
+    }
+    
+    /* Info buttons mobile */
+    .info-icon-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        min-width: 28px;
+        min-height: 28px;
+    }
+    
+    /* Modals mobile */
+    .modal-overlay,
+    .search-info-modal,
+    .feedback-modal,
+    .complexity-graph-modal {
+        padding: var(--spacing-sm);
+        align-items: flex-start;
+        padding-top: var(--spacing-lg);
+    }
+    
+    .modal-content,
+    .search-info-modal-content,
+    .feedback-modal-content,
+    .complexity-graph-content {
+        width: 95% !important;
+        max-width: 95% !important;
+        padding: var(--spacing-md);
+        max-height: 90vh;
+        margin: 0;
+    }
+    
+    .modal-close,
+    .search-info-close-btn,
+    .feedback-close-btn,
+    .close-complexity-graph {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 24px;
+    }
+    
+    .search-info-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--spacing-sm);
     }
     
     .language-checkboxes {
@@ -2839,6 +2963,7 @@ select:focus {
     .lang-checkbox {
         padding: 0.5rem;
         font-size: 0.7rem;
+        min-height: 44px; /* Touch target */
     }
     
     .lang-checkbox .lang-icon-img {
@@ -2895,7 +3020,7 @@ select:focus {
     .track-time .time-format-select {
         width: 100%;
         max-width: 100px;
-        min-height: 36px;
+        min-height: 44px; /* Touch target */
         padding: 0.4rem;
         font-size: 0.8rem;
     }
@@ -2970,6 +3095,43 @@ select:focus {
         padding: var(--spacing-sm);
         font-size: 0.8rem;
     }
+    
+    /* Search container mobile */
+    .search-container {
+        max-height: 250px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .search-item {
+        width: 35px;
+        height: 35px;
+        font-size: 0.7rem;
+    }
+    
+    /* Grid container mobile */
+    .grid-container {
+        max-height: 300px;
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Tree/Graph containers mobile */
+    .tree-container,
+    .graph-container {
+        max-height: 300px;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* DP container mobile */
+    .dp-container {
+        max-height: 300px;
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 @media (max-width: 480px) {
@@ -2979,6 +3141,7 @@ select:focus {
 
     .main-content {
         padding: var(--spacing-sm);
+        overflow-x: hidden;
     }
     
     .main-header {
@@ -3009,6 +3172,7 @@ select:focus {
         padding: 0.4rem 0.5rem;
         font-size: 0.6rem;
         letter-spacing: 0.5px;
+        min-height: 44px; /* Touch target */
     }
     
     .section-header {
@@ -3027,6 +3191,8 @@ select:focus {
     .bars-container {
         height: 180px;
         padding: var(--spacing-sm);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .bar {
@@ -3043,6 +3209,35 @@ select:focus {
     .grid-container {
         gap: 2px;
         padding: var(--spacing-sm);
+        max-height: 250px;
+    }
+    
+    /* Compare panels small mobile */
+    .compare-panel {
+        padding: var(--spacing-xs);
+    }
+    
+    .compare-panel h4 {
+        font-size: 0.75rem;
+    }
+    
+    .compare-panel .bars-container.compare-bars,
+    .compare-panel .tree-container.compare-tree,
+    .compare-panel .graph-container.compare-graph,
+    .compare-panel .dp-container.compare-dp,
+    .compare-panel .grid-container.compare-grid {
+        height: 150px;
+        min-height: 150px;
+        max-height: 150px;
+    }
+    
+    .compare-selectors {
+        gap: var(--spacing-xs);
+    }
+    
+    .compare-select {
+        font-size: 0.75rem;
+        padding: 0.4rem;
     }
     
     .language-checkboxes {
@@ -3052,6 +3247,7 @@ select:focus {
     .lang-checkbox {
         padding: 0.6rem;
         font-size: 0.75rem;
+        min-height: 44px; /* Touch target */
     }
     
     .track-lang .lang-name {
@@ -3078,7 +3274,14 @@ select:focus {
         min-height: 44px; /* Touch target size */
     }
     
-    .control-group select {
+    .btn-preset {
+        min-height: 44px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+    }
+    
+    .control-group select,
+    .control-group input[type="range"] {
         min-height: 44px; /* Touch target size */
         font-size: 0.9rem;
     }
@@ -3090,6 +3293,11 @@ select:focus {
     
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .stat-item {
+        padding: var(--spacing-xs);
+        font-size: 0.75rem;
     }
     
     .info-card {
@@ -3108,6 +3316,49 @@ select:focus {
     
     .speed-comparison {
         font-size: 0.75rem;
+    }
+    
+    /* Modals small mobile */
+    .modal-content,
+    .search-info-modal-content,
+    .feedback-modal-content,
+    .complexity-graph-content {
+        width: 98% !important;
+        max-width: 98% !important;
+        padding: var(--spacing-sm);
+        max-height: 95vh;
+    }
+    
+    .modal-content h2,
+    .search-info-modal-content h2,
+    .feedback-modal-content h2 {
+        font-size: 1.2rem;
+    }
+    
+    .search-info-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Info buttons small mobile */
+    .info-icon-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        min-width: 24px;
+        min-height: 24px;
+    }
+    
+    /* Search items small mobile */
+    .search-item {
+        width: 30px;
+        height: 30px;
+        font-size: 0.65rem;
+    }
+    
+    /* Tree/Graph SVG small mobile */
+    .tree-container svg,
+    .graph-container svg {
+        min-height: 200px;
     }
 }
 
