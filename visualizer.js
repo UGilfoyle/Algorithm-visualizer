@@ -893,24 +893,67 @@ class SortingVisualizer {
 
     renderArray(arr, container) {
         if (!container || !arr || arr.length === 0) return;
-        container.innerHTML = '';
-        const maxVal = Math.max(...arr);
-        if (maxVal === 0) return;
+        
+        // Use requestAnimationFrame to ensure container is measured
+        requestAnimationFrame(() => {
+            try {
+                container.innerHTML = '';
+                const maxVal = Math.max(...arr);
+                if (maxVal === 0 || isNaN(maxVal)) return;
 
-        const shouldSample = arr.length > 1000;
-        const sampleSize = shouldSample ? 1000 : arr.length;
-        const step = shouldSample ? Math.ceil(arr.length / sampleSize) : 1;
+                const shouldSample = arr.length > 1000;
+                const sampleSize = shouldSample ? 1000 : arr.length;
+                const step = shouldSample ? Math.ceil(arr.length / sampleSize) : 1;
 
-        for (let i = 0; i < arr.length; i += step) {
-            const val = arr[i];
-            const bar = document.createElement('div');
-            bar.className = 'bar';
-            bar.style.height = `${(val / maxVal) * 100}%`;
-            if (shouldSample) {
-                bar.style.width = `${step * 100 / sampleSize}%`;
+                // Calculate bar width after container is in DOM and visible
+                const gap = 2;
+                const containerPadding = 32;
+                const containerWidth = container.clientWidth || container.offsetWidth || 800;
+                const availableWidth = Math.max(100, containerWidth - containerPadding);
+                const totalBars = shouldSample ? sampleSize : arr.length;
+                
+                // Calculate bar width to fit container
+                let barWidth = null;
+                let useFlex = false;
+                
+                if (arr.length <= 200) {
+                    useFlex = true;
+                } else {
+                    const calculatedWidth = (availableWidth / totalBars) - gap;
+                    barWidth = Math.max(1, Math.min(calculatedWidth, 30));
+                    if (barWidth < 2) {
+                        barWidth = 2;
+                    }
+                }
+
+                for (let i = 0; i < arr.length; i += step) {
+                    const val = arr[i];
+                    if (isNaN(val)) continue;
+                    
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    bar.style.height = `${(val / maxVal) * 100}%`;
+                    
+                    // Set width based on array size
+                    if (useFlex) {
+                        bar.style.flex = '1 1 auto';
+                        bar.style.minWidth = '0';
+                    } else if (barWidth !== null) {
+                        bar.style.width = `${barWidth}px`;
+                        bar.style.minWidth = `${barWidth}px`;
+                        bar.style.maxWidth = `${barWidth}px`;
+                        bar.style.flexShrink = '0';
+                        bar.style.flexGrow = '0';
+                    } else if (shouldSample) {
+                        bar.style.width = `${step * 100 / sampleSize}%`;
+                    }
+                    
+                    container.appendChild(bar);
+                }
+            } catch (error) {
+                console.error('Error rendering array:', error);
             }
-            container.appendChild(bar);
-        }
+        });
     }
 
     async runAlgorithmForComparison(algoKey, langKey, array, container, panelNum) {
@@ -966,27 +1009,71 @@ class SortingVisualizer {
             },
             render: (comparing = [], swapping = [], sorted = []) => {
                 if (!container) return;
-                container.innerHTML = '';
-                const maxVal = Math.max(...array);
-                const shouldSample = array.length > 1000;
-                const sampleSize = shouldSample ? 1000 : array.length;
-                const step = shouldSample ? Math.ceil(array.length / sampleSize) : 1;
+                
+                // Use requestAnimationFrame to ensure container is measured
+                requestAnimationFrame(() => {
+                    try {
+                        container.innerHTML = '';
+                        const maxVal = Math.max(...array);
+                        if (maxVal === 0 || isNaN(maxVal)) return;
+                        
+                        const shouldSample = array.length > 1000;
+                        const sampleSize = shouldSample ? 1000 : array.length;
+                        const step = shouldSample ? Math.ceil(array.length / sampleSize) : 1;
 
-                for (let i = 0; i < array.length; i += step) {
-                    const val = array[i];
-                    const bar = document.createElement('div');
-                    bar.className = 'bar';
-                    bar.style.height = `${(val / maxVal) * 100}%`;
-                    if (shouldSample) {
-                        bar.style.width = `${step * 100 / sampleSize}%`;
+                        // Calculate bar width after container is in DOM and visible
+                        const gap = 2;
+                        const containerPadding = 32;
+                        const containerWidth = container.clientWidth || container.offsetWidth || 800;
+                        const availableWidth = Math.max(100, containerWidth - containerPadding);
+                        const totalBars = shouldSample ? sampleSize : array.length;
+                        
+                        // Calculate bar width to fit container
+                        let barWidth = null;
+                        let useFlex = false;
+                        
+                        if (array.length <= 200) {
+                            useFlex = true;
+                        } else {
+                            const calculatedWidth = (availableWidth / totalBars) - gap;
+                            barWidth = Math.max(1, Math.min(calculatedWidth, 30));
+                            if (barWidth < 2) {
+                                barWidth = 2;
+                            }
+                        }
+
+                        for (let i = 0; i < array.length; i += step) {
+                            const val = array[i];
+                            if (isNaN(val)) continue;
+                            
+                            const bar = document.createElement('div');
+                            bar.className = 'bar';
+                            bar.style.height = `${(val / maxVal) * 100}%`;
+                            
+                            // Set width based on array size
+                            if (useFlex) {
+                                bar.style.flex = '1 1 auto';
+                                bar.style.minWidth = '0';
+                            } else if (barWidth !== null) {
+                                bar.style.width = `${barWidth}px`;
+                                bar.style.minWidth = `${barWidth}px`;
+                                bar.style.maxWidth = `${barWidth}px`;
+                                bar.style.flexShrink = '0';
+                                bar.style.flexGrow = '0';
+                            } else if (shouldSample) {
+                                bar.style.width = `${step * 100 / sampleSize}%`;
+                            }
+
+                            if (sorted.includes(i)) bar.classList.add('sorted');
+                            else if (swapping.includes(i)) bar.classList.add('swapping');
+                            else if (comparing.includes(i)) bar.classList.add('comparing');
+
+                            container.appendChild(bar);
+                        }
+                    } catch (error) {
+                        console.error('Error rendering comparison:', error);
                     }
-
-                    if (sorted.includes(i)) bar.classList.add('sorted');
-                    else if (swapping.includes(i)) bar.classList.add('swapping');
-                    else if (comparing.includes(i)) bar.classList.add('comparing');
-
-                    container.appendChild(bar);
-                }
+                });
             }
         };
 
@@ -3614,10 +3701,18 @@ class SearchingVisualizer {
         this.isComparePaused = false;
         this.updateCompareButtonStates();
 
+        // Get containers
+        const container1 = document.getElementById('searchBars1');
+        const container2 = document.getElementById('searchBars2');
+        
+        // Render initial arrays in comparison containers
+        this.renderArrayForComparison(commonArray, container1);
+        this.renderArrayForComparison(commonArray, container2);
+        
         // Run both algorithms in parallel
         const [result1, result2] = await Promise.all([
-            this.runAlgorithmForComparison(algo1, lang1, [...commonArray], document.getElementById('searchBars1'), 1, target),
-            this.runAlgorithmForComparison(algo2, lang2, [...commonArray], document.getElementById('searchBars2'), 2, target)
+            this.runAlgorithmForComparison(algo1, lang1, [...commonArray], container1, 1, target),
+            this.runAlgorithmForComparison(algo2, lang2, [...commonArray], container2, 2, target)
         ]);
 
         if (!this.isComparePaused && this.isCompareRunning) {
@@ -3668,18 +3763,26 @@ class SearchingVisualizer {
             },
             render: (current = -1, found = -1, checked = []) => {
                 if (!container) return;
-                container.innerHTML = '';
+                
+                // Use requestAnimationFrame to ensure container is measured
+                requestAnimationFrame(() => {
+                    try {
+                        container.innerHTML = '';
 
-                array.forEach((val, idx) => {
-                    const item = document.createElement('div');
-                    item.className = 'search-item';
-                    item.textContent = val;
+                        array.forEach((val, idx) => {
+                            const item = document.createElement('div');
+                            item.className = 'search-item';
+                            item.textContent = val;
 
-                    if (idx === found) item.classList.add('found');
-                    else if (idx === current) item.classList.add('current');
-                    else if (checked.includes(idx)) item.classList.add('checked');
+                            if (idx === found) item.classList.add('found');
+                            else if (idx === current) item.classList.add('current');
+                            else if (checked.includes(idx)) item.classList.add('checked');
 
-                    container.appendChild(item);
+                            container.appendChild(item);
+                        });
+                    } catch (error) {
+                        console.error('Error rendering comparison search:', error);
+                    }
                 });
             }
         };
