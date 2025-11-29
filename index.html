@@ -1678,19 +1678,85 @@
         </section>
     </main>
 
-    <div id="playgroundModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-close" id="closePlaygroundModal">&times;</div>
-            <div class="coming-soon-content">
-                <h2 class="coming-soon-title">Coming Soon</h2>
-                <p class="coming-soon-text">
-                    We're working on this so you can <strong>test your DSA skills</strong> and <strong>practice
-                        more</strong>.
-                </p>
-                <div class="coming-soon-icon">⚔️</div>
+    <!-- Playground Section -->
+    <section id="playground" class="section">
+        <div class="section-header">
+            <h1>Code Playground</h1>
+            <p>Write, run, and test your code in real-time</p>
+        </div>
+
+        <div class="playground-container">
+            <div class="playground-controls">
+                <div class="control-group">
+                    <label>Language:</label>
+                    <select id="playgroundLanguage" class="playground-select">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python (via Pyodide)</option>
+                        <option value="typescript">TypeScript</option>
+                    </select>
+                </div>
+                <div class="playground-actions">
+                    <button id="runCode" class="btn btn-primary">▶ Run Code</button>
+                    <button id="clearCode" class="btn btn-outline">🗑️ Clear</button>
+                    <button id="resetCode" class="btn btn-outline">↻ Reset</button>
+                </div>
+            </div>
+
+            <div class="playground-split">
+                <div class="playground-editor-panel">
+                    <div class="panel-header">
+                        <h3>Code Editor</h3>
+                        <div class="editor-info">
+                            <span id="editorLineCount">Line 1, Col 1</span>
+                        </div>
+                    </div>
+                    <div class="code-editor-container">
+                        <textarea id="playgroundEditor" class="playground-editor" placeholder="// Write your code here...
+// Example:
+function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log('Fibonacci(10):', fibonacci(10));
+
+// Try sorting an array
+const arr = [64, 34, 25, 12, 22, 11, 90];
+console.log('Original:', arr);
+arr.sort((a, b) => a - b);
+console.log('Sorted:', arr);"></textarea>
+                    </div>
+                </div>
+
+                <div class="playground-output-panel">
+                    <div class="panel-header">
+                        <h3>Output</h3>
+                        <button id="clearOutput" class="btn btn-outline btn-small">Clear Output</button>
+                    </div>
+                    <div id="playgroundOutput" class="playground-output">
+                        <div class="output-placeholder">
+                            <p>Output will appear here when you run your code</p>
+                            <p class="output-hint">💡 Tip: Use console.log() to print values</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="playground-templates">
+                <div class="panel-header">
+                    <h3>Code Templates</h3>
+                </div>
+                <div class="template-grid">
+                    <button class="template-btn" data-template="sorting">Sorting Algorithms</button>
+                    <button class="template-btn" data-template="searching">Searching Algorithms</button>
+                    <button class="template-btn" data-template="recursion">Recursion Examples</button>
+                    <button class="template-btn" data-template="data-structures">Data Structures</button>
+                    <button class="template-btn" data-template="math">Mathematical Algorithms</button>
+                    <button class="template-btn" data-template="strings">String Algorithms</button>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <footer class="main-footer">
         <p>ALGORITHM UNIVERSE | 50+ Algorithms | 12 Programming Languages | Interactive Sound</p>
@@ -1775,6 +1841,7 @@
     <script src="audio.js"></script>
     <script src="algorithms.js"></script>
     <script src="visualizer.js"></script>
+    <script src="playground.js"></script>
     <script src="main.js"></script>
     <script>
         if ('serviceWorker' in navigator) {

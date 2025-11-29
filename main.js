@@ -135,7 +135,7 @@ class App {
         };
         this.init();
     }
-
+    
     init() {
         this.setupNavigation();
         this.setupAlgorithmSelectors();
@@ -144,63 +144,20 @@ class App {
         // Initialize icons after a short delay to ensure LANGUAGE_ICONS is loaded
         setTimeout(() => initLanguageIcons(), 100);
     }
-
+    
     setupNavigation() {
         const navButtons = document.querySelectorAll('.nav-btn');
-
+        
         navButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const section = btn.dataset.section;
-                if (section === 'playground') {
-                    this.showPlaygroundModal();
-                    return;
-                }
                 this.switchSection(section);
                 navButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             });
         });
     }
-
-    showPlaygroundModal() {
-        const modal = document.getElementById('playgroundModal');
-        if (modal) {
-            modal.style.display = 'flex';
-        }
-    }
-
-    hidePlaygroundModal() {
-        const modal = document.getElementById('playgroundModal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
-
-    setupPlaygroundModal() {
-        const closeBtn = document.getElementById('closePlaygroundModal');
-        const modal = document.getElementById('playgroundModal');
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                this.hidePlaygroundModal();
-            });
-        }
-
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.hidePlaygroundModal();
-                }
-            });
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
-                this.hidePlaygroundModal();
-            }
-        });
-    }
-
+    
     switchSection(sectionId) {
         // Stop all running visualizations before switching
         if (typeof window.stopAllVisualizations === 'function') {
@@ -215,7 +172,7 @@ class App {
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
         });
-
+        
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.classList.add('active');
@@ -223,10 +180,10 @@ class App {
             this.onSectionChange(sectionId);
         }
     }
-
+    
     onSectionChange(sectionId) {
         setTimeout(() => {
-            switch (sectionId) {
+        switch (sectionId) {
                 case 'sorting':
                     if (typeof sortingVisualizer !== 'undefined' && sortingVisualizer) {
                         sortingVisualizer.stop();
@@ -239,7 +196,7 @@ class App {
                         searchingVisualizer.generateArray();
                     }
                     break;
-                case 'pathfinding':
+            case 'pathfinding':
                     if (typeof pathfindingVisualizer !== 'undefined' && pathfindingVisualizer) {
                         pathfindingVisualizer.stop();
                         pathfindingVisualizer.shouldStop = true;
@@ -307,13 +264,18 @@ class App {
                             if (mathTime) mathTime.textContent = '0ms';
                         }, 100);
                     }
-                    break;
+                break;
                 case 'arena':
                     if (typeof languageArena !== 'undefined' && languageArena) {
                         languageArena.reset();
-                    }
-                    break;
-            }
+                }
+                break;
+                case 'playground':
+                    if (typeof playgroundManager !== 'undefined' && playgroundManager) {
+                        playgroundManager.init();
+                }
+                break;
+        }
             this.loadAlgorithmInfo();
         }, 150);
     }
@@ -587,8 +549,8 @@ class App {
                     dpVisualizer.stop();
                     if (dpVisualizer.reset) {
                         dpVisualizer.reset();
-                    }
-                }
+        }
+    }
                 break;
             case 'strings':
                 if (typeof stringVisualizer !== 'undefined' && stringVisualizer) {
@@ -664,7 +626,7 @@ function initTheme() {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     const app = new App();
-
+    
     console.log(`
     ᛭ ALGORITHM UNIVERSE ᛭
     
