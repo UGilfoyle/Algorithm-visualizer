@@ -747,8 +747,28 @@ console.log('Sorted:', arr);`;
             this.addOutput(`\n⏱️ Execution time: ${executionTime}ms`, 'info');
 
         } catch (error) {
-            this.addOutput(`❌ Error: ${error.message}`, 'error');
-            this.addOutput(`   at ${error.stack || 'unknown location'}`, 'error');
+            // Check if it's a syntax error
+            if (error instanceof SyntaxError) {
+                this.addOutput(`❌ Syntax Error: ${error.message}`, 'error');
+                if (error.stack) {
+                    const stackLines = error.stack.split('\n').slice(0, 3);
+                    stackLines.forEach(line => {
+                        if (line.trim()) {
+                            this.addOutput(`   ${line.trim()}`, 'error');
+                        }
+                    });
+                }
+            } else {
+                this.addOutput(`❌ Error: ${error.message}`, 'error');
+                if (error.stack) {
+                    const stackLines = error.stack.split('\n').slice(0, 3);
+                    stackLines.forEach(line => {
+                        if (line.trim()) {
+                            this.addOutput(`   ${line.trim()}`, 'error');
+                        }
+                    });
+                }
+            }
         } finally {
             // Restore original console methods
             console.log = this.originalConsole.log;
@@ -791,33 +811,52 @@ console.log('Sorted:', arr);`;
 
             const result = await response.json();
             
-            // Display results
-            if (result.run && result.run.stdout) {
-                this.addOutput(result.run.stdout, 'log');
-            }
-            
-            if (result.run && result.run.stderr) {
-                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
-            }
-            
+            // Check for compilation errors first
             if (result.compile && result.compile.stderr) {
-                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+                this.addOutput(`❌ Compilation Error:\n${result.compile.stderr}`, 'error');
+                if (result.compile.stdout) {
+                    this.addOutput(`\nCompilation Output:\n${result.compile.stdout}`, 'info');
+                }
+                return; // Don't run if compilation failed
             }
             
-            if (result.run && result.run.code !== 0) {
-                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            // Check if compilation was successful but no run happened
+            if (result.compile && result.compile.code !== 0) {
+                this.addOutput(`❌ Compilation failed with exit code: ${result.compile.code}`, 'error');
+                return;
             }
             
-            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
-                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            // Display runtime results
+            if (result.run) {
+                if (result.run.stdout) {
+                    this.addOutput(result.run.stdout, 'log');
+                }
+                
+                if (result.run.stderr) {
+                    this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
+                }
+                
+                if (result.run.code !== 0) {
+                    this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+                }
+                
+                // Success message if no output
+                if (!result.run.stdout && !result.run.stderr && result.run.code === 0) {
+                    this.addOutput('✓ Code executed successfully (no output)', 'success');
+                }
+            } else {
+                this.addOutput('⚠️ Code compiled but did not execute', 'warn');
             }
 
         } catch (error) {
-            // Fallback: Try alternative API
-            try {
-                this.addOutput('⚠️ Trying alternative execution method...', 'info');
-                await this.runJavaFallback(code);
-            } catch (fallbackError) {
+            // Check for specific error types
+            if (error.message.includes('429')) {
+                this.addOutput(`❌ Rate limit exceeded. Please wait a moment and try again.`, 'error');
+                this.addOutput('   The code execution service is temporarily unavailable due to high traffic.', 'error');
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                this.addOutput(`❌ Network Error: ${error.message}`, 'error');
+                this.addOutput('   Please check your internet connection and try again.', 'error');
+            } else {
                 this.addOutput(`❌ Error: ${error.message}`, 'error');
                 this.addOutput('   Make sure you have a public class named "Main" with a main method.', 'error');
                 this.addOutput('   Note: Code execution requires internet connection.', 'error');
@@ -871,33 +910,52 @@ console.log('Sorted:', arr);`;
 
             const result = await response.json();
             
-            // Display results
-            if (result.run && result.run.stdout) {
-                this.addOutput(result.run.stdout, 'log');
-            }
-            
-            if (result.run && result.run.stderr) {
-                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
-            }
-            
+            // Check for compilation errors first
             if (result.compile && result.compile.stderr) {
-                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+                this.addOutput(`❌ Compilation Error:\n${result.compile.stderr}`, 'error');
+                if (result.compile.stdout) {
+                    this.addOutput(`\nCompilation Output:\n${result.compile.stdout}`, 'info');
+                }
+                return; // Don't run if compilation failed
             }
             
-            if (result.run && result.run.code !== 0) {
-                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            // Check if compilation was successful but no run happened
+            if (result.compile && result.compile.code !== 0) {
+                this.addOutput(`❌ Compilation failed with exit code: ${result.compile.code}`, 'error');
+                return;
             }
             
-            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
-                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            // Display runtime results
+            if (result.run) {
+                if (result.run.stdout) {
+                    this.addOutput(result.run.stdout, 'log');
+                }
+                
+                if (result.run.stderr) {
+                    this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
+                }
+                
+                if (result.run.code !== 0) {
+                    this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+                }
+                
+                // Success message if no output
+                if (!result.run.stdout && !result.run.stderr && result.run.code === 0) {
+                    this.addOutput('✓ Code executed successfully (no output)', 'success');
+                }
+            } else {
+                this.addOutput('⚠️ Code compiled but did not execute', 'warn');
             }
 
         } catch (error) {
-            // Fallback: Try alternative API
-            try {
-                this.addOutput('⚠️ Trying alternative execution method...', 'info');
-                await this.runCppFallback(code);
-            } catch (fallbackError) {
+            // Check for specific error types
+            if (error.message.includes('429')) {
+                this.addOutput(`❌ Rate limit exceeded. Please wait a moment and try again.`, 'error');
+                this.addOutput('   The code execution service is temporarily unavailable due to high traffic.', 'error');
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                this.addOutput(`❌ Network Error: ${error.message}`, 'error');
+                this.addOutput('   Please check your internet connection and try again.', 'error');
+            } else {
                 this.addOutput(`❌ Error: ${error.message}`, 'error');
                 this.addOutput('   Make sure your code includes necessary headers and has a main() function.', 'error');
                 this.addOutput('   Note: Code execution requires internet connection.', 'error');
@@ -951,32 +1009,57 @@ console.log('Sorted:', arr);`;
 
             const result = await response.json();
             
-            // Display results
-            if (result.run && result.run.stdout) {
-                this.addOutput(result.run.stdout, 'log');
-            }
-            
-            if (result.run && result.run.stderr) {
-                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
-            }
-            
+            // Check for compilation errors first
             if (result.compile && result.compile.stderr) {
-                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+                this.addOutput(`❌ Compilation Error:\n${result.compile.stderr}`, 'error');
+                if (result.compile.stdout) {
+                    this.addOutput(`\nCompilation Output:\n${result.compile.stdout}`, 'info');
+                }
+                return; // Don't run if compilation failed
             }
             
-            if (result.run && result.run.code !== 0) {
-                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            // Check if compilation was successful but no run happened
+            if (result.compile && result.compile.code !== 0) {
+                this.addOutput(`❌ Compilation failed with exit code: ${result.compile.code}`, 'error');
+                return;
             }
             
-            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
-                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            // Display runtime results
+            if (result.run) {
+                if (result.run.stdout) {
+                    this.addOutput(result.run.stdout, 'log');
+                }
+                
+                if (result.run.stderr) {
+                    this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
+                }
+                
+                if (result.run.code !== 0) {
+                    this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+                }
+                
+                // Success message if no output
+                if (!result.run.stdout && !result.run.stderr && result.run.code === 0) {
+                    this.addOutput('✓ Code executed successfully (no output)', 'success');
+                }
+            } else {
+                this.addOutput('⚠️ Code compiled but did not execute', 'warn');
             }
 
         } catch (error) {
-            this.addOutput(`❌ Error: ${error.message}`, 'error');
-            this.addOutput('   Note: Code execution requires internet connection.', 'error');
-            this.addOutput('   Example Python code:', 'info');
-            this.addOutput('   print("Hello, World!")', 'info');
+            // Check for specific error types
+            if (error.message.includes('429')) {
+                this.addOutput(`❌ Rate limit exceeded. Please wait a moment and try again.`, 'error');
+                this.addOutput('   The code execution service is temporarily unavailable due to high traffic.', 'error');
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                this.addOutput(`❌ Network Error: ${error.message}`, 'error');
+                this.addOutput('   Please check your internet connection and try again.', 'error');
+            } else {
+                this.addOutput(`❌ Error: ${error.message}`, 'error');
+                this.addOutput('   Note: Code execution requires internet connection.', 'error');
+                this.addOutput('   Example Python code:', 'info');
+                this.addOutput('   print("Hello, World!")', 'info');
+            }
         }
     }
 
@@ -1013,47 +1096,72 @@ console.log('Sorted:', arr);`;
 
             const result = await response.json();
             
-            // Display results
-            if (result.run && result.run.stdout) {
-                this.addOutput(result.run.stdout, 'log');
-            }
-            
-            if (result.run && result.run.stderr) {
-                this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
-            }
-            
+            // Check for compilation errors first
             if (result.compile && result.compile.stderr) {
-                this.addOutput(`\n❌ Compilation Errors:\n${result.compile.stderr}`, 'error');
+                this.addOutput(`❌ Compilation Error:\n${result.compile.stderr}`, 'error');
+                if (result.compile.stdout) {
+                    this.addOutput(`\nCompilation Output:\n${result.compile.stdout}`, 'info');
+                }
+                return; // Don't run if compilation failed
             }
             
-            if (result.run && result.run.code !== 0) {
-                this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+            // Check if compilation was successful but no run happened
+            if (result.compile && result.compile.code !== 0) {
+                this.addOutput(`❌ Compilation failed with exit code: ${result.compile.code}`, 'error');
+                return;
             }
             
-            if (result.run && !result.run.stdout && !result.run.stderr && (!result.compile || !result.compile.stderr)) {
-                this.addOutput('✓ Code executed successfully (no output)', 'success');
+            // Display runtime results
+            if (result.run) {
+                if (result.run.stdout) {
+                    this.addOutput(result.run.stdout, 'log');
+                }
+                
+                if (result.run.stderr) {
+                    this.addOutput(`\n⚠️ Runtime Errors/Warnings:\n${result.run.stderr}`, 'warn');
+                }
+                
+                if (result.run.code !== 0) {
+                    this.addOutput(`\n⚠️ Program exited with code: ${result.run.code}`, 'warn');
+                }
+                
+                // Success message if no output
+                if (!result.run.stdout && !result.run.stderr && result.run.code === 0) {
+                    this.addOutput('✓ Code executed successfully (no output)', 'success');
+                }
+            } else {
+                this.addOutput('⚠️ Code compiled but did not execute', 'warn');
             }
 
         } catch (error) {
-            // Fallback: Try transpiling TypeScript to JavaScript
-            try {
-                this.addOutput('⚠️ Trying to transpile TypeScript to JavaScript...', 'info');
-                // Simple TypeScript to JavaScript transpilation (basic)
-                // Remove type annotations for basic transpilation
-                let jsCode = code
-                    .replace(/:\s*\w+(\[\])?/g, '') // Remove type annotations
-                    .replace(/<[^>]+>/g, ''); // Remove generic types
-                
-                this.addOutput('⚠️ Note: Type checking is disabled. Running as JavaScript...', 'warn');
-                this.runJavaScript(jsCode);
-            } catch (fallbackError) {
-                this.addOutput(`❌ Error: ${error.message}`, 'error');
-                this.addOutput('   Note: Code execution requires internet connection.', 'error');
-                this.addOutput('   Example TypeScript code:', 'info');
-                this.addOutput('   function greet(name: string): void {', 'info');
-                this.addOutput('       console.log("Hello, " + name);', 'info');
-                this.addOutput('   }', 'info');
-                this.addOutput('   greet("World");', 'info');
+            // Check for specific error types
+            if (error.message.includes('429')) {
+                this.addOutput(`❌ Rate limit exceeded. Please wait a moment and try again.`, 'error');
+                this.addOutput('   The code execution service is temporarily unavailable due to high traffic.', 'error');
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                this.addOutput(`❌ Network Error: ${error.message}`, 'error');
+                this.addOutput('   Please check your internet connection and try again.', 'error');
+            } else {
+                // Fallback: Try transpiling TypeScript to JavaScript
+                try {
+                    this.addOutput('⚠️ TypeScript compilation failed. Trying to transpile to JavaScript...', 'warn');
+                    // Simple TypeScript to JavaScript transpilation (basic)
+                    // Remove type annotations for basic transpilation
+                    let jsCode = code
+                        .replace(/:\s*\w+(\[\])?/g, '') // Remove type annotations
+                        .replace(/<[^>]+>/g, ''); // Remove generic types
+                    
+                    this.addOutput('⚠️ Note: Type checking is disabled. Running as JavaScript...', 'warn');
+                    this.runJavaScript(jsCode);
+                } catch (fallbackError) {
+                    this.addOutput(`❌ Error: ${error.message}`, 'error');
+                    this.addOutput('   Note: Code execution requires internet connection.', 'error');
+                    this.addOutput('   Example TypeScript code:', 'info');
+                    this.addOutput('   function greet(name: string): void {', 'info');
+                    this.addOutput('       console.log("Hello, " + name);', 'info');
+                    this.addOutput('   }', 'info');
+                    this.addOutput('   greet("World");', 'info');
+                }
             }
         }
     }
