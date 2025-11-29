@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="public, max-age=31536000">
     <meta name="theme-color" content="#1a1a2e">
     <meta id="csp-meta" http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:* https://api.bigdatacloud.net https://ipapi.co https://ip-api.com https://api.ipgeolocation.io https://ipwho.is https://www.google-analytics.com https://analytics.google.com;">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:* https://api.bigdatacloud.net https://ipapi.co https://ip-api.com https://api.ipgeolocation.io https://ipwho.is https://www.google-analytics.com https://analytics.google.com;">
     <title>Algorithm Universe | 100+ Algorithm Visualizations</title>
 
     <!-- Resource Hints -->
@@ -1600,14 +1600,14 @@
                         <label class="lang-checkbox"><input type="checkbox" value="bash"><img src="icons/bash.svg"
                                 alt="Bash" class="lang-icon-img" loading="lazy" /> Bash</label>
                     </div>
-                    </div>
+                </div>
                 <div class="btn-group">
                     <button id="startRace" class="btn btn-primary btn-large">
                         START RACE
                     </button>
                     <button id="resetRace" class="btn btn-outline">Reset</button>
                 </div>
-                    </div>
+            </div>
 
             <div class="race-arena">
                 <div class="race-track-header">
@@ -1618,8 +1618,8 @@
                     </div>
                 <div class="race-tracks" id="raceTracks">
                     <!-- Race tracks will be generated dynamically -->
-                </div>
                     </div>
+                </div>
 
             <div class="arena-results" id="arenaResults" style="display: none;">
                 <h3>RACE RESULTS</h3>
@@ -1638,12 +1638,12 @@
                         <span class="medal">III</span>
                         <span class="lang-name">-</span>
                         <span class="time">-</span>
-                    </div>
                 </div>
+                    </div>
                 <div class="speed-comparison" id="speedComparison">
                     <!-- Speed comparisons will be shown here -->
+                    </div>
                 </div>
-            </div>
 
             <!-- Complexity Graph Modal (Testing Feature) -->
             <div class="complexity-graph-modal" id="complexityGraphModal" style="display: none;">
@@ -1655,15 +1655,15 @@
                     <div class="complexity-graph-container" id="complexityGraphContainer">
                         <!-- Graph will be rendered here -->
                     </div>
+                    </div>
                 </div>
-            </div>
 
             <div class="arena-info">
                 <div class="info-card">
                     <h4>How It Works</h4>
                     <p>We simulate execution times based on real-world benchmarks for each language. Results are scaled
                         to show relative performance differences.</p>
-                </div>
+                    </div>
                 <div class="info-card">
                     <h4>Speed Factors</h4>
                     <ul>
@@ -1673,8 +1673,8 @@
                         <li><strong>PHP/Elixir:</strong> Server-side - moderate speed</li>
                         <li><strong>Python/Ruby:</strong> Interpreted - slower but flexible</li>
                     </ul>
+                    </div>
                 </div>
-            </div>
         </section>
     </main>
 
@@ -1683,7 +1683,7 @@
         <div class="section-header">
             <h1>Code Playground</h1>
             <p>Write, run, and test your code in real-time</p>
-        </div>
+                    </div>
 
         <div class="playground-container">
             <div class="playground-controls">
@@ -1694,7 +1694,7 @@
                         <option value="python">Python (via Pyodide)</option>
                         <option value="typescript">TypeScript</option>
                     </select>
-                </div>
+                    </div>
                 <div class="playground-actions">
                     <button id="runCode" class="btn btn-primary">▶ Run Code</button>
                     <button id="clearCode" class="btn btn-outline">🗑️ Clear</button>
@@ -1755,8 +1755,8 @@ console.log('Sorted:', arr);"></textarea>
                     <button class="template-btn" data-template="strings">String Algorithms</button>
                 </div>
             </div>
-        </div>
-    </section>
+            </div>
+        </section>
 
     <footer class="main-footer">
         <p>ALGORITHM UNIVERSE | 50+ Algorithms | 12 Programming Languages | Interactive Sound</p>
