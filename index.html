@@ -272,21 +272,21 @@
                     <div class="panel-header">
                         <h3>Code Implementation</h3>
                         <div class="language-tabs" id="languageTabs">
-                            <button class="lang-tab active" data-lang="python"><img src="icons/python.svg" alt="python"
+                            <button class="lang-tab active" data-lang="cpp"><img src="icons/cplusplus.svg" alt="cpp"
                                     class="lang-icon-img" />
-                                Python</button>
+                                C++</button>
                             <button class="lang-tab" data-lang="java"><img src="icons/java.svg" alt="java"
                                     class="lang-icon-img" />
                                 Java</button>
                             <button class="lang-tab" data-lang="node"><img src="icons/nodejs.svg" alt="node"
                                     class="lang-icon-img" />
                                 Node.js</button>
+                            <button class="lang-tab" data-lang="python"><img src="icons/python.svg" alt="python"
+                                    class="lang-icon-img" />
+                                Python</button>
                             <button class="lang-tab" data-lang="deno"><img src="icons/deno.png" alt="deno"
                                     class="lang-icon-img" />
                                 Deno</button>
-                            <button class="lang-tab" data-lang="cpp"><img src="icons/cplusplus.svg" alt="cpp"
-                                    class="lang-icon-img" />
-                                C++</button>
                             <button class="lang-tab" data-lang="c"><img src="icons/cplusplus.svg" alt="c"
                                     class="lang-icon-img" />
                                 C</button>
@@ -515,21 +515,21 @@
                     <div class="panel-header">
                         <h3>Code Implementation</h3>
                         <div class="language-tabs" id="searchLanguageTabs">
-                            <button class="lang-tab active" data-lang="python"><img src="icons/python.svg" alt="python"
+                            <button class="lang-tab active" data-lang="cpp"><img src="icons/cplusplus.svg" alt="cpp"
                                     class="lang-icon-img" />
-                                Python</button>
+                                C++</button>
                             <button class="lang-tab" data-lang="java"><img src="icons/java.svg" alt="java"
                                     class="lang-icon-img" />
                                 Java</button>
                             <button class="lang-tab" data-lang="node"><img src="icons/nodejs.svg" alt="node"
                                     class="lang-icon-img" />
                                 Node.js</button>
+                            <button class="lang-tab" data-lang="python"><img src="icons/python.svg" alt="python"
+                                    class="lang-icon-img" />
+                                Python</button>
                             <button class="lang-tab" data-lang="deno"><img src="icons/deno.png" alt="deno"
                                     class="lang-icon-img" />
                                 Deno</button>
-                            <button class="lang-tab" data-lang="cpp"><img src="icons/cplusplus.svg" alt="cpp"
-                                    class="lang-icon-img" />
-                                C++</button>
                             <button class="lang-tab" data-lang="c"><img src="icons/cplusplus.svg" alt="c"
                                     class="lang-icon-img" />
                                 C</button>
@@ -552,6 +552,7 @@
                     </div>
                     <div class="code-container">
                         <pre><code id="searchCodeDisplay" class="language-javascript"></code></pre>
+                        <button class="copy-btn" id="copySearchCode" title="Copy Code">📋</button>
                     </div>
                     <div class="algorithm-info" id="searchAlgorithmInfo">
                         <div class="info-grid">
@@ -1763,7 +1764,6 @@ console.log('Sorted:', arr);"></textarea>
     <footer class="main-footer">
         <p>ALGORITHM UNIVERSE | 50+ Algorithms | 12 Programming Languages | Interactive Sound</p>
         <p class="footer-author">᛭ Crafted by <span class="author-name">ᚨᚲᚨᛊᚺ ᚲᚨᛁᚾᛏᚢᚱᚨ</span> ᛭</p>
-        <button class="feedback-btn" id="feedbackBtn">💬 Provide Feedback</button>
     </footer>
 
     <!-- Feedback Modal -->
@@ -1829,6 +1829,8 @@ console.log('Sorted:', arr);"></textarea>
 
             <textarea id="feedbackText" class="feedback-textarea" placeholder="Tell us what you think... (optional)"
                 rows="5"></textarea>
+
+            <input type="email" id="feedbackEmail" class="feedback-email" placeholder="Email (optional)" />
 
             <div class="feedback-actions">
                 <button class="btn btn-primary" id="submitFeedback">Submit Feedback</button>

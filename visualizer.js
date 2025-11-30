@@ -622,7 +622,9 @@ class SortingVisualizer {
         // Use requestAnimationFrame for smoother rendering and to ensure container is measured
         requestAnimationFrame(() => {
             try {
+                // Clear container completely to remove any lingering visual states
                 targetContainer.innerHTML = '';
+                
                 const maxVal = Math.max(...this.array);
                 
                 if (maxVal === 0 || isNaN(maxVal)) {
@@ -636,9 +638,9 @@ class SortingVisualizer {
                 const availableWidth = Math.max(100, containerWidth - containerPadding);
                 const totalBars = shouldSample ? sampleSize : this.array.length;
                 
-                // Calculate bar width to fit container, but allow scrolling if needed
-                // For small arrays (<=200), bars fill the container
-                // For larger arrays, calculate width to fit, but minimum 2px for visibility
+                // Calculate bar width to fit container, but ensure visibility
+                // For arrays <= 200: bars fill container (flex)
+                // For arrays > 200: calculate width, minimum 2px for visibility, allow horizontal scrolling
                 let barWidth = null;
                 let useFlex = false;
                 
@@ -646,13 +648,14 @@ class SortingVisualizer {
                     // Small arrays: use flex to fill container
                     useFlex = true;
                 } else {
-                    // Large arrays: calculate width to fit container width
+                    // Large arrays: calculate width to fit container, but ensure minimum 2px for visibility
                     const calculatedWidth = (availableWidth / totalBars) - gap;
-                    // Use minimum 2px for better visibility, but allow smaller if needed for scrolling
-                    barWidth = Math.max(1, Math.min(calculatedWidth, 30)); // min 1px, max 30px
+                    // Minimum 2px width for visibility, maximum 30px for aesthetics
+                    barWidth = Math.max(2, Math.min(calculatedWidth, 30));
                     
-                    // If calculated width is very small (< 2px), use 2px and allow scrolling
-                    if (barWidth < 2) {
+                    // If bars would be too small, ensure they're at least 2px and container will scroll
+                    // This ensures all bars are visible when scrolling
+                    if (calculatedWidth < 2) {
                         barWidth = 2;
                     }
                 }
@@ -671,7 +674,7 @@ class SortingVisualizer {
                         bar.style.flex = '1 1 auto';
                         bar.style.minWidth = '0';
                     } else if (barWidth !== null) {
-                        // Large arrays: explicit width to fit container or scroll
+                        // Large arrays: explicit width to ensure visibility and scrolling
                         bar.style.width = `${barWidth}px`;
                         bar.style.minWidth = `${barWidth}px`;
                         bar.style.maxWidth = `${barWidth}px`;
@@ -681,9 +684,14 @@ class SortingVisualizer {
                         bar.style.width = `${step * 100 / sampleSize}%`;
                     }
 
-                    if (sorted.includes(i)) bar.classList.add('sorted');
-                    else if (swapping.includes(i)) bar.classList.add('swapping');
-                    else if (comparing.includes(i)) bar.classList.add('comparing');
+                    // Apply visual states - only one state per bar (sorted > swapping > comparing)
+                    if (sorted.includes(i)) {
+                        bar.classList.add('sorted');
+                    } else if (swapping.includes(i)) {
+                        bar.classList.add('swapping');
+                    } else if (comparing.includes(i)) {
+                        bar.classList.add('comparing');
+                    }
 
                     targetContainer.appendChild(bar);
                 }
@@ -777,6 +785,10 @@ class SortingVisualizer {
             this.isRunning = false;
             this.pausedTime = 0;
             this.updateButtonStates();
+            // Show feedback modal after algorithm completion
+            if (typeof showFeedbackModal === 'function') {
+                setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+            }
         }
     }
 
@@ -846,6 +858,10 @@ class SortingVisualizer {
 
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
+        // Show feedback modal after comparison completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     stopComparison() {
@@ -1064,7 +1080,9 @@ class SortingVisualizer {
                 // Use requestAnimationFrame to ensure container is measured
                 requestAnimationFrame(() => {
                     try {
+                        // Clear container completely to remove any lingering visual states
                         container.innerHTML = '';
+                        
                         const maxVal = Math.max(...array);
                         if (maxVal === 0 || isNaN(maxVal)) return;
                         
@@ -1079,16 +1097,19 @@ class SortingVisualizer {
                         const availableWidth = Math.max(100, containerWidth - containerPadding);
                         const totalBars = shouldSample ? sampleSize : array.length;
                         
-                        // Calculate bar width to fit container
+                        // Calculate bar width to fit container, but ensure visibility
                         let barWidth = null;
                         let useFlex = false;
                         
                         if (array.length <= 200) {
                             useFlex = true;
                         } else {
+                            // Large arrays: ensure minimum 2px width for visibility
                             const calculatedWidth = (availableWidth / totalBars) - gap;
-                            barWidth = Math.max(1, Math.min(calculatedWidth, 30));
-                            if (barWidth < 2) {
+                            barWidth = Math.max(2, Math.min(calculatedWidth, 30));
+                            
+                            // If bars would be too small, ensure they're at least 2px and container will scroll
+                            if (calculatedWidth < 2) {
                                 barWidth = 2;
                             }
                         }
@@ -1106,6 +1127,7 @@ class SortingVisualizer {
                                 bar.style.flex = '1 1 auto';
                                 bar.style.minWidth = '0';
                             } else if (barWidth !== null) {
+                                // Large arrays: explicit width to ensure visibility and scrolling
                                 bar.style.width = `${barWidth}px`;
                                 bar.style.minWidth = `${barWidth}px`;
                                 bar.style.maxWidth = `${barWidth}px`;
@@ -1115,9 +1137,14 @@ class SortingVisualizer {
                                 bar.style.width = `${step * 100 / sampleSize}%`;
                             }
 
-                            if (sorted.includes(i)) bar.classList.add('sorted');
-                            else if (swapping.includes(i)) bar.classList.add('swapping');
-                            else if (comparing.includes(i)) bar.classList.add('comparing');
+                            // Apply visual states - only one state per bar (sorted > swapping > comparing)
+                            if (sorted.includes(i)) {
+                                bar.classList.add('sorted');
+                            } else if (swapping.includes(i)) {
+                                bar.classList.add('swapping');
+                            } else if (comparing.includes(i)) {
+                                bar.classList.add('comparing');
+                            }
 
                             container.appendChild(bar);
                         }
@@ -1400,6 +1427,7 @@ class SortingVisualizer {
         const multiplier = this.speed / 50;
         // Base delay decreases as speed increases
         // For higher speeds, reduce delay more aggressively
+        // BUT: maintain minimum delay to ensure browser can render visual state changes
         let baseDelay;
         if (this.speed <= 50) {
             // 0.5x to 1x: linear decrease
@@ -1408,13 +1436,14 @@ class SortingVisualizer {
             // 1x to 2x: faster decrease
             baseDelay = Math.max(1, 51 - ((this.speed - 50) * 0.5));
         } else if (this.speed <= 150) {
-            // 2x to 3x: even faster decrease
-            baseDelay = Math.max(0.5, 26 - ((this.speed - 100) * 0.3));
+            // 2x to 3x: even faster decrease, but maintain minimum for rendering
+            baseDelay = Math.max(2, 26 - ((this.speed - 100) * 0.3));
         } else {
-            // 3x to 5x: very fast decrease
-            baseDelay = Math.max(0.1, 11 - ((this.speed - 150) * 0.1));
+            // 3x to 5x: very fast decrease, but maintain minimum 2ms for browser rendering
+            baseDelay = Math.max(2, 11 - ((this.speed - 150) * 0.1));
         }
-        return Math.max(0.1, baseDelay / multiplier);
+        // Ensure minimum delay of 2ms at high speeds to allow browser to render state changes
+        return Math.max(2, baseDelay / multiplier);
     }
 
     async delay() {
@@ -2106,6 +2135,10 @@ class PathfindingVisualizer {
 
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
+        // Show feedback modal after comparison completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     initComparisonGrid(panelNum, gridData) {
@@ -2467,6 +2500,10 @@ class PathfindingVisualizer {
         }
 
         this.isRunning = false;
+        // Show feedback modal after algorithm completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     async bfs() {
@@ -2822,6 +2859,10 @@ class LanguageArena {
         }
 
         this.isRacing = false;
+        // Show feedback modal after race completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     calculateAnimationDurationFromTime(minTime, maxTime) {
@@ -3623,6 +3664,10 @@ class SearchingVisualizer {
         }
 
         this.isRunning = false;
+        // Show feedback modal after algorithm completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     async binarySearch() {
@@ -3772,6 +3817,10 @@ class SearchingVisualizer {
 
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
+        // Show feedback modal after comparison completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     async runAlgorithmForComparison(algoKey, langKey, array, container, panelNum, target) {
@@ -4229,6 +4278,10 @@ class TreeVisualizer {
 
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
+        // Show feedback modal after comparison completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     cloneTree(node) {
@@ -4544,6 +4597,10 @@ class TreeVisualizer {
         }
 
         this.isRunning = false;
+        // Show feedback modal after algorithm completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     async inorder(node, result) {
@@ -4842,6 +4899,10 @@ class GraphVisualizer {
 
         this.isCompareRunning = false;
         this.updateCompareButtonStates();
+        // Show feedback modal after comparison completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     initComparisonGraph(panelNum, nodes, edges) {
@@ -5172,6 +5233,10 @@ class GraphVisualizer {
         }
 
         this.isRunning = false;
+        // Show feedback modal after algorithm completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     highlightNode(id) {
@@ -5527,6 +5592,10 @@ class DPVisualizer {
         }
 
         this.isRunning = false;
+        // Show feedback modal after algorithm completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     async showFibonacci(n) {
@@ -5678,6 +5747,10 @@ class StringVisualizer {
         }
 
         this.isRunning = false;
+        // Show feedback modal after algorithm completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 }
 
@@ -5754,6 +5827,10 @@ class MathVisualizer {
         }
 
         this.isRunning = false;
+        // Show feedback modal after algorithm completion
+        if (typeof showFeedbackModal === 'function') {
+            setTimeout(() => showFeedbackModal(), 1000); // Delay 1 second after completion
+        }
     }
 
     async gcd(a, b) {

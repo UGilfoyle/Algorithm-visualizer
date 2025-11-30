@@ -418,10 +418,11 @@ class AlgorithmVisualizer {
         };
 
         const codeEl = document.getElementById(codeDisplayIds[section]);
+        
         if (codeEl && algo.code) {
             // Get the active language from the tabs
             const tabContainer = document.getElementById(tabContainerIds[section]);
-            let activeLang = 'node';
+            let activeLang = 'cpp'; // Default to C++ now
             if (tabContainer) {
                 const activeTab = tabContainer.querySelector('.lang-tab.active');
                 if (activeTab) {
@@ -432,6 +433,7 @@ class AlgorithmVisualizer {
             // Node.js and Deno use JavaScript code
             const langCode = (activeLang === 'node' || activeLang === 'deno') ? 'javascript' : activeLang;
             const code = algo.code[langCode] || algo.code.javascript || algo.code.java || algo.code.cpp || 'No implementation available';
+            
             codeEl.textContent = code;
         }
 

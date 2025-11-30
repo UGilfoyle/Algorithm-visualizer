@@ -473,12 +473,20 @@ class App {
         if (codeEl && algo.code) {
             // Get the active language from the tabs
             const tabContainer = document.getElementById(tabContainerIds[section]);
-            let activeLang = 'node';
+            let activeLang = 'cpp'; // Default to C++ now
             if (tabContainer) {
                 const activeTab = tabContainer.querySelector('.lang-tab.active');
                 if (activeTab) {
                     activeLang = activeTab.dataset.lang;
                     this.currentLanguage = activeLang;
+                } else {
+                    // If no active tab, set the first one (C++) as active
+                    const firstTab = tabContainer.querySelector('.lang-tab');
+                    if (firstTab) {
+                        firstTab.classList.add('active');
+                        activeLang = firstTab.dataset.lang;
+                        this.currentLanguage = activeLang;
+                    }
                 }
             }
             // Node.js and Deno use JavaScript code
@@ -573,17 +581,24 @@ function initTheme() {
     const themeIcon = document.getElementById('themeIcon');
     const themeLabel = document.getElementById('themeLabel');
 
-    // Check for saved theme preference or default to dark
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    // If saved theme is cyberpunk, reset to dark
-    const theme = savedTheme === 'cyberpunk' ? 'dark' : savedTheme;
+    // Check for saved theme preference or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    // Valid themes: light, cyberpunk
+    const validThemes = ['light', 'cyberpunk'];
+    const theme = validThemes.includes(savedTheme) ? savedTheme : 'light';
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeUI(theme);
 
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            // Cycle through: light -> cyberpunk -> light
+            let newTheme;
+            if (currentTheme === 'light' || !currentTheme) {
+                newTheme = 'cyberpunk';
+            } else {
+                newTheme = 'light';
+            }
 
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
@@ -611,12 +626,15 @@ function initTheme() {
     function updateThemeUI(currentTheme) {
         if (themeIcon && themeLabel) {
             // Show the CURRENT theme
-            if (currentTheme === 'light') {
+            if (currentTheme === 'light' || !currentTheme) {
                 themeIcon.textContent = '☀️';
                 themeLabel.textContent = 'Light';
+            } else if (currentTheme === 'cyberpunk') {
+                themeIcon.textContent = '🌃';
+                themeLabel.textContent = 'Cyberpunk';
             } else {
-                themeIcon.textContent = '🌙';
-                themeLabel.textContent = 'Dark';
+                themeIcon.textContent = '☀️';
+                themeLabel.textContent = 'Light';
             }
         }
     }
@@ -696,35 +714,103 @@ if (document.readyState === 'loading') {
     setupFeedbackModal();
 }
 
+// Track feedback modal state
+let feedbackShownRecently = false;
+let feedbackShownCount = 0;
+const FEEDBACK_COOLDOWN = 5 * 60 * 1000; // 5 minutes cooldown
+const FEEDBACK_SHOW_AFTER = 2; // Show after 2 algorithm completions
+
+function showFeedbackModal() {
+    // Don't show if shown recently or too many times
+    if (feedbackShownRecently) return;
+    
+    const modal = document.getElementById('feedbackModal');
+    if (!modal) return;
+    
+    feedbackShownCount++;
+    
+    // Only show after certain number of completions
+    if (feedbackShownCount < FEEDBACK_SHOW_AFTER) return;
+    
+    // Reset counter and set cooldown
+    feedbackShownCount = 0;
+    feedbackShownRecently = true;
+    
+    setTimeout(() => {
+        feedbackShownRecently = false;
+    }, FEEDBACK_COOLDOWN);
+    
+    openFeedbackModal();
+}
+
+// Global function to open feedback modal (called from visualizers)
+function openFeedbackModal() {
+    const modal = document.getElementById('feedbackModal');
+    const ratingText = document.getElementById('ratingText');
+    const feedbackText = document.getElementById('feedbackText');
+    const feedbackEmail = document.getElementById('feedbackEmail');
+    const successMsg = document.getElementById('feedbackSuccess');
+    const stars = document.querySelectorAll('.star');
+    
+    if (!modal) return;
+    
+    modal.style.display = 'flex';
+    
+    // Reset stars
+    stars.forEach(star => star.classList.remove('active'));
+    if (ratingText) ratingText.textContent = 'Click to rate';
+    
+    // Clear inputs
+    if (feedbackText) feedbackText.value = '';
+    if (feedbackEmail) feedbackEmail.value = '';
+    if (successMsg) successMsg.style.display = 'none';
+    
+    // Reset selectedRating by storing it on the modal element
+    modal.dataset.selectedRating = '0';
+}
+
 function setupFeedbackModal() {
     const modal = document.getElementById('feedbackModal');
-    const openBtn = document.getElementById('feedbackBtn');
     const closeBtn = document.getElementById('feedbackCloseBtn');
     const cancelBtn = document.getElementById('cancelFeedback');
     const submitBtn = document.getElementById('submitFeedback');
     const stars = document.querySelectorAll('.star');
     const ratingText = document.getElementById('ratingText');
     const feedbackText = document.getElementById('feedbackText');
+    const feedbackEmail = document.getElementById('feedbackEmail');
     const successMsg = document.getElementById('feedbackSuccess');
 
-    if (!modal || !openBtn) return;
+    if (!modal) return;
 
-    let selectedRating = 0;
+    // Store selectedRating on modal element so it's accessible globally
+    if (!modal.dataset.selectedRating) {
+        modal.dataset.selectedRating = '0';
+    }
+    
+    function getSelectedRating() {
+        return parseInt(modal.dataset.selectedRating || '0');
+    }
+    
+    function setSelectedRating(rating) {
+        modal.dataset.selectedRating = rating.toString();
+    }
 
     function openModal() {
         modal.style.display = 'flex';
-        selectedRating = 0;
+        setSelectedRating(0);
         updateStars(0);
-        feedbackText.value = '';
-        successMsg.style.display = 'none';
+        if (feedbackText) feedbackText.value = '';
+        if (feedbackEmail) feedbackEmail.value = '';
+        if (successMsg) successMsg.style.display = 'none';
     }
 
     function closeModal() {
         modal.style.display = 'none';
-        selectedRating = 0;
+        setSelectedRating(0);
         updateStars(0);
-        feedbackText.value = '';
-        successMsg.style.display = 'none';
+        if (feedbackText) feedbackText.value = '';
+        if (feedbackEmail) feedbackEmail.value = '';
+        if (successMsg) successMsg.style.display = 'none';
     }
 
     function updateStars(rating) {
@@ -742,8 +828,8 @@ function setupFeedbackModal() {
 
     stars.forEach((star, index) => {
         star.addEventListener('click', () => {
-            selectedRating = index + 1;
-            updateStars(selectedRating);
+            setSelectedRating(index + 1);
+            updateStars(getSelectedRating());
         });
 
         star.addEventListener('mouseenter', () => {
@@ -754,11 +840,11 @@ function setupFeedbackModal() {
     const starRating = document.querySelector('.star-rating');
     if (starRating) {
         starRating.addEventListener('mouseleave', () => {
-            updateStars(selectedRating);
+            updateStars(getSelectedRating());
         });
     }
 
-    openBtn.addEventListener('click', openModal);
+    // Remove openBtn click handler since button is removed
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
@@ -776,13 +862,21 @@ function setupFeedbackModal() {
 
     if (submitBtn) {
         submitBtn.addEventListener('click', async () => {
+            const selectedRating = getSelectedRating();
             if (selectedRating === 0) {
                 alert('Please select a rating');
                 return;
             }
 
-            const comment = feedbackText.value.trim();
+            const comment = feedbackText ? feedbackText.value.trim() : '';
+            const email = feedbackEmail ? feedbackEmail.value.trim() : '';
             const visitorId = localStorage.getItem('visitorId') || 'anonymous';
+            
+            // Validate email if provided
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
 
             let device = {};
             let location = {};
@@ -821,6 +915,7 @@ function setupFeedbackModal() {
                     body: JSON.stringify({
                         rating: selectedRating,
                         comment: comment || null,
+                        email: email || null,
                         visitor_id: visitorId,
                         device: device,
                         location: location

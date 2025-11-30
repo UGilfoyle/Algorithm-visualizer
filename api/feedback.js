@@ -19,6 +19,7 @@ async function initDatabase() {
                 visitor_id VARCHAR(255),
                 rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
                 comment TEXT,
+                email VARCHAR(255),
                 device_type VARCHAR(50),
                 device_os VARCHAR(100),
                 device_browser VARCHAR(100),
@@ -50,6 +51,15 @@ function validateInput(data) {
         return { valid: false, error: 'Comment too long (max 5000 characters)' };
     }
     
+    if (data.email && typeof data.email === 'string') {
+        if (data.email.length > 255) {
+            return { valid: false, error: 'Email too long (max 255 characters)' };
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            return { valid: false, error: 'Invalid email format' };
+        }
+    }
+    
     if (data.visitor_id && typeof data.visitor_id === 'string' && data.visitor_id.length > 255) {
         return { valid: false, error: 'Invalid visitor ID' };
     }
@@ -73,11 +83,12 @@ module.exports = async (req, res) => {
 
     if (req.method === 'POST') {
         try {
-            const { rating, comment, visitor_id, device, location } = req.body;
+            const { rating, comment, email, visitor_id, device, location } = req.body;
 
             const validation = validateInput({
                 rating,
                 comment: comment || '',
+                email: email || '',
                 visitor_id: visitor_id || ''
             });
 
@@ -127,9 +138,9 @@ module.exports = async (req, res) => {
             }
 
             await pool.query(
-                `INSERT INTO feedback (visitor_id, rating, comment, device_type, device_os, device_browser, country, city)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-                [visitor_id || null, rating, comment || null, deviceType, deviceOS, deviceBrowser, country, city]
+                `INSERT INTO feedback (visitor_id, rating, comment, email, device_type, device_os, device_browser, country, city)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                [visitor_id || null, rating, comment || null, email || null, deviceType, deviceOS, deviceBrowser, country, city]
             );
 
             return res.status(200).json({ success: true, message: 'Feedback submitted successfully' });
