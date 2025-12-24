@@ -581,62 +581,18 @@ function initTheme() {
     const themeIcon = document.getElementById('themeIcon');
     const themeLabel = document.getElementById('themeLabel');
 
-    // Check for saved theme preference or default to light
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    // Valid themes: light, cyberpunk
-    const validThemes = ['light', 'cyberpunk'];
-    const theme = validThemes.includes(savedTheme) ? savedTheme : 'light';
-    document.documentElement.setAttribute('data-theme', theme);
-    updateThemeUI(theme);
-
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            // Cycle through: light -> cyberpunk -> light
-            let newTheme;
-            if (currentTheme === 'light' || !currentTheme) {
-                newTheme = 'cyberpunk';
-            } else {
-                newTheme = 'light';
-            }
-
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeUI(newTheme);
-
-            // Update Rust and Deno icons when theme changes
-            if (typeof updateRustIcons === 'function') {
-                updateRustIcons();
-            }
-            if (typeof updateDenoIcons === 'function') {
-                updateDenoIcons();
-            }
-
-            // Re-initialize language icons
-            if (typeof initLanguageIcons === 'function') {
-                setTimeout(() => initLanguageIcons(), 100);
-            }
-
-            if (typeof audioEngine !== 'undefined') {
-                audioEngine.playSectionChange();
-            }
-        });
+    // Always use light theme
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
+    
+    if (themeIcon && themeLabel) {
+        themeIcon.textContent = '☀️';
+        themeLabel.textContent = 'Light';
     }
 
-    function updateThemeUI(currentTheme) {
-        if (themeIcon && themeLabel) {
-            // Show the CURRENT theme
-            if (currentTheme === 'light' || !currentTheme) {
-                themeIcon.textContent = '☀️';
-                themeLabel.textContent = 'Light';
-            } else if (currentTheme === 'cyberpunk') {
-                themeIcon.textContent = '🌃';
-                themeLabel.textContent = 'Cyberpunk';
-            } else {
-                themeIcon.textContent = '☀️';
-                themeLabel.textContent = 'Light';
-            }
-        }
+    // Hide theme toggle since we only have one theme now
+    if (themeToggle) {
+        themeToggle.style.display = 'none';
     }
 }
 

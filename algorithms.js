@@ -1218,6 +1218,178 @@ void flip(vector<int>& arr, int k) {
     }
 }`
             }
+        },
+
+        // ==================== NEW SORTING ALGORITHMS ====================
+        strandSort: {
+            name: "Strand Sort",
+            category: "sorting",
+            complexity: { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(n)" },
+            description: "Repeatedly pulls sorted sublists out of unsorted elements and merges them.",
+            code: {
+                javascript: `function strandSort(arr) {
+    if (arr.length <= 1) return [...arr];
+    let result = [];
+    let input = [...arr];
+    
+    while (input.length > 0) {
+        let sublist = [input.shift()];
+        let i = 0;
+        while (i < input.length) {
+            if (input[i] >= sublist[sublist.length - 1]) {
+                sublist.push(input.splice(i, 1)[0]);
+            } else {
+                i++;
+            }
+        }
+        result = merge(result, sublist);
+    }
+    return result;
+}
+
+function merge(a, b) {
+    const result = [];
+    while (a.length && b.length) {
+        result.push(a[0] <= b[0] ? a.shift() : b.shift());
+    }
+    return [...result, ...a, ...b];
+}`,
+                python: `def strand_sort(arr):
+    if len(arr) <= 1:
+        return arr[:]
+    
+    result = []
+    input_list = arr[:]
+    
+    while input_list:
+        sublist = [input_list.pop(0)]
+        i = 0
+        while i < len(input_list):
+            if input_list[i] >= sublist[-1]:
+                sublist.append(input_list.pop(i))
+            else:
+                i += 1
+        result = merge(result, sublist)
+    
+    return result
+
+def merge(a, b):
+    result = []
+    while a and b:
+        result.append(a.pop(0) if a[0] <= b[0] else b.pop(0))
+    return result + a + b`
+            }
+        },
+        pigeonholeSort: {
+            name: "Pigeonhole Sort",
+            category: "sorting",
+            complexity: { best: "O(n+k)", avg: "O(n+k)", worst: "O(n+k)", space: "O(k)" },
+            description: "Suitable for sorting integers where range is close to number of elements.",
+            code: {
+                javascript: `function pigeonholeSort(arr) {
+    if (arr.length === 0) return arr;
+    
+    const min = Math.min(...arr);
+    const max = Math.max(...arr);
+    const range = max - min + 1;
+    
+    const holes = new Array(range).fill(0);
+    
+    for (const num of arr) {
+        holes[num - min]++;
+    }
+    
+    let index = 0;
+    for (let i = 0; i < range; i++) {
+        while (holes[i]-- > 0) {
+            arr[index++] = i + min;
+        }
+    }
+    
+    return arr;
+}`,
+                python: `def pigeonhole_sort(arr):
+    if not arr:
+        return arr
+    
+    min_val = min(arr)
+    max_val = max(arr)
+    size = max_val - min_val + 1
+    
+    holes = [0] * size
+    
+    for num in arr:
+        holes[num - min_val] += 1
+    
+    index = 0
+    for i in range(size):
+        while holes[i] > 0:
+            arr[index] = i + min_val
+            index += 1
+            holes[i] -= 1
+    
+    return arr`
+            }
+        },
+        bitonicSort: {
+            name: "Bitonic Sort",
+            category: "sorting",
+            complexity: { best: "O(n log²n)", avg: "O(n log²n)", worst: "O(n log²n)", space: "O(n log²n)" },
+            description: "Parallel sorting algorithm that works by creating bitonic sequences.",
+            code: {
+                javascript: `function bitonicSort(arr, up = true) {
+    const n = arr.length;
+    if (n <= 1) return arr;
+    
+    bitonicSortHelper(arr, 0, n, up);
+    return arr;
+}
+
+function bitonicSortHelper(arr, low, cnt, up) {
+    if (cnt > 1) {
+        const k = Math.floor(cnt / 2);
+        bitonicSortHelper(arr, low, k, true);
+        bitonicSortHelper(arr, low + k, k, false);
+        bitonicMerge(arr, low, cnt, up);
+    }
+}
+
+function bitonicMerge(arr, low, cnt, up) {
+    if (cnt > 1) {
+        const k = Math.floor(cnt / 2);
+        for (let i = low; i < low + k; i++) {
+            if ((arr[i] > arr[i + k]) === up) {
+                [arr[i], arr[i + k]] = [arr[i + k], arr[i]];
+            }
+        }
+        bitonicMerge(arr, low, k, up);
+        bitonicMerge(arr, low + k, k, up);
+    }
+}`,
+                python: `def bitonic_sort(arr, up=True):
+    n = len(arr)
+    if n <= 1:
+        return arr
+    
+    bitonic_sort_helper(arr, 0, n, up)
+    return arr
+
+def bitonic_sort_helper(arr, low, cnt, up):
+    if cnt > 1:
+        k = cnt // 2
+        bitonic_sort_helper(arr, low, k, True)
+        bitonic_sort_helper(arr, low + k, k, False)
+        bitonic_merge(arr, low, cnt, up)
+
+def bitonic_merge(arr, low, cnt, up):
+    if cnt > 1:
+        k = cnt // 2
+        for i in range(low, low + k):
+            if (arr[i] > arr[i + k]) == up:
+                arr[i], arr[i + k] = arr[i + k], arr[i]
+        bitonic_merge(arr, low, k, up)
+        bitonic_merge(arr, low + k, k, up)`
+            }
         }
     },
 
@@ -1422,6 +1594,81 @@ def jump_search(arr, target):
         if target < arr[mid1]: right = mid1 - 1
         elif target > arr[mid2]: left = mid2 + 1
         else: left, right = mid1 + 1, mid2 - 1
+    return -1`
+            }
+        },
+        fibonacciSearch: {
+            name: "Fibonacci Search",
+            category: "searching",
+            complexity: { best: "O(1)", avg: "O(log n)", worst: "O(log n)", space: "O(1)" },
+            description: "Searches sorted array using Fibonacci numbers to divide search space.",
+            code: {
+                javascript: `function fibonacciSearch(arr, target) {
+    const n = arr.length;
+    let fib2 = 0, fib1 = 1;
+    let fib = fib2 + fib1;
+    
+    while (fib < n) {
+        fib2 = fib1;
+        fib1 = fib;
+        fib = fib2 + fib1;
+    }
+    
+    let offset = -1;
+    
+    while (fib > 1) {
+        const i = Math.min(offset + fib2, n - 1);
+        
+        if (arr[i] < target) {
+            fib = fib1;
+            fib1 = fib2;
+            fib2 = fib - fib1;
+            offset = i;
+        } else if (arr[i] > target) {
+            fib = fib2;
+            fib1 = fib1 - fib2;
+            fib2 = fib - fib1;
+        } else {
+            return i;
+        }
+    }
+    
+    if (fib1 && arr[offset + 1] === target) {
+        return offset + 1;
+    }
+    
+    return -1;
+}`,
+                python: `def fibonacci_search(arr, target):
+    n = len(arr)
+    fib2, fib1 = 0, 1
+    fib = fib2 + fib1
+    
+    while fib < n:
+        fib2 = fib1
+        fib1 = fib
+        fib = fib2 + fib1
+    
+    offset = -1
+    
+    while fib > 1:
+        i = min(offset + fib2, n - 1)
+        
+        if arr[i] < target:
+            fib = fib1
+            fib1 = fib2
+            fib2 = fib - fib1
+            offset = i
+        elif arr[i] > target:
+            fib = fib2
+            fib1 = fib1 - fib2
+            fib2 = fib - fib1
+        else:
+            return i
+    
+    if fib1 and offset + 1 < n and arr[offset + 1] == target:
+        return offset + 1
+    
     return -1`
             }
         }

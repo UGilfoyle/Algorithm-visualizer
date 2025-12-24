@@ -34,7 +34,7 @@ class LanguageManager {
      */
     getIcons() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        
+
         if (this._cachedIcons && this._cachedTheme === currentTheme) {
             return this._cachedIcons;
         }
@@ -76,23 +76,23 @@ class LanguageManager {
 
         const icons = this.getIcons();
         const info = {
-            python: { icon: icons.python, name: 'Python' },
-            java: { icon: icons.java, name: 'Java' },
-            node: { icon: icons.node, name: 'Node.js' },
-            deno: { icon: icons.deno, name: 'Deno' },
-            cpp: { icon: icons.cpp, name: 'C++' },
-            c: { icon: icons.c, name: 'C' },
-            go: { icon: icons.go, name: 'Go' },
-            rust: { icon: icons.rust, name: 'Rust' },
-            typescript: { icon: icons.typescript, name: 'TypeScript' },
-            ruby: { icon: icons.ruby, name: 'Ruby' },
-            swift: { icon: icons.swift, name: 'Swift' },
-            kotlin: { icon: icons.kotlin, name: 'Kotlin' },
-            csharp: { icon: icons.csharp, name: 'C#' },
-            javascript: { icon: icons.javascript, name: 'JavaScript' },
-            php: { icon: icons.php, name: 'PHP' },
-            elixir: { icon: icons.elixir, name: 'Elixir' },
-            bash: { icon: icons.bash, name: 'Bash' }
+            python: { icon: icons.python, name: 'Python', symbol: 'PY', color: '#3776ab' },
+            java: { icon: icons.java, name: 'Java', symbol: 'JV', color: '#007396' },
+            node: { icon: icons.node, name: 'Node.js', symbol: 'ND', color: '#339933' },
+            deno: { icon: icons.deno, name: 'Deno', symbol: 'DN', color: '#000000' },
+            cpp: { icon: icons.cpp, name: 'C++', symbol: 'C++', color: '#00599c' },
+            c: { icon: icons.c, name: 'C', symbol: 'C', color: '#a8b9cc' },
+            go: { icon: icons.go, name: 'Go', symbol: 'GO', color: '#00add8' },
+            rust: { icon: icons.rust, name: 'Rust', symbol: 'RS', color: '#dea584' },
+            typescript: { icon: icons.typescript, name: 'TypeScript', symbol: 'TS', color: '#3178c6' },
+            ruby: { icon: icons.ruby, name: 'Ruby', symbol: 'RB', color: '#cc342d' },
+            swift: { icon: icons.swift, name: 'Swift', symbol: 'SW', color: '#FA7343' },
+            kotlin: { icon: icons.kotlin, name: 'Kotlin', symbol: 'KT', color: '#7F52FF' },
+            csharp: { icon: icons.csharp, name: 'C#', symbol: 'C#', color: '#239120' },
+            javascript: { icon: icons.javascript, name: 'JavaScript', symbol: 'JS', color: '#f7df1e' },
+            php: { icon: icons.php, name: 'PHP', symbol: 'PHP', color: '#777bb4' },
+            elixir: { icon: icons.elixir, name: 'Elixir', symbol: 'EX', color: '#6e4a7e' },
+            bash: { icon: icons.bash, name: 'Bash', symbol: 'SH', color: '#4EAA25' }
         };
 
         this._cachedInfo = info;
